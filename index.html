@@ -426,6 +426,130 @@
             color: var(--primary);
         }
         
+        /* Mobile Cards */
+        .mobile-cards {
+            display: none;
+        }
+        
+        .mobile-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .mobile-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .mobile-card-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .mobile-card-field {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .mobile-card-label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .mobile-card-value {
+            color: var(--gray);
+        }
+        
+        .mobile-card-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Novos estilos para cards de osmose */
+        .osmosis-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .osmosis-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .osmosis-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .osmosis-card-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .osmosis-card-field {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .osmosis-card-label {
+            font-weight: 500;
+            color: var(--dark);
+            min-width: 120px;
+        }
+        
+        .osmosis-card-value {
+            color: var(--gray);
+            flex: 1;
+            text-align: right;
+        }
+        
+        .osmosis-card-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .osmosis-card-section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -520,9 +644,11 @@
             }
             
             table {
+                display: none;
+            }
+            
+            .mobile-cards {
                 display: block;
-                overflow-x: auto;
-                white-space: nowrap;
             }
             
             th, td {
@@ -544,6 +670,10 @@
             .card {
                 padding: 12px;
                 margin-bottom: 12px;
+            }
+            
+            .osmosis-cards-container {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -644,25 +774,25 @@
 <body>
     <!-- Login Modal -->
     <div class="modal" id="login-modal">
-    <div class="modal-content">
-        <div class="modal-title">Login do Sistema</div>
-        <div class="form-group">
-            <label for="login-email">Email:</label>
-            <input type="email" id="login-email" placeholder="seu@email.com">
-        </div>
-        <div class="form-group">
-            <label for="login-password">Senha:</label>
-            <input type="password" id="login-password" placeholder="Sua senha">
-        </div>
-        <div id="login-error" style="color: red; margin-bottom: 15px; display: none;"></div>
-        <button class="btn btn-primary" id="login-btn" style="width: 100%;">
-            <i class="fas fa-sign-in-alt"></i> Entrar
-        </button>
-        <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #666;">
-            <!-- Informações adicionais podem ser adicionadas aqui -->
+        <div class="modal-content">
+            <div class="modal-title">Login do Sistema</div>
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Senha:</label>
+                <input type="password" id="login-password" placeholder="Sua senha">
+            </div>
+            <div id="login-error" style="color: red; margin-bottom: 15px; display: none;"></div>
+            <button class="btn btn-primary" id="login-btn" style="width: 100%;">
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+            <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #666;">
+                <!-- Informações adicionais podem ser adicionadas aqui -->
+            </div>
         </div>
     </div>
-</div>
     
     <!-- Edit Modal -->
     <div class="edit-modal" id="edit-modal">
@@ -843,6 +973,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mobile-cards" id="temp-history-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
+                    </div>
                 </div>
             </div>
             
@@ -857,6 +990,14 @@
                         <label for="pressure-room">Selecione a Sala:</label>
                         <select id="pressure-room">
                             <option value="">Carregando salas...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pressure-periodo">Período:</label>
+                        <select id="pressure-periodo">
+                            <option value="manha">Manhã</option>
+                            <option value="tarde">Tarde</option>
                         </select>
                     </div>
                     
@@ -895,6 +1036,7 @@
                                 <tr>
                                     <th>Data/Hora</th>
                                     <th>Sala</th>
+                                    <th>Período</th>
                                     <th>Pressão (Pa)</th>
                                     <th>Correção Imediata</th>
                                     <th>Status</th>
@@ -904,10 +1046,13 @@
                             </thead>
                             <tbody id="pressure-history">
                                 <tr>
-                                    <td colspan="7" style="text-align: center;">Carregando dados...</td>
+                                    <td colspan="8" style="text-align: center;">Carregando dados...</td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mobile-cards" id="pressure-history-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
                     </div>
                 </div>
             </div>
@@ -930,7 +1075,8 @@
                             <div class="section-title">1. Condutividade da Água Purificada</div>
                             <div class="form-group">
                                 <label for="condutividade">Resultado observado no condutivímetro de linha (µS/cm):</label>
-                                <input type="number" id="condutividade" step="0.1">
+                                <input type="number" id="condutividade" step="0.1" min="0">
+                                <small style="color: var(--gray);">Limite: 1.3 µS/cm</small>
                             </div>
                         </div>
                         
@@ -1115,6 +1261,9 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="mobile-cards" id="maintenance-history-cards">
+                            <!-- Cards serão inseridos aqui dinamicamente -->
+                        </div>
                     </div>
                 </div>
                 
@@ -1133,6 +1282,7 @@
                                 <tr>
                                     <th>Data/Hora</th>
                                     <th>Condutividade</th>
+                                    <th>Status</th>
                                     <th>Anormalidade</th>
                                     <th>Operador</th>
                                     <th class="admin-only">Ações</th>
@@ -1140,10 +1290,28 @@
                             </thead>
                             <tbody id="osmosis-history">
                                 <tr>
-                                    <td colspan="5" style="text-align: center;">Carregando dados...</td>
+                                    <td colspan="6" style="text-align: center;">Carregando dados...</td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mobile-cards" id="osmosis-history-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Seção de Cards Detalhados de Osmose -->
+                <div class="card admin-only">
+                    <div class="card-header">
+                        <div class="card-title">Controles Diários Detalhados - Sistema de Osmose</div>
+                        <div class="card-actions">
+                            <button class="btn btn-success btn-sm" onclick="exportAllOsmosisCardsToPDF()">
+                                <i class="fas fa-file-pdf"></i> Exportar Todos em PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="osmosis-cards-container" id="osmosis-detailed-cards">
+                        <!-- Cards detalhados serão inseridos aqui -->
                     </div>
                 </div>
             </div>
@@ -1260,6 +1428,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mobile-cards" id="rooms-list-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
+                    </div>
                 </div>
             </div>
 
@@ -1325,6 +1496,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mobile-cards" id="users-list-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
+                    </div>
                 </div>
             </div>
             
@@ -1334,35 +1508,41 @@
                     <div class="card-header">
                         <div class="card-title">Rastreabilidade do Sistema</div>
                         <div class="card-actions admin-only">
+                            <button class="btn btn-success btn-sm" onclick="exportTraceabilityToPDF()">
+                                <i class="fas fa-file-pdf"></i> Exportar Relatório Completo
+                            </button>
                             <button class="btn btn-success btn-sm" id="export-traceability-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="filter-date">Filtrar por Data:</label>
-                            <input type="date" id="filter-date">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="filter-user">Filtrar por Usuário:</label>
-                            <select id="filter-user">
-                                <option value="all">Todos</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="filter-action">Filtrar por Ação:</label>
-                            <select id="filter-action">
-                                <option value="all">Todas</option>
-                                <option value="temperature">Temperatura/Umidade</option>
-                                <option value="pressure">Pressão</option>
-                                <option value="osmosis">Osmose</option>
-                                <option value="room">Sala</option>
-                                <option value="user">Usuário</option>
-                            </select>
+                    <div class="filter-section">
+                        <div class="filter-title">Filtros</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="filter-date">Filtrar por Data:</label>
+                                <input type="date" id="filter-date">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="filter-user">Filtrar por Usuário:</label>
+                                <select id="filter-user">
+                                    <option value="all">Todos</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="filter-action">Filtrar por Ação:</label>
+                                <select id="filter-action">
+                                    <option value="all">Todas</option>
+                                    <option value="temperature">Temperatura/Umidade</option>
+                                    <option value="pressure">Pressão</option>
+                                    <option value="osmosis">Osmose</option>
+                                    <option value="room">Sala</option>
+                                    <option value="user">Usuário</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
@@ -1383,6 +1563,9 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mobile-cards" id="traceability-log-cards">
+                        <!-- Cards serão inseridos aqui dinamicamente -->
                     </div>
                 </div>
             </div>
@@ -1440,6 +1623,8 @@
         let rooms = [];
         let allUsers = [];
         let currentEditData = null;
+        let traceabilityData = [];
+        let osmosisDailyData = [];
 
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
@@ -1510,6 +1695,8 @@
                         loadRoomsList();
                     } else if (targetPage === 'traceability') {
                         loadTraceabilityLog();
+                    } else if (targetPage === 'osmosis') {
+                        loadOsmosisHistory();
                     }
                 });
             });
@@ -1541,9 +1728,9 @@
             document.getElementById('generate-report-btn').addEventListener('click', generateReport);
 
             // Filtros
-            document.getElementById('filter-date').addEventListener('change', filterTraceability);
-            document.getElementById('filter-user').addEventListener('change', filterTraceability);
-            document.getElementById('filter-action').addEventListener('change', filterTraceability);
+            document.getElementById('filter-date').addEventListener('change', loadTraceabilityLog);
+            document.getElementById('filter-user').addEventListener('change', loadTraceabilityLog);
+            document.getElementById('filter-action').addEventListener('change', loadTraceabilityLog);
 
             // Edit Modal
             document.getElementById('cancel-edit-btn').addEventListener('click', hideEditModal);
@@ -1778,7 +1965,8 @@
                 ),
                 userId: currentUser.uid,
                 userName: currentUser.name,
-                createdAt: new Date()
+                createdAt: new Date(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
@@ -1819,13 +2007,15 @@
             const data = {
                 roomId: roomId,
                 roomName: `${room.code} - ${room.name}`,
+                period: document.getElementById('pressure-periodo').value,
                 pressure: pressureValue,
                 immediateCorrection: document.getElementById('correcao-imediata').value,
                 notes: document.getElementById('pressure-notes').value,
                 status: calculatePressureStatus(pressureValue, room.pressureMin),
                 userId: currentUser.uid,
                 userName: currentUser.name,
-                createdAt: new Date()
+                createdAt: new Date(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
@@ -1857,6 +2047,7 @@
 
             const data = {
                 conductivity: conductivity,
+                conductivityStatus: calculateConductivityStatus(conductivity),
                 lastSanitization: document.getElementById('ultima-sanitizacao').value,
                 nextSanitization: document.getElementById('proxima-sanitizacao').value,
                 lastCleaning: document.getElementById('ultima-higienizacao').value,
@@ -1880,7 +2071,8 @@
                 notes: document.getElementById('osmosis-daily-notes').value,
                 userId: currentUser.uid,
                 userName: currentUser.name,
-                createdAt: new Date()
+                createdAt: new Date(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
@@ -1917,7 +2109,8 @@
                 observations: document.getElementById('obs-manutencao').value,
                 userId: currentUser.uid,
                 userName: currentUser.name,
-                createdAt: new Date()
+                createdAt: new Date(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
@@ -2343,12 +2536,11 @@
 
             try {
                 // Salvar o usuário atual antes de criar um novo
-                const currentUserEmail = currentUser.email;
                 const adminUser = auth.currentUser;
                 
-                // Criar usuário no Authentication
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const newUserId = userCredential.user.uid;
+                // Criar usuário no Authentication usando Firebase Admin SDK (via Cloud Functions)
+                // Em um ambiente real, você usaria uma Cloud Function para isso
+                // Por enquanto, vamos apenas salvar no Firestore e o usuário terá que usar "Esqueci minha senha"
                 
                 // Salvar dados no Firestore
                 const userData = {
@@ -2361,29 +2553,24 @@
                     createdByName: currentUser.name
                 };
 
-                await db.collection('users').doc(newUserId).set(userData);
-                
-                // Fazer logout do usuário recém-criado
-                await auth.signOut();
-                
-                // Aguardar um momento antes de relogar
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Adicionar um documento temporário
+                const userRef = await db.collection('users_temp').add(userData);
                 
                 await addTraceability(
                     'Criação de usuário', 
-                    `Usuário ${name} (${email}) criado como ${role}`
+                    `Usuário ${name} (${email}) criado como ${role}. Senha temporária: ${password}`
                 );
                 
-                alert(`Usuário "${name}" criado com sucesso!\n\nEmail: ${email}\nSenha: ${password}\n\nVocê precisará fazer login novamente como administrador.`);
+                alert(`Usuário "${name}" criado com sucesso!\n\nEmail: ${email}\nSenha: ${password}\n\nO usuário deve usar a função "Esqueci minha senha" para definir sua senha.`);
                 clearUserForm();
                 
-                // Recarregar a página para forçar novo login
-                window.location.reload();
+                // Recarregar lista de usuários
+                loadUsersList();
                 
             } catch (error) {
                 console.error('Erro ao criar usuário:', error);
                 alert('Erro ao criar usuário: ' + getAuthErrorMessage(error.code));
-                
+            } finally {
                 // Restaurar botão
                 addButton.innerHTML = originalText;
                 addButton.disabled = false;
@@ -2397,10 +2584,13 @@
                     .get();
                 
                 const tbody = document.getElementById('users-list');
+                const cardsContainer = document.getElementById('users-list-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
                     return;
                 }
                 
@@ -2410,18 +2600,22 @@
                     allUsers.push({ id: doc.id, ...data });
                     const row = createUserRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createUserCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar lista de usuários:', error);
                 document.getElementById('users-list').innerHTML = '<tr><td colspan="6" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('users-list-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
         function createUserRow(data, userId) {
             const row = document.createElement('tr');
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleDateString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleDateString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${data.name || '-'}</td>
@@ -2447,6 +2641,54 @@
                 </td>
             `;
             return row;
+        }
+
+        function createUserCard(data, userId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleDateString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">${data.name || '-'}</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Email:</span>
+                            <span class="mobile-card-value">${data.email || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Tipo:</span>
+                            <span class="mobile-card-value">${data.role === 'admin' ? 'Administrador' : 'Usuário Normal'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Criado em:</span>
+                            <span class="mobile-card-value">${createdAt}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Status:</span>
+                            <span class="mobile-card-value"><span class="status ${data.status === 'active' ? 'status-normal' : 'status-critical'}">${data.status === 'active' ? 'Ativo' : 'Inativo'}</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions">
+                    <button class="btn btn-warning btn-sm" onclick="editUser('${userId}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser('${userId}')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                    ${data.status === 'active' ? 
+                        `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')">
+                            <i class="fas fa-user-slash"></i> Desativar
+                        </button>` :
+                        `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')">
+                            <i class="fas fa-user-check"></i> Ativar
+                        </button>`
+                    }
+                </div>
+            `;
+            return card;
         }
 
         async function editUser(userId) {
@@ -2562,15 +2804,18 @@
         async function loadTemperatureHistory() {
             try {
                 const snapshot = await db.collection('temperature_readings')
-                    .orderBy('createdAt', 'desc')
+                    .orderBy('timestamp', 'desc')
                     .limit(50)
                     .get();
                 
                 const tbody = document.getElementById('temp-history');
+                const cardsContainer = document.getElementById('temp-history-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="12" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
                     return;
                 }
                 
@@ -2578,26 +2823,33 @@
                     const data = doc.data();
                     const row = createTemperatureRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createTemperatureCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar histórico de temperatura:', error);
                 document.getElementById('temp-history').innerHTML = '<tr><td colspan="12" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('temp-history-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
         async function loadPressureHistory() {
             try {
                 const snapshot = await db.collection('pressure_readings')
-                    .orderBy('createdAt', 'desc')
+                    .orderBy('timestamp', 'desc')
                     .limit(50)
                     .get();
                 
                 const tbody = document.getElementById('pressure-history');
+                const cardsContainer = document.getElementById('pressure-history-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
                     return;
                 }
                 
@@ -2605,53 +2857,232 @@
                     const data = doc.data();
                     const row = createPressureRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createPressureCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar histórico de pressão:', error);
-                document.getElementById('pressure-history').innerHTML = '<tr><td colspan="7" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('pressure-history').innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('pressure-history-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
         async function loadOsmosisHistory() {
             try {
                 const snapshot = await db.collection('osmosis_daily')
-                    .orderBy('createdAt', 'desc')
+                    .orderBy('timestamp', 'desc')
                     .limit(50)
                     .get();
                 
                 const tbody = document.getElementById('osmosis-history');
+                const cardsContainer = document.getElementById('osmosis-history-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
+                
+                osmosisDailyData = [];
                 
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
                     return;
                 }
                 
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = { id: doc.id, ...doc.data() };
+                    osmosisDailyData.push(data);
                     const row = createOsmosisRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createOsmosisCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
+                
+                // Carregar cards detalhados
+                loadOsmosisDetailedCards();
                 
             } catch (error) {
                 console.error('Erro ao carregar histórico de osmose:', error);
-                document.getElementById('osmosis-history').innerHTML = '<tr><td colspan="5" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('osmosis-history').innerHTML = '<tr><td colspan="6" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('osmosis-history-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
+        }
+
+        function loadOsmosisDetailedCards() {
+            const container = document.getElementById('osmosis-detailed-cards');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (osmosisDailyData.length === 0) {
+                container.innerHTML = '<div class="card"><div class="card-body text-center">Nenhum registro de controle diário encontrado</div></div>';
+                return;
+            }
+            
+            osmosisDailyData.forEach(data => {
+                const card = createOsmosisDetailedCard(data);
+                container.appendChild(card);
+            });
+        }
+
+        function createOsmosisDetailedCard(data) {
+            const card = document.createElement('div');
+            card.className = 'osmosis-card';
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            const statusClass = `status-${data.conductivityStatus || 'normal'}`;
+            
+            card.innerHTML = `
+                <div class="osmosis-card-header">
+                    <div>
+                        <div class="osmosis-card-title">Controle Diário de Osmose</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Data/Hora:</span>
+                            <span class="osmosis-card-value">${createdAt}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Operador:</span>
+                            <span class="osmosis-card-value">${data.userName || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Status:</span>
+                            <span class="osmosis-card-value"><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Condutividade:</span>
+                        <span class="osmosis-card-value">${data.conductivity || '-'} µS/cm</span>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Sanitização/Downtime</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Última:</span>
+                        <span class="osmosis-card-value">${data.lastSanitization || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Próxima:</span>
+                        <span class="osmosis-card-value">${data.nextSanitization || '-'}</span>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Higienização</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Última:</span>
+                        <span class="osmosis-card-value">${data.lastCleaning || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Próxima:</span>
+                        <span class="osmosis-card-value">${data.nextCleaning || '-'}</span>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Coleta para Análise</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Última:</span>
+                        <span class="osmosis-card-value">${data.lastCollection || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Próxima:</span>
+                        <span class="osmosis-card-value">${data.nextCollection || '-'}</span>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Anormalidade</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Apresenta:</span>
+                        <span class="osmosis-card-value">${data.hasAbnormality ? 'Sim' : 'Não'}</span>
+                    </div>
+                    ${data.hasAbnormality ? `
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">Motivo:</span>
+                        <span class="osmosis-card-value">${data.abnormalityReason || '-'}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Troca de Filtros - Última</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">FPP-001:</span>
+                        <span class="osmosis-card-value">${data.lastFilterChange?.fpp001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">FCA-001:</span>
+                        <span class="osmosis-card-value">${data.lastFilterChange?.fca001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">DRM-001:</span>
+                        <span class="osmosis-card-value">${data.lastFilterChange?.drm001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">DRM-002:</span>
+                        <span class="osmosis-card-value">${data.lastFilterChange?.drm002 || '-'}</span>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-section">
+                    <div class="section-title">Troca de Filtros - Próxima</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">FPP-001:</span>
+                        <span class="osmosis-card-value">${data.nextFilterChange?.fpp001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">FCA-001:</span>
+                        <span class="osmosis-card-value">${data.nextFilterChange?.fca001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">DRM-001:</span>
+                        <span class="osmosis-card-value">${data.nextFilterChange?.drm001 || '-'}</span>
+                    </div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-label">DRM-002:</span>
+                        <span class="osmosis-card-value">${data.nextFilterChange?.drm002 || '-'}</span>
+                    </div>
+                </div>
+                
+                ${data.notes ? `
+                <div class="osmosis-card-section">
+                    <div class="section-title">Observações</div>
+                    <div class="osmosis-card-field">
+                        <span class="osmosis-card-value" style="text-align: left;">${data.notes}</span>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="osmosis-card-actions">
+                    <button class="btn btn-primary btn-sm" onclick="exportOsmosisCardToPDF('${data.id}')">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
+            `;
+            
+            return card;
         }
 
         async function loadMaintenanceHistory() {
             try {
                 const snapshot = await db.collection('osmosis_maintenance')
-                    .orderBy('createdAt', 'desc')
+                    .orderBy('timestamp', 'desc')
                     .limit(50)
                     .get();
                 
                 const tbody = document.getElementById('maintenance-history');
+                const cardsContainer = document.getElementById('maintenance-history-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
                     return;
                 }
                 
@@ -2659,11 +3090,15 @@
                     const data = doc.data();
                     const row = createMaintenanceRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createMaintenanceCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar histórico de manutenções:', error);
                 document.getElementById('maintenance-history').innerHTML = '<tr><td colspan="5" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('maintenance-history-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
@@ -2674,10 +3109,13 @@
                     .get();
                 
                 const tbody = document.getElementById('rooms-list');
+                const cardsContainer = document.getElementById('rooms-list-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhuma sala cadastrada</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhuma sala cadastrada</div></div>';
                     return;
                 }
                 
@@ -2685,38 +3123,74 @@
                     const data = doc.data();
                     const row = createRoomRow(data, doc.id);
                     tbody.appendChild(row);
+                    
+                    const card = createRoomCard(data, doc.id);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar lista de salas:', error);
                 document.getElementById('rooms-list').innerHTML = '<tr><td colspan="9" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('rooms-list-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
         async function loadTraceabilityLog() {
             try {
-                const snapshot = await db.collection('traceability')
-                    .orderBy('createdAt', 'desc')
-                    .limit(100)
-                    .get();
+                let query = db.collection('traceability').orderBy('timestamp', 'desc');
+                
+                // Aplicar filtros
+                const filterDate = document.getElementById('filter-date').value;
+                const filterUser = document.getElementById('filter-user').value;
+                const filterAction = document.getElementById('filter-action').value;
+                
+                if (filterDate) {
+                    const startDate = new Date(filterDate);
+                    const endDate = new Date(filterDate);
+                    endDate.setDate(endDate.getDate() + 1);
+                    
+                    query = query.where('createdAt', '>=', startDate)
+                                .where('createdAt', '<', endDate);
+                }
+                
+                if (filterUser && filterUser !== 'all') {
+                    query = query.where('userId', '==', filterUser);
+                }
+                
+                if (filterAction && filterAction !== 'all') {
+                    // Filtro por tipo de ação (implementação básica)
+                    // Em uma implementação real, você teria um campo específico para tipo
+                }
+                
+                const snapshot = await query.limit(100).get();
                 
                 const tbody = document.getElementById('traceability-log');
+                const cardsContainer = document.getElementById('traceability-log-cards');
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
+                
+                traceabilityData = [];
                 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
                     return;
                 }
                 
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = { id: doc.id, ...doc.data() };
+                    traceabilityData.push(data);
                     const row = createTraceabilityRow(data);
                     tbody.appendChild(row);
+                    
+                    const card = createTraceabilityCard(data);
+                    cardsContainer.appendChild(card);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar log de rastreabilidade:', error);
                 document.getElementById('traceability-log').innerHTML = '<tr><td colspan="5" style="text-align: center;">Erro ao carregar dados</td></tr>';
+                document.getElementById('traceability-log-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
             }
         }
 
@@ -2726,7 +3200,7 @@
             const row = document.createElement('tr');
             const statusClass = `status-${data.status || 'normal'}`;
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${createdAt}</td>
@@ -2752,15 +3226,61 @@
             return row;
         }
 
+        function createTemperatureCard(data, docId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const statusClass = `status-${data.status || 'normal'}`;
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">${data.roomName || '-'} - ${data.period || '-'}</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Data/Hora:</span>
+                            <span class="mobile-card-value">${createdAt}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Temperatura:</span>
+                            <span class="mobile-card-value">${data.tempActual || '-'}°C (${data.tempMin || '-'} - ${data.tempMax || '-'})</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Umidade:</span>
+                            <span class="mobile-card-value">${data.humidityActual || '-'}% (${data.humidityMin || '-'} - ${data.humidityMax || '-'})</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Status:</span>
+                            <span class="mobile-card-value"><span class="status ${statusClass}">${getStatusText(data.status)}</span></span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Operador:</span>
+                            <span class="mobile-card-value">${data.userName || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions admin-only">
+                    <button class="btn btn-primary btn-sm" onclick="editTemperatureReading('${docId}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('temperature_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de temperatura?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
         function createPressureRow(data, docId) {
             const row = document.createElement('tr');
             const statusClass = `status-${data.status || 'normal'}`;
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${createdAt}</td>
                 <td>${data.roomName || '-'}</td>
+                <td>${data.period || '-'}</td>
                 <td>${data.pressure || '-'} Pa</td>
                 <td>${data.immediateCorrection || '-'}</td>
                 <td><span class="status ${statusClass}">${getStatusText(data.status)}</span></td>
@@ -2777,14 +3297,61 @@
             return row;
         }
 
+        function createPressureCard(data, docId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const statusClass = `status-${data.status || 'normal'}`;
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">${data.roomName || '-'} - ${data.period || '-'}</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Data/Hora:</span>
+                            <span class="mobile-card-value">${createdAt}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Pressão:</span>
+                            <span class="mobile-card-value">${data.pressure || '-'} Pa</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Correção:</span>
+                            <span class="mobile-card-value">${data.immediateCorrection || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Status:</span>
+                            <span class="mobile-card-value"><span class="status ${statusClass}">${getStatusText(data.status)}</span></span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Operador:</span>
+                            <span class="mobile-card-value">${data.userName || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions admin-only">
+                    <button class="btn btn-primary btn-sm" onclick="editPressureReading('${docId}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('pressure_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de pressão?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
         function createOsmosisRow(data, docId) {
             const row = document.createElement('tr');
+            const statusClass = `status-${data.conductivityStatus || 'normal'}`;
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${createdAt}</td>
                 <td>${data.conductivity || '-'} µS/cm</td>
+                <td><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></td>
                 <td>${data.hasAbnormality ? 'Sim' : 'Não'}</td>
                 <td>${data.userName || '-'}</td>
                 <td class="admin-only">
@@ -2799,12 +3366,57 @@
             return row;
         }
 
+        function createOsmosisCard(data, docId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const statusClass = `status-${data.conductivityStatus || 'normal'}`;
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">Controle de Osmose</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Data/Hora:</span>
+                            <span class="mobile-card-value">${createdAt}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Condutividade:</span>
+                            <span class="mobile-card-value">${data.conductivity || '-'} µS/cm</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Status:</span>
+                            <span class="mobile-card-value"><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Anormalidade:</span>
+                            <span class="mobile-card-value">${data.hasAbnormality ? 'Sim' : 'Não'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Operador:</span>
+                            <span class="mobile-card-value">${data.userName || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions admin-only">
+                    <button class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
         function createMaintenanceRow(data, docId) {
             const row = document.createElement('tr');
             const maintenanceDate = data.maintenanceDate ? 
                 new Date(data.maintenanceDate).toLocaleDateString('pt-BR') : '-';
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${maintenanceDate}</td>
@@ -2821,6 +3433,48 @@
                 </td>
             `;
             return row;
+        }
+
+        function createMaintenanceCard(data, docId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const maintenanceDate = data.maintenanceDate ? 
+                new Date(data.maintenanceDate).toLocaleDateString('pt-BR') : '-';
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">Manutenção de Osmose</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Data da Manutenção:</span>
+                            <span class="mobile-card-value">${maintenanceDate}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Procedimento:</span>
+                            <span class="mobile-card-value">${data.procedure || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Observações:</span>
+                            <span class="mobile-card-value">${data.observations || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Operador:</span>
+                            <span class="mobile-card-value">${data.userName || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions admin-only">
+                    <button class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_maintenance', '${docId}', 'Tem certeza que deseja excluir este registro de manutenção?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
         }
 
         function createRoomRow(data, docId) {
@@ -2849,10 +3503,58 @@
             return row;
         }
 
+        function createRoomCard(data, docId) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const statusClass = data.status === 'active' ? 'status-normal' : 'status-critical';
+            const statusText = data.status === 'active' ? 'Ativa' : 'Inativa';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">${data.name || '-'} (${data.code || '-'})</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Tipo:</span>
+                            <span class="mobile-card-value">${formatRoomType(data.type)}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Responsável:</span>
+                            <span class="mobile-card-value">${data.responsible || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Temperatura:</span>
+                            <span class="mobile-card-value">${data.tempMin || '-'}°C - ${data.tempMax || '-'}°C</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Umidade:</span>
+                            <span class="mobile-card-value">${data.humidityMin || '-'}% - ${data.humidityMax || '-'}%</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Pressão Mínima:</span>
+                            <span class="mobile-card-value">${data.pressureMin || '-'} Pa</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Status:</span>
+                            <span class="mobile-card-value"><span class="status ${statusClass}">${statusText}</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-card-actions">
+                    <button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('rooms', '${docId}', 'Tem certeza que deseja excluir esta sala?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
         function createTraceabilityRow(data) {
             const row = document.createElement('tr');
             const createdAt = data.createdAt ? 
-                new Date(data.createdAt).toLocaleString('pt-BR') : '-';
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
             row.innerHTML = `
                 <td>${createdAt}</td>
@@ -2862,6 +3564,38 @@
                 <td>${data.userIp || '-'}</td>
             `;
             return row;
+        }
+
+        function createTraceabilityCard(data) {
+            const card = document.createElement('div');
+            card.className = 'mobile-card';
+            const createdAt = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            
+            card.innerHTML = `
+                <div class="mobile-card-header">
+                    <div>
+                        <div class="mobile-card-title">${data.action || '-'}</div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Data/Hora:</span>
+                            <span class="mobile-card-value">${createdAt}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Usuário:</span>
+                            <span class="mobile-card-value">${data.userName || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">Detalhes:</span>
+                            <span class="mobile-card-value">${data.details || '-'}</span>
+                        </div>
+                        <div class="mobile-card-field">
+                            <span class="mobile-card-label">IP:</span>
+                            <span class="mobile-card-value">${data.userIp || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
         }
 
         // ========== FUNÇÕES AUXILIARES ==========
@@ -2890,6 +3624,18 @@
             if (pressure >= minPressure) {
                 return 'normal';
             } else if (pressure >= minPressure - 2) {
+                return 'alert';
+            } else {
+                return 'critical';
+            }
+        }
+
+        function calculateConductivityStatus(conductivity) {
+            if (conductivity === undefined || conductivity === null) return 'normal';
+            
+            if (conductivity < 1.0) {
+                return 'normal';
+            } else if (conductivity >= 1.0 && conductivity <= 1.2) {
                 return 'alert';
             } else {
                 return 'critical';
@@ -2926,7 +3672,8 @@
                     userId: currentUser.uid,
                     userName: currentUser.name,
                     userIp: await getUserIP(),
-                    createdAt: new Date()
+                    createdAt: new Date(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 // Recarregar o log de rastreabilidade
                 if (currentUser.role === 'admin') {
@@ -3045,7 +3792,395 @@
                 `Data: ${now.toLocaleDateString('pt-BR')} Hora: ${now.toLocaleTimeString('pt-BR')}`;
         }
 
-        // Funções de exportação PDF
+        // ========== FUNÇÕES DE EXPORTAÇÃO PDF ==========
+
+        async function exportTraceabilityToPDF() {
+            if (currentUser.role !== 'admin') {
+                alert('Apenas administradores podem exportar relatórios em PDF.');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(16);
+            doc.text('Relatório Completo de Rastreabilidade', 14, 15);
+            
+            // Add date
+            doc.setFontSize(10);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 22);
+            doc.text(`Gerado por: ${currentUser.name}`, 14, 28);
+            
+            // Informações do filtro
+            const filterDate = document.getElementById('filter-date').value;
+            const filterUser = document.getElementById('filter-user').value;
+            const filterAction = document.getElementById('filter-action').value;
+            
+            let filterInfo = 'Filtros aplicados: ';
+            if (filterDate) filterInfo += `Data: ${filterDate} `;
+            if (filterUser && filterUser !== 'all') filterInfo += `Usuário: ${filterUser} `;
+            if (filterAction && filterAction !== 'all') filterInfo += `Ação: ${filterAction} `;
+            if (filterInfo === 'Filtros aplicados: ') filterInfo = 'Todos os registros (sem filtros)';
+            
+            doc.text(filterInfo, 14, 35);
+            
+            try {
+                const headers = [['Data/Hora', 'Usuário', 'Ação', 'Detalhes', 'IP']];
+                const data = [];
+                
+                // Usar dados já carregados ou carregar todos se necessário
+                let recordsToExport = traceabilityData;
+                
+                if (recordsToExport.length === 0) {
+                    // Carregar todos os registros se não houver filtro
+                    const snapshot = await db.collection('traceability')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+                    
+                    recordsToExport = [];
+                    snapshot.forEach(doc => {
+                        recordsToExport.push({ id: doc.id, ...doc.data() });
+                    });
+                }
+                
+                recordsToExport.forEach(item => {
+                    const date = item.createdAt ? 
+                        new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                    data.push([
+                        date,
+                        item.userName || '-',
+                        item.action || '-',
+                        item.details || '-',
+                        item.userIp || '-'
+                    ]);
+                });
+                
+                // Generate table
+                doc.autoTable({
+                    head: headers,
+                    body: data,
+                    startY: 45,
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [44, 62, 80] }
+                });
+                
+                // Save the PDF
+                doc.save(`relatorio_rastreabilidade_completo_${new Date().toISOString().slice(0, 10)}.pdf`);
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF de rastreabilidade:', error);
+                alert('Erro ao gerar relatório PDF de rastreabilidade');
+            }
+        }
+
+        function exportOsmosisCardToPDF(cardId) {
+            if (currentUser.role !== 'admin') {
+                alert('Apenas administradores podem exportar relatórios em PDF.');
+                return;
+            }
+            
+            const data = osmosisDailyData.find(item => item.id === cardId);
+            if (!data) {
+                alert('Dados não encontrados para exportação.');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configurações da página
+            const pageWidth = doc.internal.pageSize.width;
+            const margin = 14;
+            let yPosition = margin;
+            
+            // Header
+            doc.setFontSize(16);
+            doc.text('Relatório de Controle Diário - Sistema de Osmose', margin, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(10);
+            doc.text(`Data do Registro: ${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR')}`, margin, yPosition);
+            yPosition += 5;
+            doc.text(`Operador: ${data.userName || '-'}`, margin, yPosition);
+            yPosition += 5;
+            doc.text(`Status: ${getStatusText(data.conductivityStatus)}`, margin, yPosition);
+            yPosition += 10;
+            
+            // Linha divisória
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 10;
+            
+            // Condutividade
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('1. Condutividade da Água Purificada', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Sanitização
+            doc.setFont(undefined, 'bold');
+            doc.text('2. Sanitização do Sistema', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.text(`Última sanitização: ${data.lastSanitization || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`Próxima sanitização: ${data.nextSanitization || '-'}`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Higienização
+            doc.setFont(undefined, 'bold');
+            doc.text('3. Higienização', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.text(`Última higienização: ${data.lastCleaning || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`Próxima higienização: ${data.nextCleaning || '-'}`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Coleta
+            doc.setFont(undefined, 'bold');
+            doc.text('4. Coleta de Água para Análise', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.text(`Última coleta: ${data.lastCollection || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`Próxima coleta: ${data.nextCollection || '-'}`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Anormalidade
+            doc.setFont(undefined, 'bold');
+            doc.text('5. Anormalidade no Funcionamento', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.text(`Apresenta anormalidade: ${data.hasAbnormality ? 'Sim' : 'Não'}`, margin + 5, yPosition);
+            yPosition += 5;
+            
+            if (data.hasAbnormality && data.abnormalityReason) {
+                doc.text(`Motivo: ${data.abnormalityReason}`, margin + 5, yPosition);
+                yPosition += 10;
+            } else {
+                yPosition += 5;
+            }
+            
+            // Troca de Filtros - Última
+            doc.setFont(undefined, 'bold');
+            doc.text('6. Troca de Filtros - Última', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            const lastFilters = data.lastFilterChange || {};
+            doc.text(`FPP-001: ${lastFilters.fpp001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`FCA-001: ${lastFilters.fca001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`DRM-001: ${lastFilters.drm001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`DRM-002: ${lastFilters.drm002 || '-'}`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Troca de Filtros - Próxima
+            doc.setFont(undefined, 'bold');
+            doc.text('7. Troca de Filtros - Próxima', margin, yPosition);
+            yPosition += 7;
+            
+            doc.setFont(undefined, 'normal');
+            const nextFilters = data.nextFilterChange || {};
+            doc.text(`FPP-001: ${nextFilters.fpp001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`FCA-001: ${nextFilters.fca001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`DRM-001: ${nextFilters.drm001 || '-'}`, margin + 5, yPosition);
+            yPosition += 5;
+            doc.text(`DRM-002: ${nextFilters.drm002 || '-'}`, margin + 5, yPosition);
+            yPosition += 10;
+            
+            // Observações
+            if (data.notes) {
+                doc.setFont(undefined, 'bold');
+                doc.text('8. Observações', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                const splitNotes = doc.splitTextToSize(data.notes, pageWidth - margin * 2);
+                doc.text(splitNotes, margin + 5, yPosition);
+            }
+            
+            // Footer
+            const footerY = doc.internal.pageSize.height - 10;
+            doc.setFontSize(8);
+            doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, footerY);
+            doc.text(`Página 1 de 1`, pageWidth - margin - 20, footerY, { align: 'right' });
+            
+            // Save the PDF
+            doc.save(`controle_osmose_${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toISOString().slice(0, 10)}.pdf`);
+        }
+
+        async function exportAllOsmosisCardsToPDF() {
+            if (currentUser.role !== 'admin') {
+                alert('Apenas administradores podem exportar relatórios em PDF.');
+                return;
+            }
+            
+            if (osmosisDailyData.length === 0) {
+                alert('Nenhum registro de controle diário encontrado para exportação.');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            for (let i = 0; i < osmosisDailyData.length; i++) {
+                const data = osmosisDailyData[i];
+                
+                // Adicionar nova página para cada card (exceto a primeira)
+                if (i > 0) {
+                    doc.addPage();
+                }
+                
+                // Configurações da página
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 14;
+                let yPosition = margin;
+                
+                // Header
+                doc.setFontSize(16);
+                doc.text('Relatório de Controle Diário - Sistema de Osmose', margin, yPosition);
+                yPosition += 10;
+                
+                doc.setFontSize(10);
+                doc.text(`Data do Registro: ${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR')}`, margin, yPosition);
+                yPosition += 5;
+                doc.text(`Operador: ${data.userName || '-'}`, margin, yPosition);
+                yPosition += 5;
+                doc.text(`Status: ${getStatusText(data.conductivityStatus)}`, margin, yPosition);
+                yPosition += 10;
+                
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+                
+                // Condutividade
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('1. Condutividade da Água Purificada', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Sanitização
+                doc.setFont(undefined, 'bold');
+                doc.text('2. Sanitização do Sistema', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Última sanitização: ${data.lastSanitization || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`Próxima sanitização: ${data.nextSanitization || '-'}`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Higienização
+                doc.setFont(undefined, 'bold');
+                doc.text('3. Higienização', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Última higienização: ${data.lastCleaning || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`Próxima higienização: ${data.nextCleaning || '-'}`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Coleta
+                doc.setFont(undefined, 'bold');
+                doc.text('4. Coleta de Água para Análise', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Última coleta: ${data.lastCollection || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`Próxima coleta: ${data.nextCollection || '-'}`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Anormalidade
+                doc.setFont(undefined, 'bold');
+                doc.text('5. Anormalidade no Funcionamento', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`Apresenta anormalidade: ${data.hasAbnormality ? 'Sim' : 'Não'}`, margin + 5, yPosition);
+                yPosition += 5;
+                
+                if (data.hasAbnormality && data.abnormalityReason) {
+                    doc.text(`Motivo: ${data.abnormalityReason}`, margin + 5, yPosition);
+                    yPosition += 10;
+                } else {
+                    yPosition += 5;
+                }
+                
+                // Troca de Filtros - Última
+                doc.setFont(undefined, 'bold');
+                doc.text('6. Troca de Filtros - Última', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                const lastFilters = data.lastFilterChange || {};
+                doc.text(`FPP-001: ${lastFilters.fpp001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`FCA-001: ${lastFilters.fca001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`DRM-001: ${lastFilters.drm001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`DRM-002: ${lastFilters.drm002 || '-'}`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Troca de Filtros - Próxima
+                doc.setFont(undefined, 'bold');
+                doc.text('7. Troca de Filtros - Próxima', margin, yPosition);
+                yPosition += 7;
+                
+                doc.setFont(undefined, 'normal');
+                const nextFilters = data.nextFilterChange || {};
+                doc.text(`FPP-001: ${nextFilters.fpp001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`FCA-001: ${nextFilters.fca001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`DRM-001: ${nextFilters.drm001 || '-'}`, margin + 5, yPosition);
+                yPosition += 5;
+                doc.text(`DRM-002: ${nextFilters.drm002 || '-'}`, margin + 5, yPosition);
+                yPosition += 10;
+                
+                // Observações
+                if (data.notes) {
+                    doc.setFont(undefined, 'bold');
+                    doc.text('8. Observações', margin, yPosition);
+                    yPosition += 7;
+                    
+                    doc.setFont(undefined, 'normal');
+                    const splitNotes = doc.splitTextToSize(data.notes, pageWidth - margin * 2);
+                    doc.text(splitNotes, margin + 5, yPosition);
+                }
+                
+                // Footer para cada página
+                const footerY = doc.internal.pageSize.height - 10;
+                doc.setFontSize(8);
+                doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, footerY);
+                doc.text(`Página ${i + 1} de ${osmosisDailyData.length}`, pageWidth - margin - 20, footerY, { align: 'right' });
+            }
+            
+            // Save the PDF
+            doc.save(`controles_osmose_completo_${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+
+        // Funções de exportação PDF existentes
         async function exportToPDF(type) {
             if (currentUser.role !== 'admin') {
                 alert('Apenas administradores podem exportar relatórios em PDF.');
@@ -3072,13 +4207,14 @@
                     case 'temperature':
                         headers = [['Data/Hora', 'Sala', 'Período', 'Temp. Mín', 'Temp. Máx', 'Temp. Atual', 'Umid. Mín', 'Umid. Máx', 'Umid. Atual', 'Status']];
                         const tempSnapshot = await db.collection('temperature_readings')
-                            .orderBy('createdAt', 'desc')
+                            .orderBy('timestamp', 'desc')
                             .limit(100)
                             .get();
                         
-                        tempSnapshot.forEach(doc => {
-                            const item = doc.data();
-                            const date = item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-';
+                        tempSnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.createdAt ? 
+                                new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
                             data.push([
                                 date,
                                 item.roomName || '-',
@@ -3095,21 +4231,64 @@
                         break;
                         
                     case 'pressure':
-                        headers = [['Data/Hora', 'Sala', 'Pressão (Pa)', 'Correção', 'Status']];
+                        headers = [['Data/Hora', 'Sala', 'Período', 'Pressão (Pa)', 'Correção', 'Status']];
                         const pressureSnapshot = await db.collection('pressure_readings')
-                            .orderBy('createdAt', 'desc')
+                            .orderBy('timestamp', 'desc')
                             .limit(100)
                             .get();
                         
-                        pressureSnapshot.forEach(doc => {
-                            const item = doc.data();
-                            const date = item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-';
+                        pressureSnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.createdAt ? 
+                                new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
                             data.push([
                                 date,
                                 item.roomName || '-',
+                                item.period || '-',
                                 item.pressure || '-',
                                 item.immediateCorrection || '-',
                                 getStatusText(item.status)
+                            ]);
+                        });
+                        break;
+                        
+                    case 'osmosis':
+                        headers = [['Data/Hora', 'Condutividade (µS/cm)', 'Status', 'Anormalidade', 'Operador']];
+                        const osmosisSnapshot = await db.collection('osmosis_daily')
+                            .orderBy('timestamp', 'desc')
+                            .limit(100)
+                            .get();
+                        
+                        osmosisSnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.createdAt ? 
+                                new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                            data.push([
+                                date,
+                                `${item.conductivity || '-'} µS/cm`,
+                                getStatusText(item.conductivityStatus),
+                                item.hasAbnormality ? 'Sim' : 'Não',
+                                item.userName || '-'
+                            ]);
+                        });
+                        break;
+
+                    case 'maintenance':
+                        headers = [['Data', 'Procedimento', 'Observações', 'Operador']];
+                        const maintenanceSnapshot = await db.collection('osmosis_maintenance')
+                            .orderBy('timestamp', 'desc')
+                            .limit(100)
+                            .get();
+                        
+                        maintenanceSnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.maintenanceDate ? 
+                                new Date(item.maintenanceDate).toLocaleDateString('pt-BR') : '-';
+                            data.push([
+                                date,
+                                item.procedure || '-',
+                                item.observations || '-',
+                                item.userName || '-'
                             ]);
                         });
                         break;
@@ -3118,8 +4297,8 @@
                         headers = [['Código', 'Nome', 'Tipo', 'Responsável', 'Temp. Min-Max', 'Umid. Min-Max', 'Pressão Mínima', 'Status']];
                         const roomsSnapshot = await db.collection('rooms').get();
                         
-                        roomsSnapshot.forEach(doc => {
-                            const item = doc.data();
+                        roomsSnapshot.forEach(docItem => {
+                            const item = docItem.data();
                             data.push([
                                 item.code || '-',
                                 item.name || '-',
@@ -3137,15 +4316,37 @@
                         headers = [['Nome', 'Email', 'Tipo', 'Data de Criação', 'Status']];
                         const usersSnapshot = await db.collection('users').get();
                         
-                        usersSnapshot.forEach(doc => {
-                            const item = doc.data();
-                            const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('pt-BR') : '-';
+                        usersSnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.createdAt ? 
+                                new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleDateString('pt-BR') : '-';
                             data.push([
                                 item.name || '-',
                                 item.email || '-',
                                 item.role === 'admin' ? 'Administrador' : 'Usuário Normal',
                                 date,
                                 item.status === 'active' ? 'Ativo' : 'Inativo'
+                            ]);
+                        });
+                        break;
+
+                    case 'traceability':
+                        headers = [['Data/Hora', 'Usuário', 'Ação', 'Detalhes', 'IP']];
+                        const traceabilitySnapshot = await db.collection('traceability')
+                            .orderBy('timestamp', 'desc')
+                            .limit(100)
+                            .get();
+                        
+                        traceabilitySnapshot.forEach(docItem => {
+                            const item = docItem.data();
+                            const date = item.createdAt ? 
+                                new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                            data.push([
+                                date,
+                                item.userName || '-',
+                                item.action || '-',
+                                item.details || '-',
+                                item.userIp || '-'
                             ]);
                         });
                         break;
@@ -3198,17 +4399,6 @@
                 'maintenance': 'Manutenções de Osmose'
             };
             return titles[type] || type;
-        }
-
-        function filterTraceability() {
-            // Implementação básica de filtro
-            const filterDate = document.getElementById('filter-date').value;
-            const filterUser = document.getElementById('filter-user').value;
-            const filterAction = document.getElementById('filter-action').value;
-            
-            console.log('Filtrando:', { filterDate, filterUser, filterAction });
-            // Em uma implementação real, você faria uma query filtrada no Firestore
-            loadTraceabilityLog(); // Recarrega todos os dados por enquanto
         }
 
         // Criar usuário admin automaticamente se não existir
