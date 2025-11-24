@@ -1310,6 +1310,44 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Filtro por mês -->
+                    <div class="filter-section">
+                        <div class="filter-title">Filtrar por Mês</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="filter-month">Selecione o Mês:</label>
+                                <select id="filter-month">
+                                    <option value="all">Todos os meses</option>
+                                    <option value="01">Janeiro</option>
+                                    <option value="02">Fevereiro</option>
+                                    <option value="03">Março</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Maio</option>
+                                    <option value="06">Junho</option>
+                                    <option value="07">Julho</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-year">Ano:</label>
+                                <select id="filter-year">
+                                    <!-- Os anos serão preenchidos dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button class="btn btn-primary" id="apply-month-filter">
+                                    <i class="fas fa-filter"></i> Aplicar Filtro
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="osmosis-cards-container" id="osmosis-detailed-cards">
                         <!-- Cards detalhados serão inseridos aqui -->
                     </div>
@@ -1625,6 +1663,7 @@
         let currentEditData = null;
         let traceabilityData = [];
         let osmosisDailyData = [];
+        let filteredOsmosisData = [];
 
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
@@ -1651,6 +1690,9 @@
             // Atualizar hora atual
             updateCurrentTime();
             setInterval(updateCurrentTime, 1000);
+            
+            // Preencher anos no filtro
+            populateYearFilter();
         }
 
         function setupEventListeners() {
@@ -1731,6 +1773,9 @@
             document.getElementById('filter-date').addEventListener('change', loadTraceabilityLog);
             document.getElementById('filter-user').addEventListener('change', loadTraceabilityLog);
             document.getElementById('filter-action').addEventListener('change', loadTraceabilityLog);
+            
+            // Filtro por mês para osmose
+            document.getElementById('apply-month-filter').addEventListener('click', applyMonthFilter);
 
             // Edit Modal
             document.getElementById('cancel-edit-btn').addEventListener('click', hideEditModal);
@@ -1754,6 +1799,49 @@
                     document.getElementById(`${targetTab}-tab`).classList.add('active');
                 });
             });
+        }
+
+        // Preencher o filtro de anos
+        function populateYearFilter() {
+            const yearSelect = document.getElementById('filter-year');
+            const currentYear = new Date().getFullYear();
+            
+            // Limpar opções existentes
+            yearSelect.innerHTML = '';
+            
+            // Adicionar opções para os últimos 5 anos
+            for (let i = 0; i < 5; i++) {
+                const year = currentYear - i;
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (i === 0) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Aplicar filtro por mês
+        function applyMonthFilter() {
+            const selectedMonth = document.getElementById('filter-month').value;
+            const selectedYear = document.getElementById('filter-year').value;
+            
+            if (selectedMonth === 'all') {
+                filteredOsmosisData = [...osmosisDailyData];
+            } else {
+                filteredOsmosisData = osmosisDailyData.filter(item => {
+                    const itemDate = item.createdAt ? 
+                        new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt) : null;
+                    
+                    if (!itemDate) return false;
+                    
+                    const itemMonth = String(itemDate.getMonth() + 1).padStart(2, '0');
+                    const itemYear = itemDate.getFullYear();
+                    
+                    return itemMonth === selectedMonth && itemYear.toString() === selectedYear;
+                });
+            }
+            
+            loadOsmosisDetailedCards();
         }
 
         async function handleLogin() {
@@ -2899,6 +2987,9 @@
                     cardsContainer.appendChild(card);
                 });
                 
+                // Inicializar dados filtrados com todos os dados
+                filteredOsmosisData = [...osmosisDailyData];
+                
                 // Carregar cards detalhados
                 loadOsmosisDetailedCards();
                 
@@ -2915,12 +3006,12 @@
             
             container.innerHTML = '';
             
-            if (osmosisDailyData.length === 0) {
+            if (filteredOsmosisData.length === 0) {
                 container.innerHTML = '<div class="card"><div class="card-body text-center">Nenhum registro de controle diário encontrado</div></div>';
                 return;
             }
             
-            osmosisDailyData.forEach(data => {
+            filteredOsmosisData.forEach(data => {
                 const card = createOsmosisDetailedCard(data);
                 container.appendChild(card);
             });
@@ -3875,153 +3966,267 @@
         }
 
         function exportOsmosisCardToPDF(cardId) {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem exportar relatórios em PDF.');
-                return;
-            }
+    if (currentUser.role !== 'admin') {
+        alert('Apenas administradores podem exportar relatórios em PDF.');
+        return;
+    }
+    
+    const data = osmosisDailyData.find(item => item.id === cardId);
+    if (!data) {
+        alert('Dados não encontrados para exportação.');
+        return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Configurações da página
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    let yPosition = margin;
+    
+    // Função para formatar data no formato dd-mm-aaaa
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '-';
             
-            const data = osmosisDailyData.find(item => item.id === cardId);
-            if (!data) {
-                alert('Dados não encontrados para exportação.');
-                return;
-            }
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
             
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Configurações da página
-            const pageWidth = doc.internal.pageSize.width;
-            const margin = 14;
-            let yPosition = margin;
-            
-            // Header
-            doc.setFontSize(16);
-            doc.text('Relatório de Controle Diário - Sistema de Osmose', margin, yPosition);
-            yPosition += 10;
-            
-            doc.setFontSize(10);
-            doc.text(`Data do Registro: ${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR')}`, margin, yPosition);
-            yPosition += 5;
-            doc.text(`Operador: ${data.userName || '-'}`, margin, yPosition);
-            yPosition += 5;
-            doc.text(`Status: ${getStatusText(data.conductivityStatus)}`, margin, yPosition);
-            yPosition += 10;
-            
-            // Linha divisória
-            doc.line(margin, yPosition, pageWidth - margin, yPosition);
-            yPosition += 10;
-            
-            // Condutividade
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text('1. Condutividade da Água Purificada', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Sanitização
-            doc.setFont(undefined, 'bold');
-            doc.text('2. Sanitização do Sistema', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Última sanitização: ${data.lastSanitization || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`Próxima sanitização: ${data.nextSanitization || '-'}`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Higienização
-            doc.setFont(undefined, 'bold');
-            doc.text('3. Higienização', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Última higienização: ${data.lastCleaning || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`Próxima higienização: ${data.nextCleaning || '-'}`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Coleta
-            doc.setFont(undefined, 'bold');
-            doc.text('4. Coleta de Água para Análise', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Última coleta: ${data.lastCollection || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`Próxima coleta: ${data.nextCollection || '-'}`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Anormalidade
-            doc.setFont(undefined, 'bold');
-            doc.text('5. Anormalidade no Funcionamento', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text(`Apresenta anormalidade: ${data.hasAbnormality ? 'Sim' : 'Não'}`, margin + 5, yPosition);
-            yPosition += 5;
-            
-            if (data.hasAbnormality && data.abnormalityReason) {
-                doc.text(`Motivo: ${data.abnormalityReason}`, margin + 5, yPosition);
-                yPosition += 10;
-            } else {
-                yPosition += 5;
-            }
-            
-            // Troca de Filtros - Última
-            doc.setFont(undefined, 'bold');
-            doc.text('6. Troca de Filtros - Última', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            const lastFilters = data.lastFilterChange || {};
-            doc.text(`FPP-001: ${lastFilters.fpp001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`FCA-001: ${lastFilters.fca001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`DRM-001: ${lastFilters.drm001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`DRM-002: ${lastFilters.drm002 || '-'}`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Troca de Filtros - Próxima
-            doc.setFont(undefined, 'bold');
-            doc.text('7. Troca de Filtros - Próxima', margin, yPosition);
-            yPosition += 7;
-            
-            doc.setFont(undefined, 'normal');
-            const nextFilters = data.nextFilterChange || {};
-            doc.text(`FPP-001: ${nextFilters.fpp001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`FCA-001: ${nextFilters.fca001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`DRM-001: ${nextFilters.drm001 || '-'}`, margin + 5, yPosition);
-            yPosition += 5;
-            doc.text(`DRM-002: ${nextFilters.drm002 || '-'}`, margin + 5, yPosition);
-            yPosition += 10;
-            
-            // Observações
-            if (data.notes) {
-                doc.setFont(undefined, 'bold');
-                doc.text('8. Observações', margin, yPosition);
-                yPosition += 7;
-                
-                doc.setFont(undefined, 'normal');
-                const splitNotes = doc.splitTextToSize(data.notes, pageWidth - margin * 2);
-                doc.text(splitNotes, margin + 5, yPosition);
-            }
-            
-            // Footer
-            const footerY = doc.internal.pageSize.height - 10;
-            doc.setFontSize(8);
-            doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, footerY);
-            doc.text(`Página 1 de 1`, pageWidth - margin - 20, footerY, { align: 'right' });
-            
-            // Save the PDF
-            doc.save(`controle_osmose_${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toISOString().slice(0, 10)}.pdf`);
+            return `${day}-${month}-${year}`;
+        } catch (error) {
+            return '-';
         }
+    };
+    
+    // Função para formatar data/hora completa
+    const formatDateTime = (dateValue) => {
+        if (!dateValue) return '-';
+        try {
+            const date = dateValue.toDate ? dateValue.toDate() : new Date(dateValue);
+            if (isNaN(date.getTime())) return '-';
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
+        } catch (error) {
+            return '-';
+        }
+    };
+    
+    // HEADER APENAS NA PRIMEIRA PÁGINA
+    doc.setFillColor(44, 62, 80); // Cor primária
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('RELATÓRIO DE CONTROLE DIÁRIO', pageWidth / 2, 15, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text('Sistema de Osmose Reversa', pageWidth / 2, 22, { align: 'center' });
+    
+    // Informações do registro
+    doc.setTextColor(0, 0, 0);
+    yPosition = 40;
+    
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, yPosition, pageWidth - margin * 2, 20, 'F');
+    
+    doc.setFontSize(10);
+    doc.text(`Data do Registro: ${formatDateTime(data.createdAt)}`, margin + 5, yPosition + 8);
+    doc.text(`Operador: ${data.userName || '-'}`, margin + 5, yPosition + 15);
+    
+    // Status com cor
+    const statusColor = data.conductivityStatus === 'normal' ? [39, 174, 96] : 
+                      data.conductivityStatus === 'alert' ? [243, 156, 18] : [231, 76, 60];
+    
+    doc.setFillColor(...statusColor);
+    doc.rect(pageWidth - margin - 40, yPosition + 5, 40, 12, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.text(getStatusText(data.conductivityStatus).toUpperCase(), pageWidth - margin - 20, yPosition + 12, { align: 'center' });
+    
+    yPosition += 30;
+    
+    // Função auxiliar para verificar se precisa de nova página
+    const checkPageBreak = (requiredSpace) => {
+        if (yPosition + requiredSpace > pageHeight - 20) {
+            doc.addPage();
+            yPosition = margin;
+            // NÃO ADICIONA HEADER NAS PÁGINAS SEGUINTES
+        }
+    };
+    
+    // Seção de Condutividade
+    checkPageBreak(20);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('1. CONDUTIVIDADE DA ÁGUA PURIFICADA', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(10);
+    doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
+    doc.text(`Limite: 1.3 µS/cm`, margin + 5, yPosition + 5);
+    yPosition += 15;
+    
+    // Linha divisória
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Sanitização
+    checkPageBreak(25);
+    doc.setFont(undefined, 'bold');
+    doc.text('2. SANITIZAÇÃO DO SISTEMA', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(`Última sanitização: ${formatDate(data.lastSanitization)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`Próxima sanitização: ${formatDate(data.nextSanitization)}`, margin + 5, yPosition);
+    yPosition += 15;
+    
+    // Linha divisória
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Higienização
+    checkPageBreak(25);
+    doc.setFont(undefined, 'bold');
+    doc.text('3. HIGIENIZAÇÃO', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(`Última higienização: ${formatDate(data.lastCleaning)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`Próxima higienização: ${formatDate(data.nextCleaning)}`, margin + 5, yPosition);
+    yPosition += 15;
+    
+    // Linha divisória
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Coleta
+    checkPageBreak(25);
+    doc.setFont(undefined, 'bold');
+    doc.text('4. COLETA DE ÁGUA PARA ANÁLISE', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(`Última coleta: ${formatDate(data.lastCollection)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`Próxima coleta: ${formatDate(data.nextCollection)}`, margin + 5, yPosition);
+    yPosition += 15;
+    
+    // Linha divisória
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Anormalidade
+    checkPageBreak(30);
+    doc.setFont(undefined, 'bold');
+    doc.text('5. ANORMALIDADE NO FUNCIONAMENTO', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text(`Apresenta anormalidade: ${data.hasAbnormality ? 'Sim' : 'Não'}`, margin + 5, yPosition);
+    yPosition += 5;
+    
+    if (data.hasAbnormality && data.abnormalityReason) {
+        const abnormalityLines = doc.splitTextToSize(`Motivo: ${data.abnormalityReason}`, pageWidth - margin * 2 - 10);
+        doc.text(abnormalityLines, margin + 5, yPosition);
+        yPosition += abnormalityLines.length * 5 + 5;
+    } else {
+        yPosition += 5;
+    }
+    
+    // Linha divisória
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Troca de Filtros - Última
+    checkPageBreak(40);
+    doc.setFont(undefined, 'bold');
+    doc.text('6. TROCA DE FILTROS - ÚLTIMA', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    const lastFilters = data.lastFilterChange || {};
+    doc.text(`FPP-001: ${formatDate(lastFilters.fpp001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`FCA-001: ${formatDate(lastFilters.fca001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`DRM-001: ${formatDate(lastFilters.drm001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`DRM-002: ${formatDate(lastFilters.drm002)}`, margin + 5, yPosition);
+    yPosition += 15;
+    
+    // Linha divisória
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Seção de Troca de Filtros - Próxima
+    checkPageBreak(40);
+    doc.setFont(undefined, 'bold');
+    doc.text('7. TROCA DE FILTROS - PRÓXIMA', margin, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    const nextFilters = data.nextFilterChange || {};
+    doc.text(`FPP-001: ${formatDate(nextFilters.fpp001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`FCA-001: ${formatDate(nextFilters.fca001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`DRM-001: ${formatDate(nextFilters.drm001)}`, margin + 5, yPosition);
+    yPosition += 5;
+    doc.text(`DRM-002: ${formatDate(nextFilters.drm002)}`, margin + 5, yPosition);
+    yPosition += 15;
+    
+    // Observações
+    if (data.notes) {
+        checkPageBreak(30);
+        // Linha divisória
+        doc.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 10;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text('8. OBSERVAÇÕES', margin, yPosition);
+        yPosition += 8;
+        
+        doc.setFont(undefined, 'normal');
+        const splitNotes = doc.splitTextToSize(data.notes, pageWidth - margin * 2 - 10);
+        doc.text(splitNotes, margin + 5, yPosition);
+        yPosition += splitNotes.length * 5 + 10;
+    }
+    
+    // Footer em todas as páginas
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        const footerY = pageHeight - 10;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Relatório gerado em: ${formatDateTime(new Date())}`, margin, footerY);
+        doc.text(`Clean DataLog - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
+        doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin - 20, footerY, { align: 'right' });
+    }
+    
+    // Voltar para a primeira página
+    doc.setPage(1);
+    
+    // Save the PDF
+    doc.save(`controle_osmose_${formatDate(data.createdAt).replace(/-/g, '')}.pdf`);
+}
 
         async function exportAllOsmosisCardsToPDF() {
             if (currentUser.role !== 'admin') {
@@ -4029,7 +4234,7 @@
                 return;
             }
             
-            if (osmosisDailyData.length === 0) {
+            if (filteredOsmosisData.length === 0) {
                 alert('Nenhum registro de controle diário encontrado para exportação.');
                 return;
             }
@@ -4037,8 +4242,8 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            for (let i = 0; i < osmosisDailyData.length; i++) {
-                const data = osmosisDailyData[i];
+            for (let i = 0; i < filteredOsmosisData.length; i++) {
+                const data = filteredOsmosisData[i];
                 
                 // Adicionar nova página para cada card (exceto a primeira)
                 if (i > 0) {
@@ -4050,70 +4255,106 @@
                 const margin = 14;
                 let yPosition = margin;
                 
-                // Header
-                doc.setFontSize(16);
-                doc.text('Relatório de Controle Diário - Sistema de Osmose', margin, yPosition);
-                yPosition += 10;
+                // Header com estilo melhorado
+                doc.setFillColor(44, 62, 80); // Cor primária
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('RELATÓRIO DE CONTROLE DIÁRIO', pageWidth / 2, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text('Sistema de Osmose Reversa', pageWidth / 2, 22, { align: 'center' });
+                
+                // Informações do registro
+                doc.setTextColor(0, 0, 0);
+                yPosition = 40;
+                
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, yPosition, pageWidth - margin * 2, 20, 'F');
                 
                 doc.setFontSize(10);
-                doc.text(`Data do Registro: ${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR')}`, margin, yPosition);
-                yPosition += 5;
-                doc.text(`Operador: ${data.userName || '-'}`, margin, yPosition);
-                yPosition += 5;
-                doc.text(`Status: ${getStatusText(data.conductivityStatus)}`, margin, yPosition);
-                yPosition += 10;
+                doc.text(`Data do Registro: ${new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR')}`, margin + 5, yPosition + 8);
+                doc.text(`Operador: ${data.userName || '-'}`, margin + 5, yPosition + 15);
+                
+                // Status com cor
+                const statusColor = data.conductivityStatus === 'normal' ? [39, 174, 96] : 
+                                  data.conductivityStatus === 'alert' ? [243, 156, 18] : [231, 76, 60];
+                
+                doc.setFillColor(...statusColor);
+                doc.rect(pageWidth - margin - 40, yPosition + 5, 40, 12, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.text(getStatusText(data.conductivityStatus).toUpperCase(), pageWidth - margin - 20, yPosition + 12, { align: 'center' });
+                
+                yPosition += 30;
+                
+                // Seção de Condutividade
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('1. CONDUTIVIDADE DA ÁGUA PURIFICADA', margin, yPosition);
+                yPosition += 8;
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
+                yPosition += 15;
                 
                 // Linha divisória
+                doc.setDrawColor(200, 200, 200);
                 doc.line(margin, yPosition, pageWidth - margin, yPosition);
                 yPosition += 10;
                 
-                // Condutividade
-                doc.setFontSize(12);
+                // Seção de Sanitização
                 doc.setFont(undefined, 'bold');
-                doc.text('1. Condutividade da Água Purificada', margin, yPosition);
-                yPosition += 7;
-                
-                doc.setFont(undefined, 'normal');
-                doc.text(`Resultado: ${data.conductivity || '-'} µS/cm`, margin + 5, yPosition);
-                yPosition += 10;
-                
-                // Sanitização
-                doc.setFont(undefined, 'bold');
-                doc.text('2. Sanitização do Sistema', margin, yPosition);
-                yPosition += 7;
+                doc.text('2. SANITIZAÇÃO DO SISTEMA', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 doc.text(`Última sanitização: ${data.lastSanitization || '-'}`, margin + 5, yPosition);
                 yPosition += 5;
                 doc.text(`Próxima sanitização: ${data.nextSanitization || '-'}`, margin + 5, yPosition);
+                yPosition += 15;
+                
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
                 yPosition += 10;
                 
-                // Higienização
+                // Seção de Higienização
                 doc.setFont(undefined, 'bold');
-                doc.text('3. Higienização', margin, yPosition);
-                yPosition += 7;
+                doc.text('3. HIGIENIZAÇÃO', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 doc.text(`Última higienização: ${data.lastCleaning || '-'}`, margin + 5, yPosition);
                 yPosition += 5;
                 doc.text(`Próxima higienização: ${data.nextCleaning || '-'}`, margin + 5, yPosition);
+                yPosition += 15;
+                
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
                 yPosition += 10;
                 
-                // Coleta
+                // Seção de Coleta
                 doc.setFont(undefined, 'bold');
-                doc.text('4. Coleta de Água para Análise', margin, yPosition);
-                yPosition += 7;
+                doc.text('4. COLETA DE ÁGUA PARA ANÁLISE', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 doc.text(`Última coleta: ${data.lastCollection || '-'}`, margin + 5, yPosition);
                 yPosition += 5;
                 doc.text(`Próxima coleta: ${data.nextCollection || '-'}`, margin + 5, yPosition);
+                yPosition += 15;
+                
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
                 yPosition += 10;
                 
-                // Anormalidade
+                // Seção de Anormalidade
                 doc.setFont(undefined, 'bold');
-                doc.text('5. Anormalidade no Funcionamento', margin, yPosition);
-                yPosition += 7;
+                doc.text('5. ANORMALIDADE NO FUNCIONAMENTO', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 doc.text(`Apresenta anormalidade: ${data.hasAbnormality ? 'Sim' : 'Não'}`, margin + 5, yPosition);
@@ -4126,10 +4367,14 @@
                     yPosition += 5;
                 }
                 
-                // Troca de Filtros - Última
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+                
+                // Seção de Troca de Filtros - Última
                 doc.setFont(undefined, 'bold');
-                doc.text('6. Troca de Filtros - Última', margin, yPosition);
-                yPosition += 7;
+                doc.text('6. TROCA DE FILTROS - ÚLTIMA', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 const lastFilters = data.lastFilterChange || {};
@@ -4140,12 +4385,16 @@
                 doc.text(`DRM-001: ${lastFilters.drm001 || '-'}`, margin + 5, yPosition);
                 yPosition += 5;
                 doc.text(`DRM-002: ${lastFilters.drm002 || '-'}`, margin + 5, yPosition);
+                yPosition += 15;
+                
+                // Linha divisória
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
                 yPosition += 10;
                 
-                // Troca de Filtros - Próxima
+                // Seção de Troca de Filtros - Próxima
                 doc.setFont(undefined, 'bold');
-                doc.text('7. Troca de Filtros - Próxima', margin, yPosition);
-                yPosition += 7;
+                doc.text('7. TROCA DE FILTROS - PRÓXIMA', margin, yPosition);
+                yPosition += 8;
                 
                 doc.setFont(undefined, 'normal');
                 const nextFilters = data.nextFilterChange || {};
@@ -4156,24 +4405,30 @@
                 doc.text(`DRM-001: ${nextFilters.drm001 || '-'}`, margin + 5, yPosition);
                 yPosition += 5;
                 doc.text(`DRM-002: ${nextFilters.drm002 || '-'}`, margin + 5, yPosition);
-                yPosition += 10;
+                yPosition += 15;
                 
                 // Observações
                 if (data.notes) {
+                    // Linha divisória
+                    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                    yPosition += 10;
+                    
                     doc.setFont(undefined, 'bold');
-                    doc.text('8. Observações', margin, yPosition);
-                    yPosition += 7;
+                    doc.text('8. OBSERVAÇÕES', margin, yPosition);
+                    yPosition += 8;
                     
                     doc.setFont(undefined, 'normal');
                     const splitNotes = doc.splitTextToSize(data.notes, pageWidth - margin * 2);
                     doc.text(splitNotes, margin + 5, yPosition);
                 }
                 
-                // Footer para cada página
+                // Footer
                 const footerY = doc.internal.pageSize.height - 10;
                 doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
                 doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, footerY);
-                doc.text(`Página ${i + 1} de ${osmosisDailyData.length}`, pageWidth - margin - 20, footerY, { align: 'right' });
+                doc.text(`Clean DataLog - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
+                doc.text(`Página ${i + 1} de ${filteredOsmosisData.length}`, pageWidth - margin - 20, footerY, { align: 'right' });
             }
             
             // Save the PDF
