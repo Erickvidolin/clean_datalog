@@ -269,6 +269,16 @@
             padding: 6px 10px;
             font-size: 12px;
         }
+
+        .btn-ok {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
         
         .btn-primary {
             background-color: var(--secondary);
@@ -411,13 +421,11 @@
         }
         
         .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
         
         .modal-title {
             font-size: 20px;
@@ -2574,96 +2582,846 @@
         // ========== GERENCIAMENTO DE USUÁRIOS ==========
 
         async function addUser() {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem adicionar usuários.');
-                return;
-            }
+    if (currentUser.role !== 'admin') {
+        alert('Apenas administradores podem adicionar usuários.');
+        return;
+    }
 
-            const name = document.getElementById('user-name').value;
-            const email = document.getElementById('user-email').value;
-            const password = document.getElementById('user-password').value;
-            const role = document.getElementById('user-role').value;
+    const name = document.getElementById('user-name').value;
+    const email = document.getElementById('user-email').value;
+    const password = document.getElementById('user-password').value;
+    const role = document.getElementById('user-role').value;
 
-            if (!name || !email || !password) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
+    if (!name || !email || !password) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
 
-            // Validar formato do email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Por favor, insira um email válido.');
-                return;
-            }
+    // Validar formato do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor, insira um email válido.');
+        return;
+    }
 
-            // Validar senha
-            if (password.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres.');
-                return;
-            }
+    // Validar senha
+    if (password.length < 6) {
+        alert('A senha deve ter pelo menos 6 caracteres.');
+        return;
+    }
 
-            // Verificar se o email já existe no Firestore
-            try {
-                const existingUsers = await db.collection('users')
-                    .where('email', '==', email)
-                    .get();
-                
-                if (!existingUsers.empty) {
-                    alert('Este email já está cadastrado no sistema.');
-                    return;
-                }
-            } catch (error) {
-                console.error('Erro ao verificar email:', error);
-            }
+    // Desabilitar botão durante o processo
+    const addButton = document.getElementById('add-user-btn');
+    const originalText = addButton.innerHTML;
+    addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
+    addButton.disabled = true;
 
-            // Desabilitar botão durante o processo
-            const addButton = document.getElementById('add-user-btn');
-            const originalText = addButton.innerHTML;
-            addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
-            addButton.disabled = true;
-
-            try {
-                // Salvar o usuário atual antes de criar um novo
-                const adminUser = auth.currentUser;
-                
-                // Criar usuário no Authentication usando Firebase Admin SDK (via Cloud Functions)
-                // Em um ambiente real, você usaria uma Cloud Function para isso
-                // Por enquanto, vamos apenas salvar no Firestore e o usuário terá que usar "Esqueci minha senha"
-                
-                // Salvar dados no Firestore
-                const userData = {
-                    name: name,
-                    email: email,
-                    role: role,
-                    createdAt: new Date(),
-                    status: 'active',
-                    createdBy: currentUser.uid,
-                    createdByName: currentUser.name
-                };
-
-                // Adicionar um documento temporário
-                const userRef = await db.collection('users_temp').add(userData);
-                
-                await addTraceability(
-                    'Criação de usuário', 
-                    `Usuário ${name} (${email}) criado como ${role}. Senha temporária: ${password}`
-                );
-                
-                alert(`Usuário "${name}" criado com sucesso!\n\nEmail: ${email}\nSenha: ${password}\n\nO usuário deve usar a função "Esqueci minha senha" para definir sua senha.`);
-                clearUserForm();
-                
-                // Recarregar lista de usuários
-                loadUsersList();
-                
-            } catch (error) {
-                console.error('Erro ao criar usuário:', error);
-                alert('Erro ao criar usuário: ' + getAuthErrorMessage(error.code));
-            } finally {
-                // Restaurar botão
-                addButton.innerHTML = originalText;
-                addButton.disabled = false;
-            }
+    try {
+        // SOLUÇÃO SEGURA: Verificar se o email já existe primeiro
+        const existingUsers = await db.collection('users')
+            .where('email', '==', email)
+            .get();
+        
+        if (!existingUsers.empty) {
+            throw new Error('Este email já está cadastrado no sistema.');
         }
+
+        // SOLUÇÃO DEFINITIVA: Usar REST API do Firebase Auth diretamente
+        // Isso não faz logout do usuário atual
+        const response = await createUserWithRestAPI(email, password, name, role);
+        
+        if (response.success) {
+            await addTraceability(
+                'Criação de usuário', 
+                `Usuário ${name} (${email}) criado como ${role}`
+            );
+            
+            alert(`Usuário "${name}" criado com sucesso!\n\nEmail: ${email}`);
+            clearUserForm();
+            loadUsersList();
+        } else {
+            throw new Error(response.error || 'Erro desconhecido ao criar usuário');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        alert('Erro ao criar usuário: ' + error.message);
+    } finally {
+        // Restaurar botão
+        addButton.innerHTML = originalText;
+        addButton.disabled = false;
+    }
+}
+
+// FUNÇÃO PRINCIPAL: Criar usuário via REST API do Firebase
+async function createUserWithRestAPI(email, password, name, role) {
+    // Obter a API KEY do seu projeto Firebase
+    const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE'; // Sua chave já está no firebaseConfig
+    
+    // URL da API do Firebase Auth
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
+    
+    try {
+        // 1. Criar o usuário no Firebase Authentication
+        const authResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                returnSecureToken: true
+            })
+        });
+
+        const authData = await authResponse.json();
+
+        if (!authResponse.ok) {
+            // Tratar erros específicos do Firebase Auth
+            const errorMessage = getFirebaseAuthErrorMessage(authData.error?.message);
+            return { success: false, error: errorMessage };
+        }
+
+        const userId = authData.localId;
+
+        // 2. Salvar dados adicionais no Firestore
+        const userData = {
+            name: name,
+            email: email,
+            role: role,
+            createdAt: new Date(),
+            status: 'active',
+            createdBy: currentUser.uid,
+            createdByName: currentUser.name,
+            uid: userId // Garantir que o UID está salvo
+        };
+
+        await db.collection('users').doc(userId).set(userData);
+
+        return { success: true, userId: userId };
+
+    } catch (error) {
+        console.error('Erro na REST API:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Função para traduzir mensagens de erro do Firebase
+function getFirebaseAuthErrorMessage(errorCode) {
+    const errorMessages = {
+        'EMAIL_EXISTS': 'Este email já está em uso por outro usuário.',
+        'OPERATION_NOT_ALLOWED': 'A criação de usuários não está habilitada.',
+        'TOO_MANY_ATTEMPTS_TRY_LATER': 'Muitas tentativas. Tente novamente mais tarde.',
+        'INVALID_EMAIL': 'O endereço de email é inválido.',
+        'WEAK_PASSWORD': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
+        'MISSING_PASSWORD': 'A senha é obrigatória.',
+        'EMAIL_NOT_FOUND': 'Email não encontrado.',
+        'INVALID_PASSWORD': 'Senha incorreta.',
+        'USER_DISABLED': 'Esta conta foi desativada.'
+    };
+
+    // Extrair o código do erro (ex: "EMAIL_EXISTS" de "auth/email-exists")
+    let code = errorCode;
+    if (errorCode && errorCode.includes('/')) {
+        code = errorCode.split('/')[1].toUpperCase().replace(/-/g, '_');
+    }
+
+    return errorMessages[code] || `Erro: ${errorCode || 'Erro desconhecido'}`;
+}
+
+// Função auxiliar para verificar se um usuário já existe
+async function checkUserExists(email) {
+    try {
+        // Verificar no Firestore
+        const userSnapshot = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+        
+        return !userSnapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar usuário:', error);
+        return false;
+    }
+}
+
+// Versão alternativa caso a REST API tenha problemas
+async function createUserAlternative(email, password, name, role) {
+    try {
+        // Esta é uma abordagem de fallback que pede a senha do admin
+        // mas só é usada se a REST API falhar
+        
+        const adminPassword = prompt(
+            'Para maior segurança, digite sua senha de administrador para confirmar a criação do usuário:'
+        );
+
+        if (!adminPassword) {
+            throw new Error('Operação cancelada pelo usuário.');
+        }
+
+        // Verificar se a senha do admin está correta
+        const adminEmail = currentUser.email;
+        
+        // Tentar fazer login para validar a senha
+        const tempAuth = firebase.auth();
+        await tempAuth.signInWithEmailAndPassword(adminEmail, adminPassword);
+        
+        // Se chegou aqui, a senha está correta
+        // Agora criar o usuário
+        const userCredential = await tempAuth.createUserWithEmailAndPassword(email, password);
+        const newUser = userCredential.user;
+
+        // Salvar dados no Firestore
+        const userData = {
+            name: name,
+            email: email,
+            role: role,
+            createdAt: new Date(),
+            status: 'active',
+            createdBy: currentUser.uid,
+            createdByName: currentUser.name
+        };
+
+        await db.collection('users').doc(newUser.uid).set(userData);
+
+        // Fazer logout do usuário criado e refazer login como admin
+        await tempAuth.signOut();
+        await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
+
+        return { success: true, userId: newUser.uid };
+
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// Função principal atualizada com fallback
+async function addUser() {
+    if (currentUser.role !== 'admin') {
+        alert('Apenas administradores podem adicionar usuários.');
+        return;
+    }
+
+    const name = document.getElementById('user-name').value.trim();
+    const email = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+    const role = document.getElementById('user-role').value;
+
+    console.log('Dados do formulário:', { name, email, password: '***', role });
+
+    if (!name || !email || !password) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Validar formato do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor, insira um email válido.');
+        return;
+    }
+
+    // Validar senha
+    if (password.length < 6) {
+        alert('A senha deve ter pelo menos 6 caracteres.');
+        return;
+    }
+
+    // Garantir que role tem um valor válido
+    const userRole = role || 'user';
+    console.log('Role definido como:', userRole);
+
+    // Desabilitar botão durante o processo
+    const addButton = document.getElementById('add-user-btn');
+    const originalText = addButton.innerHTML;
+    addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
+    addButton.disabled = true;
+
+    try {
+        // SOLUÇÃO CORRIGIDA: Verificar se usuário já existe no Firestore
+        const existingUser = await checkUserExists(email);
+        if (existingUser) {
+            throw new Error('Este email já está cadastrado no sistema.');
+        }
+
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
+        
+        console.log('Criando usuário no Firebase Auth...');
+
+        // 1. Criar usuário no Firebase Authentication
+        const authResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                returnSecureToken: true
+            })
+        });
+
+        const authData = await authResponse.json();
+        console.log('Resposta do Firebase Auth:', authData);
+
+        if (!authResponse.ok) {
+            // Se o usuário já existe no Auth mas não no Firestore, vamos recuperar
+            if (authData.error?.message === 'EMAIL_EXISTS') {
+                console.log('Usuário já existe no Auth, tentando recuperar...');
+                await handleExistingAuthUser(email, name, userRole);
+            } else {
+                const errorMessage = getFirebaseAuthErrorMessage(authData.error?.message);
+                throw new Error(errorMessage);
+            }
+        } else {
+            // Usuário criado com sucesso no Auth
+            const userId = authData.localId;
+            console.log('Usuário criado no Auth com ID:', userId);
+            await saveUserToFirestore(userId, name, email, userRole);
+        }
+
+        await addTraceability(
+            'Criação de usuário', 
+            `Usuário ${name} (${email}) criado como ${userRole}`
+        );
+        
+        // CORREÇÃO COMPLETA: Mensagem de sucesso sem nenhuma referência à senha
+        alert(`✅ Usuário criado com sucesso!\n\n• Nome: ${name}\n• Email: ${email}`);
+        clearUserForm();
+        
+        // Recarregar lista de usuários
+        await loadUsersList();
+        
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        alert('❌ Erro ao criar usuário: ' + error.message);
+    } finally {
+        // Restaurar botão
+        addButton.innerHTML = originalText;
+        addButton.disabled = false;
+    }
+}
+
+// CORREÇÃO COMPLETA: Função para lidar com usuário existente sem expor senhas
+async function handleExistingAuthUser(email, name, role) {
+    console.log('Tentando recuperar usuário existente no Auth...');
+    
+    try {
+        // SOLUÇÃO SEGURA: Não pedir a senha, apenas informar o admin
+        const shouldContinue = confirm(
+            `⚠️ Atenção!\n\nO usuário ${email} já existe no sistema de autenticação, mas não está cadastrado no painel administrativo.\n\nPara resolver:\n\n1. O usuário deve usar a função "Esqueci minha senha" no login\n2. Ou entre em contato com o suporte técnico\n\nDeseja continuar com o cadastro administrativo?`
+        );
+
+        if (!shouldContinue) {
+            throw new Error('Operação cancelada pelo administrador.');
+        }
+
+        // Como não podemos obter o UID sem a senha, vamos criar um registro pendente
+        const pendingUserData = {
+            name: name,
+            email: email,
+            role: role,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pending_auth_link',
+            createdBy: currentUser.uid,
+            createdByName: currentUser.name,
+            notes: 'Usuário existe no Auth mas precisa vincular conta'
+        };
+
+        // Usar o email como ID temporário (substituindo @ e . por _)
+        const tempUserId = email.replace(/[@.]/g, '_');
+        await db.collection('users').doc(tempUserId).set(pendingUserData);
+        
+        // CORREÇÃO: Mensagem sem nenhuma referência à senha
+        alert(`✅ Cadastro administrativo criado!\n\n• Nome: ${name}\n• Email: ${email}\n• Status: Pendente de vinculação\n\nInstruções:\n1. O usuário deve usar "Esqueci minha senha" no login\n2. Após redefinir a senha, a conta será vinculada automaticamente`);
+
+    } catch (error) {
+        console.error('Erro ao recuperar usuário existente:', error);
+        throw new Error(`Não foi possível processar o usuário existente: ${error.message}`);
+    }
+}
+
+// Função para salvar usuário no Firestore (CORRIGIDA)
+async function saveUserToFirestore(userId, name, email, role) {
+    console.log('Salvando usuário no Firestore:', { userId, name, email, role });
+    
+    // Dados CORRETOS para o Firestore
+    const userData = {
+        name: name || '',
+        email: email || '',
+        role: role || 'user',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'active',
+        createdBy: currentUser.uid,
+        createdByName: currentUser.name,
+        uid: userId
+    };
+
+    console.log('Dados a serem salvos:', userData);
+
+    // Verificar se não há campos undefined
+    Object.keys(userData).forEach(key => {
+        if (userData[key] === undefined) {
+            console.warn(`Campo ${key} está undefined, convertendo para string vazia`);
+            userData[key] = '';
+        }
+    });
+
+    // Salvar no Firestore
+    await db.collection('users').doc(userId).set(userData);
+    
+    // Verificar se foi salvo
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+        throw new Error('Falha ao salvar usuário no Firestore');
+    }
+
+    console.log('Usuário salvo com sucesso no Firestore:', userDoc.data());
+}
+
+// Função para verificar se usuário existe (ATUALIZADA)
+async function checkUserExists(email) {
+    try {
+        const userSnapshot = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+        
+        return !userSnapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar usuário:', error);
+        return false;
+    }
+}
+
+// Função para traduzir mensagens de erro do Firebase
+function getFirebaseAuthErrorMessage(errorCode) {
+    const errorMessages = {
+        'EMAIL_EXISTS': 'Este email já está em uso por outro usuário.',
+        'OPERATION_NOT_ALLOWED': 'A criação de usuários não está habilitada.',
+        'TOO_MANY_ATTEMPTS_TRY_LATER': 'Muitas tentativas. Tente novamente mais tarde.',
+        'INVALID_EMAIL': 'O endereço de email é inválido.',
+        'WEAK_PASSWORD': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
+        'MISSING_PASSWORD': 'A senha é obrigatória.'
+    };
+
+    let code = errorCode;
+    if (errorCode && errorCode.includes('/')) {
+        code = errorCode.split('/')[1].toUpperCase().replace(/-/g, '_');
+    }
+
+    return errorMessages[code] || `Erro: ${errorCode || 'Erro desconhecido'}`;
+}
+
+// Função para limpar formulário
+function clearUserForm() {
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('user-role').value = 'user';
+}
+
+// Também atualize a mensagem na função handleExistingAuthUser:
+async function handleExistingAuthUser(email, name, role) {
+    console.log('Tentando recuperar usuário existente no Auth...');
+    
+    try {
+        // Tentar obter o UID do usuário existente
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+        
+        // Primeiro, precisamos da senha (vamos pedir ao admin)
+        const userPassword = prompt(
+            `O usuário ${email} já existe na autenticação, mas não foi encontrado no sistema.\n\nPara recuperar esta conta, digite a senha do usuário:`
+        );
+
+        if (!userPassword) {
+            throw new Error('Operação cancelada. É necessária a senha para recuperar o usuário.');
+        }
+
+        // Tentar fazer login para obter o UID
+        const loginResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: userPassword,
+                returnSecureToken: true
+            })
+        });
+
+        const loginData = await loginResponse.json();
+        
+        if (!loginResponse.ok) {
+            throw new Error('Senha incorreta ou erro ao acessar a conta existente.');
+        }
+
+        const userId = loginData.localId;
+        console.log('UID do usuário existente:', userId);
+
+        // Agora salvar no Firestore
+        await saveUserToFirestore(userId, name, email, role);
+        
+        // CORREÇÃO: Mensagem sem mostrar dados sensíveis
+        alert(`✅ Usuário recuperado com sucesso!\n\nNome: ${name}\nEmail: ${email}\n\nA conta foi vinculada ao sistema.`);
+
+    } catch (error) {
+        console.error('Erro ao recuperar usuário existente:', error);
+        throw new Error(`Não foi possível recuperar o usuário existente: ${error.message}`);
+    }
+}
+
+// Função para traduzir mensagens de erro do Firebase
+function getFirebaseAuthErrorMessage(errorCode) {
+    const errorMessages = {
+        'EMAIL_EXISTS': 'Este email já está em uso por outro usuário.',
+        'OPERATION_NOT_ALLOWED': 'A criação de usuários não está habilitada.',
+        'TOO_MANY_ATTEMPTS_TRY_LATER': 'Muitas tentativas. Tente novamente mais tarde.',
+        'INVALID_EMAIL': 'O endereço de email é inválido.',
+        'WEAK_PASSWORD': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
+        'MISSING_PASSWORD': 'A senha é obrigatória.'
+    };
+
+    let code = errorCode;
+    if (errorCode && errorCode.includes('/')) {
+        code = errorCode.split('/')[1].toUpperCase().replace(/-/g, '_');
+    }
+
+    return errorMessages[code] || `Erro: ${errorCode || 'Erro desconhecido'}`;
+}
+
+// Função para limpar formulário
+function clearUserForm() {
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('user-role').value = 'user';
+}
+
+// Atualizar a função loadUsersList para garantir que está funcionando
+async function loadUsersList() {
+    try {
+        console.log('Carregando lista de usuários...');
+        const snapshot = await db.collection('users')
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        const tbody = document.getElementById('users-list');
+        const cardsContainer = document.getElementById('users-list-cards');
+        tbody.innerHTML = '';
+        cardsContainer.innerHTML = '';
+        
+        console.log('Total de usuários encontrados:', snapshot.size);
+        
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
+            cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
+            return;
+        }
+        
+        allUsers = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            console.log('Usuário carregado:', data);
+            allUsers.push({ id: doc.id, ...data });
+            const row = createUserRow(data, doc.id);
+            tbody.appendChild(row);
+            
+            const card = createUserCard(data, doc.id);
+            cardsContainer.appendChild(card);
+        });
+        
+        console.log('Lista de usuários carregada com sucesso!');
+        
+    } catch (error) {
+        console.error('Erro ao carregar lista de usuários:', error);
+        document.getElementById('users-list').innerHTML = '<tr><td colspan="6" style="text-align: center;">Erro ao carregar dados</td></tr>';
+        document.getElementById('users-list-cards').innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Erro ao carregar dados</div></div>';
+    }
+}
+
+// Função para criar linha da tabela de usuários (ATUALIZADA)
+function createUserRow(data, userId) {
+    const row = document.createElement('tr');
+    const createdAt = data.createdAt ? 
+        new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleDateString('pt-BR') : '-';
+    
+    row.innerHTML = `
+        <td>${data.name || '-'}</td>
+        <td>${data.email || '-'}</td>
+        <td>${data.role === 'admin' ? 'Administrador' : 'Usuário Normal'}</td>
+        <td>${createdAt}</td>
+        <td><span class="status ${data.status === 'active' ? 'status-normal' : 'status-critical'}">${data.status === 'active' ? 'Ativo' : 'Inativo'}</span></td>
+        <td>
+            <button class="btn btn-warning btn-sm" onclick="editUser('${userId}')">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteUser('${userId}')">
+                <i class="fas fa-trash"></i>
+            </button>
+            ${data.status === 'active' ? 
+                `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')">
+                    <i class="fas fa-user-slash"></i>
+                </button>` :
+                `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')">
+                    <i class="fas fa-user-check"></i>
+                </button>`
+            }
+        </td>
+    `;
+    return row;
+}
+
+// Função para criar card de usuário (ATUALIZADA)
+async function addUser() {
+    if (currentUser.role !== 'admin') {
+        alert('Apenas administradores podem adicionar usuários.');
+        return;
+    }
+
+    const name = document.getElementById('user-name').value.trim();
+    const email = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+    const role = document.getElementById('user-role').value;
+
+    console.log('Dados do formulário:', { name, email, password, role });
+
+    if (!name || !email || !password) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Validar formato do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor, insira um email válido.');
+        return;
+    }
+
+    // Validar senha
+    if (password.length < 6) {
+        alert('A senha deve ter pelo menos 6 caracteres.');
+        return;
+    }
+
+    // Garantir que role tem um valor válido
+    const userRole = role || 'user';
+    console.log('Role definido como:', userRole);
+
+    // Desabilitar botão durante o processo
+    const addButton = document.getElementById('add-user-btn');
+    const originalText = addButton.innerHTML;
+    addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
+    addButton.disabled = true;
+
+    try {
+        // SOLUÇÃO CORRIGIDA: Verificar se usuário já existe no Firestore
+        const existingUser = await checkUserExists(email);
+        if (existingUser) {
+            throw new Error('Este email já está cadastrado no sistema.');
+        }
+
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
+        
+        console.log('Criando usuário no Firebase Auth...');
+
+        // 1. Criar usuário no Firebase Authentication
+        const authResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                returnSecureToken: true
+            })
+        });
+
+        const authData = await authResponse.json();
+        console.log('Resposta do Firebase Auth:', authData);
+
+        if (!authResponse.ok) {
+            // Se o usuário já existe no Auth mas não no Firestore, vamos recuperar
+            if (authData.error?.message === 'EMAIL_EXISTS') {
+                console.log('Usuário já existe no Auth, tentando recuperar...');
+                await handleExistingAuthUser(email, name, userRole);
+            } else {
+                const errorMessage = getFirebaseAuthErrorMessage(authData.error?.message);
+                throw new Error(errorMessage);
+            }
+        } else {
+            // Usuário criado com sucesso no Auth
+            const userId = authData.localId;
+            console.log('Usuário criado no Auth com ID:', userId);
+            await saveUserToFirestore(userId, name, email, userRole);
+        }
+
+        await addTraceability(
+            'Criação de usuário', 
+            `Usuário ${name} (${email}) criado como ${userRole}`
+        );
+        
+        alert(`✅ Usuário "${name}" criado com sucesso!\n\nEmail: ${email}`);
+        clearUserForm();
+        
+        // Recarregar lista de usuários
+        await loadUsersList();
+        
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        alert('❌ Erro ao criar usuário: ' + error.message);
+    } finally {
+        // Restaurar botão
+        addButton.innerHTML = originalText;
+        addButton.disabled = false;
+    }
+}
+
+// Função para salvar usuário no Firestore (CORRIGIDA)
+async function saveUserToFirestore(userId, name, email, role) {
+    console.log('Salvando usuário no Firestore:', { userId, name, email, role });
+    
+    // Dados CORRETOS para o Firestore
+    const userData = {
+        name: name || '',
+        email: email || '',
+        role: role || 'user', // Valor padrão garantido
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'active',
+        createdBy: currentUser.uid,
+        createdByName: currentUser.name,
+        uid: userId
+    };
+
+    console.log('Dados a serem salvos:', userData);
+
+    // Verificar se não há campos undefined
+    Object.keys(userData).forEach(key => {
+        if (userData[key] === undefined) {
+            console.warn(`Campo ${key} está undefined, convertendo para string vazia`);
+            userData[key] = '';
+        }
+    });
+
+    // Salvar no Firestore
+    await db.collection('users').doc(userId).set(userData);
+    
+    // Verificar se foi salvo
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+        throw new Error('Falha ao salvar usuário no Firestore');
+    }
+
+    console.log('Usuário salvo com sucesso no Firestore:', userDoc.data());
+}
+
+// Função para lidar com usuário que já existe no Auth mas não no Firestore
+async function handleExistingAuthUser(email, name, role) {
+    console.log('Tentando recuperar usuário existente no Auth...');
+    
+    try {
+        // Tentar obter o UID do usuário existente
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+        
+        // Primeiro, precisamos da senha (vamos pedir ao admin)
+        const userPassword = prompt(
+            `O usuário ${email} já existe na autenticação, mas não foi encontrado no sistema.\n\nPara recuperar esta conta, digite a senha do usuário:`
+        );
+
+        if (!userPassword) {
+            throw new Error('Operação cancelada. É necessária a senha para recuperar o usuário.');
+        }
+
+        // Tentar fazer login para obter o UID
+        const loginResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: userPassword,
+                returnSecureToken: true
+            })
+        });
+
+        const loginData = await loginResponse.json();
+        
+        if (!loginResponse.ok) {
+            throw new Error('Senha incorreta ou erro ao acessar a conta existente.');
+        }
+
+        const userId = loginData.localId;
+        console.log('UID do usuário existente:', userId);
+
+        // Agora salvar no Firestore
+        await saveUserToFirestore(userId, name, email, role);
+        
+        alert(`✅ Usuário existente recuperado com sucesso!\n\nEmail: ${email}\nA conta foi vinculada ao sistema.`);
+
+    } catch (error) {
+        console.error('Erro ao recuperar usuário existente:', error);
+        throw new Error(`Não foi possível recuperar o usuário existente: ${error.message}`);
+    }
+}
+
+// Função para verificar se usuário existe (ATUALIZADA)
+async function checkUserExists(email) {
+    try {
+        const userSnapshot = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+        
+        return !userSnapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar usuário:', error);
+        return false;
+    }
+}
+
+// Função para traduzir mensagens de erro do Firebase
+function getFirebaseAuthErrorMessage(errorCode) {
+    const errorMessages = {
+        'EMAIL_EXISTS': 'Este email já está em uso por outro usuário.',
+        'OPERATION_NOT_ALLOWED': 'A criação de usuários não está habilitada.',
+        'TOO_MANY_ATTEMPTS_TRY_LATER': 'Muitas tentativas. Tente novamente mais tarde.',
+        'INVALID_EMAIL': 'O endereço de email é inválido.',
+        'WEAK_PASSWORD': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
+        'MISSING_PASSWORD': 'A senha é obrigatória.'
+    };
+
+    let code = errorCode;
+    if (errorCode && errorCode.includes('/')) {
+        code = errorCode.split('/')[1].toUpperCase().replace(/-/g, '_');
+    }
+
+    return errorMessages[code] || `Erro: ${errorCode || 'Erro desconhecido'}`;
+}
+
+// Função para limpar formulário
+function clearUserForm() {
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('user-role').value = 'user';
+}
+
+// Substitua a função original pela versão robusta
+// document.getElementById('add-user-btn').addEventListener('click', addUserRobust);
+
+// Função auxiliar para criar token customizado (se necessário)
+async function createCustomToken(email) {
+    // Esta é uma simplificação - em produção você precisaria de uma Cloud Function
+    return btoa(JSON.stringify({ email: email, timestamp: Date.now() }));
+}
 
         async function loadUsersList() {
             try {
