@@ -315,6 +315,114 @@
         .btn-danger:hover {
             background-color: #c0392b;
         }
+
+        /* Animações para notificações */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #fff3cd;
+    }
+    50% {
+        background-color: #ffeaa7;
+    }
+    100% {
+        background-color: #fff3cd;
+    }
+}
+
+/* Efeito de notificação nova */
+.notification-item.new-notification {
+    animation: highlight 2s ease-in-out;
+}
+
+/* Scrollbar personalizada para lista de notificações */
+.notification-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Botão de notificações com estados */
+#notification-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: visible;
+}
+
+#notification-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#notification-btn.has-notifications {
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+/* Ícone de sino animado */
+#notification-btn i.fa-bell {
+    transition: transform 0.3s;
+}
+
+#notification-btn:hover i.fa-bell {
+    transform: rotate(15deg);
+}
+
+#notification-btn.has-notifications i.fa-bell {
+    animation: ring 0.5s ease-in-out;
+}
+
+@keyframes ring {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(-15deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0); }
+}
         
         /* Tables */
         table {
@@ -419,6 +527,62 @@
             justify-content: center;
             align-items: center;
         }
+
+        /* Animação para o contador de notificações */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+/* Estilo adicional para o modal de notificações */
+.notification-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.notification-item.unread {
+    background-color: #f0f8ff;
+    border-left: 4px solid #3498db;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.notification-type {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+.notification-type.alert {
+    background-color: #f39c12;
+    color: white;
+}
+
+.notification-type.critical {
+    background-color: #e74c3c;
+    color: white;
+}
         
         .modal-content {
     background: white;
@@ -557,6 +721,222 @@
             margin-bottom: 10px;
             color: var(--primary);
         }
+
+        /* Notification Styles */
+            #notification-count {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background-color: var(--danger);
+                color: white;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .notification-item {
+                padding: 12px;
+                border-bottom: 1px solid #eee;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .notification-item:hover {
+                background-color: #f8f9fa;
+            }
+
+            .notification-item.unread {
+                background-color: #e8f4fc;
+                border-left: 4px solid var(--secondary);
+            }
+
+            .notification-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 5px;
+            }
+
+            .notification-title {
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            .notification-time {
+                font-size: 11px;
+                color: var(--gray);
+            }
+
+            .notification-message {
+                font-size: 13px;
+                color: var(--dark);
+                margin-bottom: 5px;
+            }
+
+            .notification-type {
+                display: inline-block;
+                padding: 2px 6px;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: 500;
+            }
+
+            .notification-type.alert {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            .notification-type.critical {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+
+            .notification-type.info {
+                background-color: #d1ecf1;
+                color: #0c5460;
+            }
+
+            /* Animação para o contador de notificações */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+/* Estilo para notificações críticas */
+.notification-critical {
+    border-left: 4px solid #e74c3c !important;
+    background-color: #ffeaea !important;
+}
+
+.notification-critical .notification-type {
+    background-color: #e74c3c !important;
+    color: white !important;
+}
+
+/* Estilo para notificações de alerta */
+.notification-alert {
+    border-left: 4px solid #f39c12 !important;
+    background-color: #fff8e1 !important;
+}
+
+.notification-alert .notification-type {
+    background-color: #f39c12 !important;
+    color: white !important;
+}
+
+/* Estilo para notificações de informação */
+.notification-info {
+    border-left: 4px solid #3498db !important;
+    background-color: #e8f4fc !important;
+}
+
+.notification-info .notification-type {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+/* Modal de notificações melhorado */
+.notification-modal-content {
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.notification-list {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.notification-item {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.notification-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.notification-item.unread {
+    font-weight: 600;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    flex: 1;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #95a5a6;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.notification-message {
+    font-size: 13px;
+    color: #34495e;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.notification-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.empty-notifications {
+    text-align: center;
+    padding: 40px 20px;
+    color: #95a5a6;
+}
+
+.empty-notifications i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
         
         /* Responsive */
         @media (max-width: 992px) {
@@ -815,6 +1195,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Notification Modal -->
+    <div class="edit-modal" id="notification-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-title">
+                <i class="fas fa-bell"></i> Notificações do Sistema
+                <button class="btn btn-sm" onclick="markAllAsRead()" style="float: right;">
+                    Marcar todas como lidas
+                </button>
+            </div>
+            <div id="notification-list" style="max-height: 400px; overflow-y: auto;">
+                <!-- Notificações serão carregadas aqui -->
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-bell-slash" style="font-size: 48px; color: #ccc;"></i>
+                    <p>Nenhuma notificação</p>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="container">
         <!-- Sidebar -->
@@ -859,19 +1258,44 @@
         <div class="main-content">
             <div class="header">
                 <div class="page-title">Monitoramento de Ambiente</div>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div>
-                        <div>Operador: <span id="current-user">Usuário</span></div>
-                        <div style="font-size: 12px; color: var(--gray);">Último login: <span id="last-login">--:--</span></div>
-                    </div>
-                    <div class="user-role" id="user-role">Usuário</div>
-                    <button class="btn btn-warning btn-sm" id="logout-btn" style="margin-left: 10px;">
-                        <i class="fas fa-sign-out-alt"></i> Sair
-                    </button>
-                </div>
+                <!-- Substitua este código no header do seu HTML -->
+<div class="user-info">
+    <div class="user-avatar">
+        <i class="fas fa-user"></i>
+    </div>
+    <div>
+        <div>Operador: <span id="current-user">Usuário</span></div>
+        <div style="font-size: 12px; color: var(--gray);">Último login: <span id="last-login">--:--</span></div>
+    </div>
+    <div class="user-role" id="user-role">Usuário</div>
+    
+    <!-- Botão de Notificações (apenas para admin/qualidade) -->
+    <button class="btn btn-info btn-sm" id="notification-btn" style="margin-left: 10px; display: none; position: relative;">
+        <i class="fas fa-bell"></i>
+        <span id="notification-count" style="
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        ">0</span>
+    </button>
+    
+    <button class="btn btn-warning btn-sm" id="logout-btn" style="margin-left: 10px;">
+        <i class="fas fa-sign-out-alt"></i> Sair
+    </button>
+</div>
             </div>
             
             <!-- Temperature & Humidity Page -->
@@ -1664,6 +2088,73 @@
     </div>
 
     <script>
+        // ========== FUNÇÕES DE VALIDAÇÃO GLOBAIS ==========
+
+// Validação de dados de temperatura
+function validateTemperatureData(tempMin, tempMax, tempActual, humidityMin, humidityMax, humidityActual) {
+    const errors = [];
+    
+    if (tempMin < -50 || tempMin > 100) errors.push('Temp mínima fora do range (-50°C a 100°C)');
+    if (tempMax < -50 || tempMax > 100) errors.push('Temp máxima fora do range (-50°C a 100°C)');
+    if (tempActual < -50 || tempActual > 100) errors.push('Temp atual fora do range (-50°C a 100°C)');
+    if (tempMin > tempMax) errors.push('Temp mínima > máxima');
+    if (tempActual < tempMin || tempActual > tempMax) errors.push('Temp atual fora da faixa');
+    
+    if (humidityMin < 0 || humidityMin > 100) errors.push('Umid mínima fora do range (0% a 100%)');
+    if (humidityMax < 0 || humidityMax > 100) errors.push('Umid máxima fora do range (0% a 100%)');
+    if (humidityActual < 0 || humidityActual > 100) errors.push('Umid atual fora do range (0% a 100%)');
+    if (humidityMin > humidityMax) errors.push('Umid mínima > máxima');
+    if (humidityActual < humidityMin || humidityActual > humidityMax) errors.push('Umid atual fora da faixa');
+    
+    return errors;
+}
+
+// Validação de pressão
+function validatePressureData(pressure, minPressure = 0) {
+    const errors = [];
+    
+    if (pressure < 0) errors.push('Pressão não pode ser negativa');
+    if (pressure > 10000) errors.push('Pressão acima do limite (10,000 Pa)');
+    
+    return errors;
+}
+
+// Validação de osmose
+function validateOsmosisData(conductivity) {
+    const errors = [];
+    
+    if (conductivity < 0) errors.push('Condutividade não pode ser negativa');
+    if (conductivity > 100) errors.push('Condutividade acima do limite (100 µS/cm)');
+    
+    return errors;
+}
+
+// Validação de sala
+function validateRoomData(name, code, tempMin, tempMax, humidityMin, humidityMax, pressureMin) {
+    const errors = [];
+    
+    if (!name || name.length < 3) errors.push('Nome da sala muito curto');
+    if (!code || code.length < 2) errors.push('Código da sala muito curto');
+    if (tempMin < 0 || tempMin > 50) errors.push('Temp mínima inválida (0°C a 50°C)');
+    if (tempMax < 0 || tempMax > 50) errors.push('Temp máxima inválida (0°C a 50°C)');
+    if (tempMin > tempMax) errors.push('Temp mínima > máxima');
+    if (humidityMin < 0 || humidityMin > 100) errors.push('Umid mínima inválida (0% a 100%)');
+    if (humidityMax < 0 || humidityMax > 100) errors.push('Umid máxima inválida (0% a 100%)');
+    if (humidityMin > humidityMax) errors.push('Umid mínima > máxima');
+    if (pressureMin < 0) errors.push('Pressão mínima não pode ser negativa');
+    
+    return errors;
+}
+
+// Função para mostrar erros de validação
+function showValidationErrors(errors, context = 'Validação') {
+    if (errors.length > 0) {
+        const errorMessage = `${context}:\n\n• ${errors.join('\n• ')}`;
+        alert(errorMessage);
+        return false;
+    }
+    return true;
+}
         // Estado global da aplicação
         let currentUser = null;
         let rooms = [];
@@ -1678,37 +2169,134 @@
             initializeApp();
         });
 
-        async function initializeApp() {
-            console.log('Inicializando aplicação...');
+        // ========== FUNÇÃO initializeApp() COMPLEMENTADA ==========
+async function initializeApp() {
+    console.log('=== INICIALIZANDO APLICAÇÃO ===');
+    
+    try {
+        // 1. VERIFICAR CONEXÃO COM FIREBASE
+        const app = firebase.app();
+        console.log('Firebase carregado:', app.name);
+        
+        // 2. CONFIGURAR OBSERVADOR DE AUTENTICAÇÃO
+        auth.onAuthStateChanged(async (user) => {
+            console.log('Estado de autenticação:', user ? 'Usuário logado' : 'Usuário deslogado');
             
-            // Verificar se usuário já está logado
-            auth.onAuthStateChanged(async (user) => {
-                console.log('Estado de autenticação alterado:', user);
-                if (user) {
-                    await handleUserLogin(user);
-                } else {
-                    showLoginModal();
-                }
-            });
+            if (user) {
+                await handleUserLogin(user);
+            } else {
+                showLoginModal();
+            }
+        });
+        
+        // 3. VERIFICAR SE HÁ USUÁRIO ADMINISTRADOR
+        await checkAdminExists();
+        
+        // 4. CONFIGURAR EVENT LISTENERS
+        setupEventListeners();
+        setupOsmosisTabs();
+        
+        // 5. ATUALIZAR HORA E DATA
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        
+        // 6. PREENCHER FILTROS
+        populateYearFilter();
+        
+        // 7. VERIFICAR NOTIFICAÇÕES PENDENTES
+        setTimeout(() => {
+            if (currentUser && currentUser.role === 'admin') {
+                updateNotificationCount();
+            }
+        }, 2000);
+        
+        console.log('=== APLICAÇÃO INICIALIZADA ===');
+        
+    } catch (error) {
+        console.error('Erro na inicialização:', error);
+        alert('Erro ao inicializar o sistema. Verifique sua conexão.');
+    }
+}
 
-            // Configurar event listeners
-            setupEventListeners();
-            setupOsmosisTabs();
+// Função auxiliar para verificar se existe admin
+async function checkAdminExists() {
+    try {
+        const adminsSnapshot = await db.collection('users')
+            .where('role', '==', 'admin')
+            .where('status', '==', 'active')
+            .limit(1)
+            .get();
+        
+        if (adminsSnapshot.empty) {
+            console.warn('⚠️ Nenhum administrador encontrado no sistema');
             
-            // Atualizar hora atual
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
+            // Criar admin padrão se permitido
+            const shouldCreateAdmin = confirm(
+                'Nenhum administrador encontrado no sistema.\n\n' +
+                'Deseja criar um administrador padrão?\n\n' +
+                'Email: admin@cleanroom.com\n' +
+                'Senha: admin123'
+            );
             
-            // Preencher anos no filtro
-            populateYearFilter();
+            if (shouldCreateAdmin) {
+                await createDefaultAdmin();
+            }
+        } else {
+            console.log('Administrador encontrado no sistema');
         }
+        
+    } catch (error) {
+        console.error('Erro ao verificar administradores:', error);
+    }
+}
 
+// Função para criar admin padrão (apenas em desenvolvimento)
+async function createDefaultAdmin() {
+    try {
+        const adminEmail = 'admin@cleanroom.com';
+        const adminPassword = 'admin123';
+        
+        // Criar no Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
+        
+        // Salvar no Firestore
+        await db.collection('users').doc(userCredential.user.uid).set({
+            name: 'Administrador',
+            email: adminEmail,
+            role: 'admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'active',
+            isDefaultAdmin: true
+        });
+        
+        console.log('✅ Administrador padrão criado');
+        alert('Administrador padrão criado com sucesso!\n\nEmail: admin@cleanroom.com\nSenha: admin123\n\nALTERE A SENHA IMEDIATAMENTE!');
+        
+        // Fazer logout e login
+        await auth.signOut();
+        showLoginModal();
+        
+    } catch (error) {
+        console.error('Erro ao criar admin padrão:', error);
+        alert('Erro ao criar administrador padrão: ' + error.message);
+    }
+}
         function setupEventListeners() {
             // Login
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             
             // Logout
             document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+            // Notificações
+            document.getElementById('notification-btn').addEventListener('click', showNotificationModal);
+
+            // Fechar modal ao clicar fora
+            document.getElementById('notification-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideNotificationModal();
+                }
+            });
             
             // Navegação
             const menuItems = document.querySelectorAll('.menu-item');
@@ -1880,46 +2468,100 @@
             }
         }
 
-        async function handleUserLogin(user) {
-            console.log('Processando login do usuário:', user.email);
+        // ========== FUNÇÃO handleUserLogin() MELHORADA ==========
+async function handleUserLogin(user) {
+    console.log('=== PROCESSANDO LOGIN ===');
+    
+    // 1. DESABILITAR BOTÃO DE LOGIN
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        loginBtn.disabled = true;
+    }
+    
+    try {
+        // 2. BUSCAR DADOS DO USUÁRIO
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if (userDoc.exists) {
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                ...userDoc.data()
+            };
+            console.log('Usuário carregado:', currentUser.name, currentUser.role);
             
-            try {
-                // Buscar dados do usuário no Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                
-                if (userDoc.exists) {
-                    currentUser = {
-                        uid: user.uid,
-                        email: user.email,
-                        ...userDoc.data()
-                    };
-                    console.log('Dados do usuário carregados:', currentUser);
-                } else {
-                    // Criar usuário padrão se não existir
-                    console.log('Usuário não encontrado no Firestore, criando...');
-                    currentUser = {
-                        uid: user.uid,
-                        email: user.email,
-                        name: user.email.split('@')[0],
-                        role: 'user',
-                        createdAt: new Date()
-                    };
-                    
-                    await db.collection('users').doc(user.uid).set(currentUser);
-                }
-
-                updateUI();
-                await loadInitialData();
-                hideLoginModal();
-                
-                // Registrar login no log de rastreabilidade
-                await addTraceability('Login no sistema', `Usuário ${currentUser.name} fez login`);
-                
-            } catch (error) {
-                console.error('Erro ao processar login:', error);
-                alert('Erro ao carregar dados do usuário: ' + error.message);
-            }
+        } else {
+            // 3. CRIAR USUÁRIO PADRÃO SE NÃO EXISTIR
+            console.log('Usuário não encontrado no Firestore, criando...');
+            
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: user.email.split('@')[0],
+                role: 'user', // Papel padrão
+                createdAt: new Date(),
+                status: 'active',
+                firstLogin: true
+            };
+            
+            await db.collection('users').doc(user.uid).set(currentUser);
+            console.log('Novo usuário criado no Firestore');
         }
+        
+        // 4. ATUALIZAR UI
+        updateUI();
+        
+        // 5. CARREGAR DADOS INICIAIS
+        await loadInitialData();
+        
+        // 6. ESCONDER MODAL DE LOGIN
+        hideLoginModal();
+        
+        // 7. REGISTRAR LOGIN
+        await addTraceability('Login no sistema', `Usuário ${currentUser.name} fez login`);
+        
+        // 8. VERIFICAR SE É PRIMEIRO LOGIN
+        if (currentUser.firstLogin) {
+            alert(`Bem-vindo ao Clean DataLog, ${currentUser.name}!\n\nSua conta foi configurada como ${currentUser.role === 'admin' ? 'Administrador' : 'Usuário Normal'}`);
+            
+            // Remover flag de primeiro login
+            await db.collection('users').doc(user.uid).update({
+                firstLogin: false
+            });
+        }
+        
+        // 9. CONFIGURAR ATUALIZAÇÃO DE NOTIFICAÇÕES (apenas admin)
+        if (currentUser.role === 'admin' || currentUser.role === 'qualidade') {
+            updateNotificationCount();
+            setInterval(updateNotificationCount, 60000); // Atualizar a cada 1 minuto
+        }
+        
+        console.log('=== LOGIN CONCLUÍDO ===');
+        
+    } catch (error) {
+        console.error('Erro no processo de login:', error);
+        
+        // Mensagem de erro amigável
+        let errorMessage = 'Erro ao processar login: ';
+        if (error.code === 'permission-denied') {
+            errorMessage = 'Acesso negado. Contate o administrador.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        alert(errorMessage);
+        
+        // Forçar logout em caso de erro
+        await auth.signOut();
+        showLoginModal();
+        
+    } finally {
+        // 10. REABILITAR BOTÃO DE LOGIN
+        if (loginBtn) {
+            loginBtn.disabled = false;
+        }
+    }
+}
 
         function handleLogout() {
             auth.signOut();
@@ -1928,17 +2570,22 @@
         }
 
         function updateUI() {
-            document.getElementById('current-user').textContent = currentUser.name;
-            document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
-            document.getElementById('user-role').className = `user-role ${currentUser.role === 'admin' ? 'admin' : ''}`;
-            document.getElementById('last-login').textContent = new Date().toLocaleTimeString('pt-BR');
-            
-            if (currentUser.role === 'admin') {
-                document.body.classList.add('user-admin');
-            } else {
-                document.body.classList.remove('user-admin');
-            }
-        }
+    document.getElementById('current-user').textContent = currentUser.name;
+    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+    document.getElementById('user-role').className = `user-role ${currentUser.role === 'admin' ? 'admin' : ''}`;
+    document.getElementById('last-login').textContent = new Date().toLocaleTimeString('pt-BR');
+    
+    if (currentUser.role === 'admin') {
+        document.body.classList.add('user-admin');
+        document.getElementById('notification-btn').style.display = 'inline-flex';
+        updateNotificationCount();
+    } else {
+        document.body.classList.remove('user-admin');
+        document.getElementById('notification-btn').style.display = 'none';
+    }
+}
+
+
 
         function updatePageTitle(page) {
             const titles = {
@@ -2015,216 +2662,315 @@
 
         // ========== FUNÇÕES PARA SALVAR DADOS ==========
 
-        async function saveTemperatureData() {
-            if (!currentUser) return;
-            
-            const roomId = document.getElementById('room-select').value;
-            const room = rooms.find(r => r.id === roomId);
-            
-            if (!room) {
-                alert('Por favor, selecione uma sala válida.');
-                return;
-            }
-
-            const tempMin = parseFloat(document.getElementById('temp-min').value);
-            const tempMax = parseFloat(document.getElementById('temp-max').value);
-            const tempActual = parseFloat(document.getElementById('temp-atual').value);
-            const humidityMin = parseFloat(document.getElementById('umid-min').value);
-            const humidityMax = parseFloat(document.getElementById('umid-max').value);
-            const humidityActual = parseFloat(document.getElementById('umid-atual').value);
-
-            // Validação
-            if (isNaN(tempMin) || isNaN(tempMax) || isNaN(tempActual) || 
-                isNaN(humidityMin) || isNaN(humidityMax) || isNaN(humidityActual)) {
-                alert('Por favor, preencha todos os campos obrigatórios com valores numéricos válidos.');
-                return;
-            }
-
-            const data = {
-                roomId: roomId,
-                roomName: `${room.code} - ${room.name}`,
-                period: document.getElementById('periodo').value,
-                tempMin: tempMin,
-                tempMax: tempMax,
-                tempActual: tempActual,
-                humidityMin: humidityMin,
-                humidityMax: humidityMax,
-                humidityActual: humidityActual,
-                notes: document.getElementById('temp-notes').value,
-                status: calculateTemperatureStatus(
-                    tempActual,
-                    humidityActual,
-                    room.tempMin,
-                    room.tempMax,
-                    room.humidityMin,
-                    room.humidityMax
-                ),
-                userId: currentUser.uid,
-                userName: currentUser.name,
-                createdAt: new Date(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            try {
-                await db.collection('temperature_readings').add(data);
-                await addTraceability(
-                    'Registro de temperatura', 
-                    `${data.roomName} (${data.period}): Temp: ${data.tempMin}-${data.tempMax}°C, Umid: ${data.humidityMin}-${data.humidityMax}%`
-                );
-                
-                alert('Dados de temperatura registrados com sucesso!');
-                clearTemperatureForm();
-                loadTemperatureHistory();
-                
-            } catch (error) {
-                console.error('Erro ao salvar temperatura:', error);
-                alert('Erro ao salvar dados de temperatura: ' + error.message);
-            }
+        // ========== FUNÇÃO saveTemperatureData() VALIDADA ==========
+async function saveTemperatureData() {
+    console.log('=== SALVANDO DADOS DE TEMPERATURA ===');
+    
+    // 1. VERIFICAÇÃO DE PERMISSÃO
+    if (!currentUser) {
+        alert('Usuário não autenticado.');
+        return;
+    }
+    
+    // Verificar se usuário tem permissão para criar
+    if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
+        alert('Apenas administradores e equipe de qualidade podem registrar leituras.');
+        return;
+    }
+    
+    // 2. COLETAR DADOS DO FORMULÁRIO
+    const roomId = document.getElementById('room-select').value;
+    const room = rooms.find(r => r.id === roomId);
+    
+    if (!room) {
+        alert('Por favor, selecione uma sala válida.');
+        return;
+    }
+    
+    const tempMin = parseFloat(document.getElementById('temp-min').value);
+    const tempMax = parseFloat(document.getElementById('temp-max').value);
+    const tempActual = parseFloat(document.getElementById('temp-atual').value);
+    const humidityMin = parseFloat(document.getElementById('umid-min').value);
+    const humidityMax = parseFloat(document.getElementById('umid-max').value);
+    const humidityActual = parseFloat(document.getElementById('umid-atual').value);
+    
+    // 3. VALIDAÇÕES DETALHADAS
+    const errors = [];
+    
+    if (isNaN(tempMin) || tempMin < -50 || tempMin > 100) {
+        errors.push('Temperatura mínima inválida (-50°C a 100°C)');
+    }
+    
+    if (isNaN(tempMax) || tempMax < -50 || tempMax > 100) {
+        errors.push('Temperatura máxima inválida (-50°C a 100°C)');
+    }
+    
+    if (isNaN(tempActual) || tempActual < -50 || tempActual > 100) {
+        errors.push('Temperatura atual inválida (-50°C a 100°C)');
+    }
+    
+    if (tempMin > tempMax) {
+        errors.push('Temperatura mínima não pode ser maior que a máxima');
+    }
+    
+    if (tempActual < tempMin || tempActual > tempMax) {
+        errors.push('Temperatura atual fora da faixa mínima/máxima');
+    }
+    
+    if (isNaN(humidityMin) || humidityMin < 0 || humidityMin > 100) {
+        errors.push('Umidade mínima inválida (0% a 100%)');
+    }
+    
+    if (isNaN(humidityMax) || humidityMax < 0 || humidityMax > 100) {
+        errors.push('Umidade máxima inválida (0% a 100%)');
+    }
+    
+    if (isNaN(humidityActual) || humidityActual < 0 || humidityActual > 100) {
+        errors.push('Umidade atual inválida (0% a 100%)');
+    }
+    
+    if (humidityMin > humidityMax) {
+        errors.push('Umidade mínima não pode ser maior que a máxima');
+    }
+    
+    if (humidityActual < humidityMin || humidityActual > humidityMax) {
+        errors.push('Umidade atual fora da faixa mínima/máxima');
+    }
+    
+    if (errors.length > 0) {
+        alert('Erros de validação:\n\n' + errors.join('\n• '));
+        return;
+    }
+    
+    // 4. PREPARAR DADOS
+    const data = {
+        roomId: roomId,
+        roomName: `${room.code} - ${room.name}`,
+        period: document.getElementById('periodo').value,
+        tempMin: tempMin,
+        tempMax: tempMax,
+        tempActual: tempActual,
+        humidityMin: humidityMin,
+        humidityMax: humidityMax,
+        humidityActual: humidityActual,
+        notes: document.getElementById('temp-notes').value,
+        status: calculateTemperatureStatus(
+            tempActual,
+            humidityActual,
+            room.tempMin,
+            room.tempMax,
+            room.humidityMin,
+            room.humidityMax
+        ),
+        userId: currentUser.uid,
+        userName: currentUser.name,
+        userRole: currentUser.role,
+        createdAt: new Date(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    console.log('Dados validados:', data);
+    
+    // 5. DESABILITAR BOTÃO
+    const saveButton = document.getElementById('save-temp-btn');
+    const originalText = saveButton.innerHTML;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    saveButton.disabled = true;
+    
+    try {
+        // 6. SALVAR NO FIRESTORE
+        const docRef = await db.collection('temperature_readings').add(data);
+        console.log('Dados salvos com ID:', docRef.id);
+        
+        // 7. REGISTRAR RASTREABILIDADE
+        await addTraceability(
+            'Registro de temperatura', 
+            `${data.roomName} (${data.period}): Temp: ${data.tempActual}°C, Umid: ${data.humidityActual}%`
+        );
+        
+        // 8. VERIFICAR SE PRECISA CRIAR NOTIFICAÇÃO
+        if (data.status === 'alert' || data.status === 'critical') {
+            await checkAndCreateNotification(data, 'temperature_readings', docRef.id);
         }
+        
+        // 9. MENSAGEM DE SUCESSO
+        alert('✅ Dados de temperatura registrados com sucesso!');
+        
+        // 10. LIMPAR FORMULÁRIO E RECARREGAR
+        clearTemperatureForm();
+        loadTemperatureHistory();
+        
+    } catch (error) {
+        console.error('Erro ao salvar temperatura:', error);
+        
+        let errorMessage = 'Erro ao salvar dados: ';
+        if (error.code === 'permission-denied') {
+            errorMessage = 'Permissão negada. Você não tem autorização para esta operação.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        alert('❌ ' + errorMessage);
+        
+    } finally {
+        // 11. RESTAURAR BOTÃO
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+    }
+}
 
         async function savePressureData() {
-            if (!currentUser) return;
-            
-            const roomId = document.getElementById('pressure-room').value;
-            const room = rooms.find(r => r.id === roomId);
-            
-            if (!room) {
-                alert('Por favor, selecione uma sala válida.');
-                return;
-            }
+    if (!currentUser) return;
+    
+    const roomId = document.getElementById('pressure-room').value;
+    const room = rooms.find(r => r.id === roomId);
+    
+    if (!room) {
+        alert('Por favor, selecione uma sala válida.');
+        return;
+    }
 
-            const pressureValue = parseInt(document.getElementById('pressure-value').value);
+    const pressureValue = parseInt(document.getElementById('pressure-value').value);
 
-            if (isNaN(pressureValue)) {
-                alert('Por favor, preencha o campo de pressão com um valor numérico válido.');
-                return;
-            }
+    if (isNaN(pressureValue)) {
+        alert('Por favor, preencha o campo de pressão com um valor numérico válido.');
+        return;
+    }
 
-            const data = {
-                roomId: roomId,
-                roomName: `${room.code} - ${room.name}`,
-                period: document.getElementById('pressure-periodo').value,
-                pressure: pressureValue,
-                immediateCorrection: document.getElementById('correcao-imediata').value,
-                notes: document.getElementById('pressure-notes').value,
-                status: calculatePressureStatus(pressureValue, room.pressureMin),
-                userId: currentUser.uid,
-                userName: currentUser.name,
-                createdAt: new Date(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
+    const data = {
+        roomId: roomId,
+        roomName: `${room.code} - ${room.name}`,
+        period: document.getElementById('pressure-periodo').value,
+        pressure: pressureValue,
+        immediateCorrection: document.getElementById('correcao-imediata').value,
+        notes: document.getElementById('pressure-notes').value,
+        status: calculatePressureStatus(pressureValue, room.pressureMin),
+        userId: currentUser.uid,
+        userName: currentUser.name,
+        createdAt: new Date(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-            try {
-                await db.collection('pressure_readings').add(data);
-                await addTraceability(
-                    'Registro de pressão', 
-                    `${data.roomName}: ${data.pressure} Pa`
-                );
-                
-                alert('Dados de pressão registrados com sucesso!');
-                clearPressureForm();
-                loadPressureHistory();
-                
-            } catch (error) {
-                console.error('Erro ao salvar pressão:', error);
-                alert('Erro ao salvar dados de pressão: ' + error.message);
-            }
-        }
+    try {
+        const docRef = await db.collection('pressure_readings').add(data);
+        
+        await addTraceability(
+            'Registro de pressão', 
+            `${data.roomName}: ${data.pressure} Pa`
+        );
+        
+        // Verificar se precisa criar notificação
+        await checkAndCreateNotification(data, 'pressure_readings', docRef.id);
+        
+        alert('Dados de pressão registrados com sucesso!');
+        clearPressureForm();
+        loadPressureHistory();
+        
+    } catch (error) {
+        console.error('Erro ao salvar pressão:', error);
+        alert('Erro ao salvar dados de pressão: ' + error.message);
+    }
+}
 
         async function saveOsmosisDaily() {
-            if (!currentUser) return;
+    if (!currentUser) return;
 
-            const conductivity = parseFloat(document.getElementById('condutividade').value);
+    const conductivity = parseFloat(document.getElementById('condutividade').value);
 
-            if (isNaN(conductivity)) {
-                alert('Por favor, preencha o campo de condutividade com um valor numérico válido.');
-                return;
-            }
+    if (isNaN(conductivity)) {
+        alert('Por favor, preencha o campo de condutividade com um valor numérico válido.');
+        return;
+    }
 
-            const data = {
-                conductivity: conductivity,
-                conductivityStatus: calculateConductivityStatus(conductivity),
-                lastSanitization: document.getElementById('ultima-sanitizacao').value,
-                nextSanitization: document.getElementById('proxima-sanitizacao').value,
-                lastCleaning: document.getElementById('ultima-higienizacao').value,
-                nextCleaning: document.getElementById('proxima-higienizacao').value,
-                lastCollection: document.getElementById('ultima-coleta').value,
-                nextCollection: document.getElementById('proxima-coleta').value,
-                hasAbnormality: document.querySelector('input[name="anormalidade"]:checked').value === 'sim',
-                abnormalityReason: document.getElementById('motivo-anormalidade').value,
-                lastFilterChange: {
-                    fpp001: document.getElementById('ultima-fpp001').value,
-                    fca001: document.getElementById('ultima-fca001').value,
-                    drm001: document.getElementById('ultima-drm001').value,
-                    drm002: document.getElementById('ultima-drm002').value
-                },
-                nextFilterChange: {
-                    fpp001: document.getElementById('proxima-fpp001').value,
-                    fca001: document.getElementById('proxima-fca001').value,
-                    drm001: document.getElementById('proxima-drm001').value,
-                    drm002: document.getElementById('proxima-drm002').value
-                },
-                notes: document.getElementById('osmosis-daily-notes').value,
-                userId: currentUser.uid,
-                userName: currentUser.name,
-                createdAt: new Date(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
+    const data = {
+        conductivity: conductivity,
+        conductivityStatus: calculateConductivityStatus(conductivity),
+        lastSanitization: document.getElementById('ultima-sanitizacao').value,
+        nextSanitization: document.getElementById('proxima-sanitizacao').value,
+        lastCleaning: document.getElementById('ultima-higienizacao').value,
+        nextCleaning: document.getElementById('proxima-higienizacao').value,
+        lastCollection: document.getElementById('ultima-coleta').value,
+        nextCollection: document.getElementById('proxima-coleta').value,
+        hasAbnormality: document.querySelector('input[name="anormalidade"]:checked').value === 'sim',
+        abnormalityReason: document.getElementById('motivo-anormalidade').value,
+        lastFilterChange: {
+            fpp001: document.getElementById('ultima-fpp001').value,
+            fca001: document.getElementById('ultima-fca001').value,
+            drm001: document.getElementById('ultima-drm001').value,
+            drm002: document.getElementById('ultima-drm002').value
+        },
+        nextFilterChange: {
+            fpp001: document.getElementById('proxima-fpp001').value,
+            fca001: document.getElementById('proxima-fca001').value,
+            drm001: document.getElementById('proxima-drm001').value,
+            drm002: document.getElementById('proxima-drm002').value
+        },
+        notes: document.getElementById('osmosis-daily-notes').value,
+        userId: currentUser.uid,
+        userName: currentUser.name,
+        createdAt: new Date(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-            try {
-                await db.collection('osmosis_daily').add(data);
-                await addTraceability(
-                    'Controle diário de osmose', 
-                    `Condutividade: ${data.conductivity} µS/cm`
-                );
-                
-                alert('Controle diário do sistema de osmose registrado com sucesso!');
-                clearOsmosisDailyForm();
-                loadOsmosisHistory();
-                
-            } catch (error) {
-                console.error('Erro ao salvar osmose diária:', error);
-                alert('Erro ao salvar dados de osmose diária: ' + error.message);
-            }
-        }
+    try {
+        const docRef = await db.collection('osmosis_daily').add(data);
+        
+        await addTraceability(
+            'Controle diário de osmose', 
+            `Condutividade: ${data.conductivity} µS/cm`
+        );
+        
+        // Verificar se precisa criar notificação
+        await checkAndCreateNotification(data, 'osmosis_daily', docRef.id);
+        
+        alert('Controle diário do sistema de osmose registrado com sucesso!');
+        clearOsmosisDailyForm();
+        loadOsmosisHistory();
+        
+    } catch (error) {
+        console.error('Erro ao salvar osmose diária:', error);
+        alert('Erro ao salvar dados de osmose diária: ' + error.message);
+    }
+}
 
-        async function saveOsmosisMaintenance() {
-            if (!currentUser) return;
-            
-            const procedure = document.getElementById('procedimento').value;
-            const maintenanceDate = document.getElementById('data-manutencao').value;
+       async function saveOsmosisMaintenance() {
+    if (!currentUser) return;
+    
+    const procedure = document.getElementById('procedimento').value;
+    const maintenanceDate = document.getElementById('data-manutencao').value;
 
-            if (!procedure || !maintenanceDate) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
+    if (!procedure || !maintenanceDate) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
 
-            const data = {
-                procedure: procedure,
-                maintenanceDate: maintenanceDate,
-                observations: document.getElementById('obs-manutencao').value,
-                userId: currentUser.uid,
-                userName: currentUser.name,
-                createdAt: new Date(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
+    const data = {
+        procedure: procedure,
+        maintenanceDate: maintenanceDate,
+        observations: document.getElementById('obs-manutencao').value,
+        userId: currentUser.uid,
+        userName: currentUser.name,
+        createdAt: new Date(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-            try {
-                await db.collection('osmosis_maintenance').add(data);
-                await addTraceability(
-                    'Manutenção de osmose', 
-                    `Procedimento: ${data.procedure.substring(0, 50)}...`
-                );
-                
-                alert('Manutenção do sistema de osmose registrada com sucesso!');
-                clearMaintenanceForm();
-                loadMaintenanceHistory();
-                
-            } catch (error) {
-                console.error('Erro ao salvar manutenção de osmose:', error);
-                alert('Erro ao salvar dados de manutenção: ' + error.message);
-            }
-        }
+    try {
+        const docRef = await db.collection('osmosis_maintenance').add(data);
+        
+        await addTraceability(
+            'Manutenção de osmose', 
+            `Procedimento: ${data.procedure.substring(0, 50)}...`
+        );
+        
+        alert('Manutenção do sistema de osmose registrada com sucesso!');
+        clearMaintenanceForm();
+        loadMaintenanceHistory();
+        
+    } catch (error) {
+        console.error('Erro ao salvar manutenção de osmose:', error);
+        alert('Erro ao salvar dados de manutenção: ' + error.message);
+    }
+}
 
         async function addRoom() {
             if (currentUser.role !== 'admin') {
@@ -2581,76 +3327,162 @@
 
         // ========== GERENCIAMENTO DE USUÁRIOS ==========
 
-        async function addUser() {
+        // ========== FUNÇÃO addUser() CORRIGIDA ==========
+async function addUser() {
+    console.log('=== INICIANDO CRIAÇÃO DE USUÁRIO ===');
+    
+    // 1. VERIFICAÇÃO DE PERMISSÕES
+    if (!currentUser) {
+        alert('Usuário não autenticado.');
+        return;
+    }
+    
     if (currentUser.role !== 'admin') {
         alert('Apenas administradores podem adicionar usuários.');
         return;
     }
-
-    const name = document.getElementById('user-name').value;
-    const email = document.getElementById('user-email').value;
+    
+    // 2. COLETAR DADOS DO FORMULÁRIO
+    const name = document.getElementById('user-name').value.trim();
+    const email = document.getElementById('user-email').value.trim().toLowerCase();
     const password = document.getElementById('user-password').value;
     const role = document.getElementById('user-role').value;
-
-    if (!name || !email || !password) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
+    
+    console.log('Dados coletados:', { name, email, password: '***', role });
+    
+    // 3. VALIDAÇÕES DETALHADAS
+    const errors = [];
+    
+    if (!name || name.length < 3) {
+        errors.push('Nome deve ter pelo menos 3 caracteres');
     }
-
-    // Validar formato do email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!email) {
+        errors.push('Email é obrigatório');
+    }
+    
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-        alert('Por favor, insira um email válido.');
+        errors.push('Email inválido');
+    }
+    
+    if (!password || password.length < 6) {
+        errors.push('Senha deve ter pelo menos 6 caracteres');
+    }
+    
+    if (!['user', 'admin', 'qualidade'].includes(role)) {
+        errors.push('Tipo de usuário inválido');
+    }
+    
+    if (errors.length > 0) {
+        alert('Erros de validação:\n\n' + errors.join('\n• '));
         return;
     }
-
-    // Validar senha
-    if (password.length < 6) {
-        alert('A senha deve ter pelo menos 6 caracteres.');
-        return;
-    }
-
-    // Desabilitar botão durante o processo
+    
+    // 4. DESABILITAR BOTÃO E MOSTRAR LOADING
     const addButton = document.getElementById('add-user-btn');
     const originalText = addButton.innerHTML;
     addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
     addButton.disabled = true;
-
+    
     try {
-        // SOLUÇÃO SEGURA: Verificar se o email já existe primeiro
-        const existingUsers = await db.collection('users')
+        console.log('Verificando se email já existe...');
+        
+        // 5. VERIFICAR SE EMAIL JÁ EXISTE NO FIRESTORE
+        const existingUserQuery = await db.collection('users')
             .where('email', '==', email)
+            .limit(1)
             .get();
         
-        if (!existingUsers.empty) {
+        if (!existingUserQuery.empty) {
             throw new Error('Este email já está cadastrado no sistema.');
         }
-
-        // SOLUÇÃO DEFINITIVA: Usar REST API do Firebase Auth diretamente
-        // Isso não faz logout do usuário atual
-        const response = await createUserWithRestAPI(email, password, name, role);
         
-        if (response.success) {
-            await addTraceability(
-                'Criação de usuário', 
-                `Usuário ${name} (${email}) criado como ${role}`
-            );
-            
-            alert(`Usuário "${name}" criado com sucesso!\n\nEmail: ${email}`);
-            clearUserForm();
-            loadUsersList();
-        } else {
-            throw new Error(response.error || 'Erro desconhecido ao criar usuário');
-        }
+        console.log('Email não existe, criando usuário no Firebase Auth...');
+        
+        // 6. CRIAR USUÁRIO NO FIREBASE AUTH
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const newUser = userCredential.user;
+        
+        console.log('Usuário criado no Auth com ID:', newUser.uid);
+        
+        // 7. FAZER LOGOUT DO NOVO USUÁRIO E RELOGAR COMO ADMIN
+        await auth.signOut();
+        await auth.signInWithEmailAndPassword(currentUser.email, prompt('Digite sua senha de administrador para confirmar:'));
+        
+        // 8. CRIAR DOCUMENTO NO FIRESTORE
+        const userData = {
+            name: name,
+            email: email,
+            role: role,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'active',
+            createdBy: currentUser.uid,
+            createdByName: currentUser.name,
+            uid: newUser.uid
+        };
+        
+        console.log('Salvando dados no Firestore:', userData);
+        
+        await db.collection('users').doc(newUser.uid).set(userData);
+        
+        // 9. REGISTRAR RASTREABILIDADE
+        await addTraceability(
+            'Criação de usuário', 
+            `Usuário "${name}" (${email}) criado como ${role}`
+        );
+        
+        // 10. MENSAGEM DE SUCESSO
+        alert(`✅ Usuário criado com sucesso!\n\n• Nome: ${name}\n• Email: ${email}\n• Tipo: ${role === 'admin' ? 'Administrador' : 'Usuário Normal'}`);
+        
+        // 11. LIMPAR FORMULÁRIO E RECARREGAR LISTA
+        clearUserForm();
+        await loadUsersList();
+        
+        console.log('=== USUÁRIO CRIADO COM SUCESSO ===');
         
     } catch (error) {
-        console.error('Erro ao criar usuário:', error);
-        alert('Erro ao criar usuário: ' + error.message);
+        console.error('Erro completo:', error);
+        
+        // 12. TRATAMENTO DE ERROS DETALHADO
+        let errorMessage = 'Erro ao criar usuário: ';
+        
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage += 'Este email já está em uso por outro usuário.';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage += 'Email inválido.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorMessage += 'Operação não permitida. Contate o suporte.';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage += 'Senha muito fraca. Use pelo menos 6 caracteres.';
+        } else if (error.message.includes('já está cadastrado')) {
+            errorMessage = 'Este email já está cadastrado no sistema.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        alert('❌ ' + errorMessage);
+        
+        // Tentar fazer login novamente como admin
+        try {
+            await auth.signInWithEmailAndPassword(currentUser.email, prompt('Digite sua senha para restaurar sessão:'));
+        } catch (loginError) {
+            console.error('Erro ao restaurar sessão:', loginError);
+        }
+        
     } finally {
-        // Restaurar botão
+        // 13. RESTAURAR BOTÃO
         addButton.innerHTML = originalText;
         addButton.disabled = false;
     }
+}
+
+// Função auxiliar para limpar formulário
+function clearUserForm() {
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('user-role').value = 'user';
 }
 
 // FUNÇÃO PRINCIPAL: Criar usuário via REST API do Firebase
@@ -5446,6 +6278,1057 @@ async function createCustomToken(email) {
 
         // Executar na inicialização
         createAdminUserIfNotExists();
+
+        // ========== SISTEMA DE NOTIFICAÇÕES ==========
+
+// ========== FUNÇÃO createNotification() SEGURA ==========
+// ========== FUNÇÃO createNotification() FINAL ==========
+async function createNotification(type, title, message, recordId, recordType) {
+    console.log(`=== CRIANDO NOTIFICAÇÃO (${type}) ===`);
+    
+    // VERIFICAÇÕES CRÍTICAS
+    if (!currentUser || currentUser.role !== 'admin') {
+        console.error('Apenas administradores podem criar notificações do sistema');
+        return;
+    }
+    
+    // VALIDAR DADOS
+    if (!type || !title || !message) {
+        console.error('Dados incompletos para criar notificação');
+        return;
+    }
+    
+    if (!['alert', 'critical', 'info'].includes(type)) {
+        console.error('Tipo de notificação inválido:', type);
+        return;
+    }
+    
+    try {
+        // BUSCAR TODOS OS ADMIN/QUALIDADE ATIVOS
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .get();
+        
+        console.log(`Total de usuários ativos: ${adminsSnapshot.size}`);
+        
+        const targetUsers = [];
+        adminsSnapshot.forEach(doc => {
+            const user = doc.data();
+            if (user.role === 'admin' || user.role === 'qualidade') {
+                targetUsers.push({
+                    id: doc.id,
+                    ...user
+                });
+            }
+        });
+        
+        console.log(`Usuários alvo (admin/qualidade): ${targetUsers.length}`);
+        
+        if (targetUsers.length === 0) {
+            console.log('Nenhum administrador/qualidade encontrado para notificar');
+            return;
+        }
+        
+        // CRIAR NOTIFICAÇÕES EM BATCH
+        const batch = db.batch();
+        const now = new Date();
+        
+        for (const user of targetUsers) {
+            // Verificar se já existe notificação não lida
+            const existingNotification = await checkExistingNotification(recordId, user.id);
+            
+            if (!existingNotification) {
+                const notificationRef = db.collection('notifications').doc();
+                
+                const notificationData = {
+                    type: type,
+                    title: title,
+                    message: message,
+                    recordId: recordId || null,
+                    recordType: recordType || null,
+                    userId: user.id,
+                    userName: user.name || 'Usuário',
+                    read: false,
+                    systemGenerated: true, // IMPORTANTE: flag para regras do Firebase
+                    createdAt: now,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                console.log(`Criando notificação para: ${user.email}`);
+                batch.set(notificationRef, notificationData);
+            } else {
+                console.log(`Notificação já existe para ${user.email}`);
+            }
+        }
+        
+        // EXECUTAR BATCH
+        await batch.commit();
+        console.log('✅ Notificações criadas com sucesso!');
+        
+        // ATUALIZAR CONTADOR PARA O USUÁRIO ATUAL
+        updateNotificationCount();
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar notificações:', error);
+        
+        // Mensagem de erro detalhada
+        if (error.code === 'permission-denied') {
+            console.error('Permissão negada. Verifique as regras do Firebase.');
+        }
+    }
+}
+
+// Função auxiliar para verificar notificação existente
+async function checkExistingNotification(recordId, userId) {
+    if (!recordId) return false;
+    
+    try {
+        const snapshot = await db.collection('notifications')
+            .where('recordId', '==', recordId)
+            .where('userId', '==', userId)
+            .where('read', '==', false)
+            .limit(1)
+            .get();
+        
+        return !snapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar notificação existente:', error);
+        return false;
+    }
+}
+
+// Função auxiliar para verificar notificação existente
+async function checkIfNotificationExists(recordId, userId) {
+    try {
+        const snapshot = await db.collection('notifications')
+            .where('recordId', '==', recordId)
+            .where('userId', '==', userId)
+            .where('read', '==', false)
+            .limit(1)
+            .get();
+        
+        return !snapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar notificação:', error);
+        return false; // Em caso de erro, permitir criação
+    }
+}
+
+async function checkNotificationExistsForUser(recordId, userId) {
+    try {
+        const snapshot = await db.collection('notifications')
+            .where('recordId', '==', recordId)
+            .where('userId', '==', userId)
+            .where('read', '==', false)
+            .limit(1)
+            .get();
+        
+        return !snapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar notificação para usuário:', error);
+        return false;
+    }
+}
+
+// ========== FUNÇÃO checkAndCreateNotification() ATUALIZADA ==========
+async function checkAndCreateNotification(data, recordType, recordId) {
+    console.log(`Verificando necessidade de notificação para ${recordType}`);
+    
+    // 1. DETERMINAR SE PRECISA DE NOTIFICAÇÃO
+    let needsNotification = false;
+    let type = '';
+    let title = '';
+    let message = '';
+    
+    switch(recordType) {
+        case 'temperature_readings':
+            if (data.status === 'alert' || data.status === 'critical') {
+                needsNotification = true;
+                type = data.status;
+                title = `⚠️ Alerta de ${data.status === 'critical' ? 'CRÍTICO' : 'ALERTA'}`;
+                message = `Sala: ${data.roomName}\n`;
+                message += `Temperatura: ${data.tempActual}°C (${data.tempMin}-${data.tempMax}°C)\n`;
+                message += `Umidade: ${data.humidityActual}% (${data.humidityMin}-${data.humidityMax}%)`;
+            }
+            break;
+            
+        case 'pressure_readings':
+            if (data.status === 'alert' || data.status === 'critical') {
+                needsNotification = true;
+                type = data.status;
+                title = `⚠️ Alerta de Pressão`;
+                message = `Sala: ${data.roomName}\n`;
+                message += `Pressão: ${data.pressure} Pa\n`;
+                if (data.immediateCorrection) {
+                    message += `Correção: ${data.immediateCorrection}`;
+                }
+            }
+            break;
+            
+        case 'osmosis_daily':
+            if (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical') {
+                needsNotification = true;
+                type = data.conductivityStatus;
+                title = `⚠️ Alerta de Osmose`;
+                message = `Condutividade: ${data.conductivity} µS/cm\n`;
+                message += `Limite: 1.3 µS/cm`;
+            }
+            break;
+    }
+    
+    // 2. CRIAR NOTIFICAÇÃO SE NECESSÁRIO
+    if (needsNotification && type && title && message) {
+        console.log(`Criando notificação ${type} para ${recordId}`);
+        
+        // Verificar se usuário atual é admin (necessário pelas regras)
+        if (currentUser && currentUser.role === 'admin') {
+            await createNotification(type, title, message, recordId, recordType);
+        } else {
+            console.log('Usuário não é admin, notificação não criada');
+        }
+    } else {
+        console.log('Não precisa de notificação');
+    }
+}
+
+// ========== FUNÇÃO updateNotificationCount() CORRIGIDA ==========
+async function updateNotificationCount() {
+    console.log('=== ATUALIZANDO CONTADOR DE NOTIFICAÇÕES ===');
+    
+    // Verificar se usuário está autenticado
+    if (!currentUser) {
+        console.log('Usuário não autenticado');
+        return;
+    }
+    
+    // Verificar se usuário é admin ou qualidade
+    if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
+        console.log('Usuário não tem permissão para notificações');
+        document.getElementById('notification-btn').style.display = 'none';
+        return;
+    }
+    
+    const countElement = document.getElementById('notification-count');
+    const bellIcon = document.querySelector('#notification-btn i');
+    const notificationBtn = document.getElementById('notification-btn');
+    
+    try {
+        console.log('Buscando notificações não lidas para:', currentUser.uid);
+        
+        // BUSCAR APENAS NOTIFICAÇÕES NÃO LIDAS
+        const unreadQuery = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .where('read', '==', false)
+            .get();
+        
+        const unreadCount = unreadQuery.size;
+        console.log('Notificações não lidas encontradas:', unreadCount);
+        
+        // MOSTRAR/OCULTAR BOTÃO
+        notificationBtn.style.display = 'inline-flex';
+        
+        if (unreadCount > 0) {
+            // ATUALIZAR CONTADOR
+            countElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            countElement.style.display = 'flex';
+            
+            // ANIMAÇÃO DE ALERTA
+            bellIcon.style.color = '#e74c3c';
+            countElement.style.animation = 'pulse 2s infinite';
+            
+            // ADICIONAR BORDA VERMELHA NO BOTÃO
+            notificationBtn.style.border = '2px solid #e74c3c';
+            notificationBtn.style.boxShadow = '0 0 10px rgba(231, 76, 60, 0.5)';
+            
+            console.log(`Contador atualizado: ${unreadCount} notificações não lidas`);
+            
+        } else {
+            // OCULTAR CONTADOR
+            countElement.style.display = 'none';
+            bellIcon.style.color = '#ffffff';
+            countElement.style.animation = '';
+            
+            // REMOVER EFEITOS VISUAIS
+            notificationBtn.style.border = 'none';
+            notificationBtn.style.boxShadow = 'none';
+            
+            console.log('Sem notificações não lidas');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao atualizar contador:', error);
+        
+        // Em caso de erro, ocultar o contador
+        countElement.style.display = 'none';
+        bellIcon.style.color = '';
+        countElement.style.animation = '';
+        
+        // Mostrar botão mesmo com erro (para permitir acesso)
+        notificationBtn.style.display = 'inline-flex';
+    }
+}
+
+// ========== FUNÇÃO loadNotifications() CORRIGIDA ==========
+async function loadNotifications() {
+    console.log('=== CARREGANDO NOTIFICAÇÕES ===');
+    
+    // Verificar se usuário está autenticado e é admin/qualidade
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+        console.log('Usuário não tem permissão para ver notificações');
+        document.getElementById('notification-list').innerHTML = `
+            <div class="empty-notifications">
+                <i class="fas fa-ban"></i>
+                <p>Permissão insuficiente para acessar notificações</p>
+            </div>
+        `;
+        return;
+    }
+    
+    try {
+        console.log('Buscando notificações para usuário:', currentUser.uid);
+        
+        // BUSCAR NOTIFICAÇÕES DO USUÁRIO ATUAL
+        const notificationsSnapshot = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        
+        console.log('Notificações encontradas:', notificationsSnapshot.size);
+        
+        const notificationList = document.getElementById('notification-list');
+        notificationList.innerHTML = '';
+        
+        if (notificationsSnapshot.empty) {
+            notificationList.innerHTML = `
+                <div class="empty-notifications">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>Nenhuma notificação encontrada</p>
+                    <small style="color: #999;">Novas notificações aparecerão aqui</small>
+                </div>
+            `;
+            
+            // Atualizar título do modal
+            document.querySelector('#notification-modal .edit-modal-title').innerHTML = `
+                <i class="fas fa-bell"></i> Notificações do Sistema
+                <button class="btn btn-sm" onclick="markAllAsRead()" style="float: right; display: none;">
+                    Marcar todas como lidas
+                </button>
+            `;
+            
+            return;
+        }
+        
+        // CONTADOR DE NÃO LIDAS
+        let unreadCount = 0;
+        
+        // PERCORRER NOTIFICAÇÕES
+        notificationsSnapshot.forEach(doc => {
+            const notification = { id: doc.id, ...doc.data() };
+            
+            // Contar não lidas
+            if (!notification.read) {
+                unreadCount++;
+            }
+            
+            // Criar elemento de notificação
+            const notificationElement = createNotificationElement(notification);
+            notificationList.appendChild(notificationElement);
+        });
+        
+        console.log(`Notificações não lidas: ${unreadCount}`);
+        
+        // ATUALIZAR TÍTULO DO MODAL
+        const titleElement = document.querySelector('#notification-modal .edit-modal-title');
+        if (titleElement) {
+            titleElement.innerHTML = `
+                <i class="fas fa-bell"></i> Notificações do Sistema
+                ${unreadCount > 0 ? `<span style="color: #e74c3c; font-size: 14px; margin-left: 10px;">(${unreadCount} não lidas)</span>` : ''}
+                ${unreadCount > 0 ? `<button class="btn btn-sm btn-primary" onclick="markAllAsRead()" style="float: right; margin-left: 10px;">
+                    <i class="fas fa-check-double"></i> Marcar todas
+                </button>` : ''}
+                <button class="btn btn-sm btn-secondary" onclick="refreshNotifications()" style="float: right;">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            `;
+        }
+        
+        // ATUALIZAR CONTADOR NO BOTÃO
+        updateNotificationCount();
+        
+    } catch (error) {
+        console.error('Erro ao carregar notificações:', error);
+        
+        const notificationList = document.getElementById('notification-list');
+        notificationList.innerHTML = `
+            <div class="empty-notifications" style="color: #e74c3c;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Erro ao carregar notificações</p>
+                <p style="font-size: 12px;">${error.message}</p>
+                <button class="btn btn-sm btn-primary" onclick="loadNotifications()" style="margin-top: 10px;">
+                    <i class="fas fa-redo"></i> Tentar novamente
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Função para recarregar notificações
+function refreshNotifications() {
+    console.log('Recarregando notificações...');
+    loadNotifications();
+}
+
+// ========== FUNÇÃO createNotificationElement() CORRIGIDA ==========
+function createNotificationElement(notification) {
+    console.log('Criando elemento para notificação:', notification.id);
+    
+    const div = document.createElement('div');
+    div.className = `notification-item ${notification.read ? '' : 'unread'}`;
+    div.dataset.notificationId = notification.id;
+    
+    // FORMATAR DATA
+    let dateString = 'Data desconhecida';
+    try {
+        if (notification.createdAt) {
+            const date = notification.createdAt.toDate ? 
+                        notification.createdAt.toDate() : 
+                        new Date(notification.createdAt);
+            
+            if (!isNaN(date.getTime())) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+                
+                if (diffMins < 60) {
+                    dateString = `${diffMins} min atrás`;
+                } else if (diffHours < 24) {
+                    dateString = `${diffHours} h atrás`;
+                } else if (diffDays < 7) {
+                    dateString = `${diffDays} dia(s) atrás`;
+                } else {
+                    dateString = date.toLocaleDateString('pt-BR');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao formatar data:', error);
+    }
+    
+    // DETERMINAR COR E ÍCONE PELO TIPO
+    let typeClass = 'notification-info';
+    let typeIcon = 'fa-info-circle';
+    let typeText = 'INFO';
+    
+    switch(notification.type) {
+        case 'critical':
+            typeClass = 'notification-critical';
+            typeIcon = 'fa-exclamation-circle';
+            typeText = 'CRÍTICO';
+            break;
+        case 'alert':
+            typeClass = 'notification-alert';
+            typeIcon = 'fa-exclamation-triangle';
+            typeText = 'ALERTA';
+            break;
+        default:
+            typeClass = 'notification-info';
+            typeIcon = 'fa-info-circle';
+            typeText = 'INFO';
+    }
+    
+    // ADICIONAR CLASSE DE TIPO
+    div.classList.add(typeClass.replace('notification-', ''));
+    
+    // CONSTRUIR HTML
+    div.innerHTML = `
+        <div class="notification-header">
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <span class="notification-type ${notification.type}">
+                        <i class="fas ${typeIcon}" style="margin-right: 5px;"></i>
+                        ${typeText}
+                    </span>
+                    <span class="notification-title">${notification.title || 'Sem título'}</span>
+                </div>
+                <div class="notification-time">
+                    <i class="far fa-clock"></i> ${dateString}
+                </div>
+            </div>
+            ${!notification.read ? `
+            <button class="btn-mark-read" onclick="markSingleAsRead('${notification.id}', event)" 
+                    style="background: none; border: none; color: #3498db; cursor: pointer; padding: 5px;" 
+                    title="Marcar como lida">
+                <i class="fas fa-check"></i>
+            </button>
+            ` : ''}
+        </div>
+        
+        <div class="notification-message">
+            ${notification.message || 'Sem mensagem'}
+        </div>
+        
+        <div style="font-size: 11px; color: var(--gray); margin-top: 8px;">
+            <i class="fas fa-database"></i> Tipo: ${formatRecordType(notification.recordType || 'desconhecido')}
+            ${notification.recordId ? ` • ID: ${notification.recordId.substring(0, 8)}...` : ''}
+        </div>
+        
+        ${notification.recordId ? `
+        <div class="notification-actions">
+            <button class="btn btn-sm btn-primary" onclick="navigateToNotification('${notification.id}')" style="padding: 4px 8px; font-size: 11px;">
+                <i class="fas fa-external-link-alt"></i> Ver registro
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteNotification('${notification.id}')" style="padding: 4px 8px; font-size: 11px;">
+                <i class="fas fa-trash"></i> Excluir
+            </button>
+        </div>
+        ` : ''}
+    `;
+    
+    // ADICIONAR EVENTO DE CLIQUE PARA MARCAR COMO LIDA
+    if (!notification.read) {
+        div.addEventListener('click', function(e) {
+            // Não marcar como lida se clicar em botões específicos
+            if (!e.target.closest('button')) {
+                markSingleAsRead(notification.id);
+            }
+        });
+    }
+    
+    return div;
+}
+
+// Função para formatar tipo de registro
+function formatRecordType(type) {
+    const types = {
+        'temperature_readings': '🌡️ Temperatura',
+        'pressure_readings': '📊 Pressão',
+        'osmosis_daily': '💧 Osmose',
+        'rooms': '🏢 Sala',
+        'users': '👤 Usuário',
+        'desconhecido': '📝 Geral'
+    };
+    return types[type] || type;
+}
+
+async function markAsRead(notificationId) {
+    try {
+        await db.collection('notifications').doc(notificationId).update({
+            read: true,
+            readAt: new Date()
+        });
+        
+        // Recarregar notificações
+        loadNotifications();
+        
+    } catch (error) {
+        console.error('Erro ao marcar notificação como lida:', error);
+    }
+}
+
+// ========== FUNÇÕES AUXILIARES PARA NOTIFICAÇÕES ==========
+
+// Marcar uma notificação como lida
+async function markSingleAsRead(notificationId, event = null) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    console.log('Marcando notificação como lida:', notificationId);
+    
+    try {
+        await db.collection('notifications').doc(notificationId).update({
+            read: true,
+            readAt: new Date()
+        });
+        
+        // Atualizar visualmente o item
+        const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (notificationElement) {
+            notificationElement.classList.remove('unread');
+            notificationElement.classList.add('read');
+            
+            // Remover botão de marcar como lida
+            const markReadBtn = notificationElement.querySelector('.btn-mark-read');
+            if (markReadBtn) {
+                markReadBtn.remove();
+            }
+        }
+        
+        // Atualizar contador
+        updateNotificationCount();
+        
+        // Atualizar título do modal
+        setTimeout(() => {
+            const unreadElements = document.querySelectorAll('.notification-item.unread');
+            const titleElement = document.querySelector('#notification-modal .edit-modal-title');
+            if (titleElement) {
+                const unreadCount = unreadElements.length;
+                titleElement.innerHTML = `
+                    <i class="fas fa-bell"></i> Notificações do Sistema
+                    ${unreadCount > 0 ? `<span style="color: #e74c3c; font-size: 14px; margin-left: 10px;">(${unreadCount} não lidas)</span>` : ''}
+                    ${unreadCount > 0 ? `<button class="btn btn-sm btn-primary" onclick="markAllAsRead()" style="float: right; margin-left: 10px;">
+                        <i class="fas fa-check-double"></i> Marcar todas
+                    </button>` : ''}
+                    <button class="btn btn-sm btn-secondary" onclick="refreshNotifications()" style="float: right;">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                `;
+            }
+        }, 100);
+        
+    } catch (error) {
+        console.error('Erro ao marcar notificação como lida:', error);
+        alert('Erro ao marcar notificação como lida');
+    }
+}
+
+// Marcar todas como lidas
+async function markAllAsRead() {
+    if (!currentUser) return;
+    
+    if (!confirm('Marcar todas as notificações como lidas?')) {
+        return;
+    }
+    
+    try {
+        console.log('Marcando todas as notificações como lidas para:', currentUser.uid);
+        
+        // Buscar todas as não lidas
+        const unreadNotifications = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .where('read', '==', false)
+            .get();
+        
+        if (unreadNotifications.empty) {
+            alert('Nenhuma notificação não lida encontrada.');
+            return;
+        }
+        
+        // Atualizar em batch
+        const batch = db.batch();
+        unreadNotifications.forEach(doc => {
+            batch.update(doc.ref, {
+                read: true,
+                readAt: new Date()
+            });
+        });
+        
+        await batch.commit();
+        console.log(`${unreadNotifications.size} notificações marcadas como lidas`);
+        
+        // Recarregar notificações
+        loadNotifications();
+        
+        // Atualizar contador
+        updateNotificationCount();
+        
+    } catch (error) {
+        console.error('Erro ao marcar todas como lidas:', error);
+        alert('Erro ao marcar notificações como lidas: ' + error.message);
+    }
+}
+
+// Deletar uma notificação
+async function deleteNotification(notificationId) {
+    if (!confirm('Excluir esta notificação permanentemente?')) {
+        return;
+    }
+    
+    try {
+        await db.collection('notifications').doc(notificationId).delete();
+        console.log('Notificação excluída:', notificationId);
+        
+        // Remover elemento da lista
+        const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (notificationElement) {
+            notificationElement.style.animation = 'fadeOut 0.3s';
+            setTimeout(() => {
+                notificationElement.remove();
+                
+                // Verificar se a lista ficou vazia
+                const notificationList = document.getElementById('notification-list');
+                if (notificationList.children.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="empty-notifications">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>Nenhuma notificação encontrada</p>
+                        </div>
+                    `;
+                }
+            }, 300);
+        }
+        
+        // Atualizar contador
+        updateNotificationCount();
+        
+    } catch (error) {
+        console.error('Erro ao excluir notificação:', error);
+        alert('Erro ao excluir notificação');
+    }
+}
+
+// Navegar para o registro relacionado
+async function navigateToNotification(notificationId) {
+    try {
+        // Buscar dados da notificação
+        const notificationDoc = await db.collection('notifications').doc(notificationId).get();
+        
+        if (!notificationDoc.exists) {
+            alert('Notificação não encontrada.');
+            return;
+        }
+        
+        const notification = notificationDoc.data();
+        
+        // Fechar modal
+        hideNotificationModal();
+        
+        // Navegar baseado no tipo de registro
+        if (notification.recordType && notification.recordId) {
+            switch(notification.recordType) {
+                case 'temperature_readings':
+                    // Ir para temperatura
+                    document.querySelector('.menu-item[data-page="temperature"]').click();
+                    
+                    // Destacar registro específico (implementação futura)
+                    highlightRecord('temperature', notification.recordId);
+                    break;
+                    
+                case 'pressure_readings':
+                    // Ir para pressão
+                    document.querySelector('.menu-item[data-page="pressure"]').click();
+                    highlightRecord('pressure', notification.recordId);
+                    break;
+                    
+                case 'osmosis_daily':
+                    // Ir para osmose
+                    document.querySelector('.menu-item[data-page="osmosis"]').click();
+                    highlightRecord('osmosis', notification.recordId);
+                    break;
+                    
+                default:
+                    alert('Navegação para este tipo de registro não implementada.');
+            }
+        } else {
+            alert('Esta notificação não está vinculada a um registro específico.');
+        }
+        
+        // Marcar como lida após navegar
+        await markSingleAsRead(notificationId);
+        
+    } catch (error) {
+        console.error('Erro ao navegar para notificação:', error);
+        alert('Erro ao processar navegação');
+    }
+}
+
+// Destacar registro (implementação básica)
+function highlightRecord(collection, recordId) {
+    console.log(`Destacando registro ${recordId} da coleção ${collection}`);
+    
+    // Implementação básica - você pode expandir isso
+    alert(`Registro ${recordId.substring(0, 8)}... será destacado na lista.`);
+    
+    // Aqui você pode implementar lógica para:
+    // 1. Rolar até o registro na tabela
+    // 2. Adicionar classe de destaque
+    // 3. Focar no elemento
+}
+
+function navigateToRecord(recordType, recordId) {
+    // Fechar modal de notificações
+    hideNotificationModal();
+    
+    // Navegar para a página correta
+    switch(recordType) {
+        case 'temperature':
+            // Ir para página de temperatura
+            document.querySelector('.menu-item[data-page="temperature"]').click();
+            break;
+        case 'pressure':
+            // Ir para página de pressão
+            document.querySelector('.menu-item[data-page="pressure"]').click();
+            break;
+        case 'osmosis':
+            // Ir para página de osmose
+            document.querySelector('.menu-item[data-page="osmosis"]').click();
+            break;
+    }
+    
+    // Aqui você pode adicionar lógica para destacar o registro específico
+    // Isso depende da sua implementação de UI
+    console.log(`Navegar para ${recordType} com ID: ${recordId}`);
+}
+
+function formatRecordType(type) {
+    const types = {
+        'temperature': 'Temperatura/Umidade',
+        'pressure': 'Pressão',
+        'osmosis': 'Sistema de Osmose'
+    };
+    return types[type] || type;
+}
+
+// ========== FUNÇÃO showNotificationModal() CORRIGIDA ==========
+function showNotificationModal() {
+    console.log('=== ABRINDO MODAL DE NOTIFICAÇÕES ===');
+    
+    // Verificar se usuário está autenticado
+    if (!currentUser) {
+        alert('Por favor, faça login para ver notificações.');
+        return;
+    }
+    
+    // Verificar se usuário tem permissão
+    if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
+        alert('Apenas administradores e equipe de qualidade podem acessar notificações.');
+        return;
+    }
+    
+    // Mostrar modal
+    const modal = document.getElementById('notification-modal');
+    modal.style.display = 'flex';
+    
+    // Adicionar animação de entrada
+    modal.querySelector('.edit-modal-content').style.animation = 'slideIn 0.3s';
+    
+    // Carregar notificações
+    setTimeout(() => {
+        loadNotifications();
+    }, 100);
+    
+    // Configurar clique fora para fechar
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            hideNotificationModal();
+        }
+    };
+    
+    // Configurar tecla ESC para fechar
+    document.addEventListener('keydown', function closeOnEsc(event) {
+        if (event.key === 'Escape') {
+            hideNotificationModal();
+            document.removeEventListener('keydown', closeOnEsc);
+        }
+    });
+}
+
+function hideNotificationModal() {
+    const modal = document.getElementById('notification-modal');
+    modal.style.display = 'none';
+    
+    // Remover animação
+    modal.querySelector('.edit-modal-content').style.animation = '';
+    
+    console.log('Modal de notificações fechado');
+}
+
+function hideNotificationModal() {
+    document.getElementById('notification-modal').style.display = 'none';
+}
+
+async function checkNotificationExists(recordId, userId) {
+    try {
+        const snapshot = await db.collection('notifications')
+            .where('recordId', '==', recordId)
+            .where('userId', '==', userId)
+            .limit(1)
+            .get();
+        
+        return !snapshot.empty;
+    } catch (error) {
+        console.error('Erro ao verificar notificação:', error);
+        return false;
+    }
+}
+
+async function debugNotifications() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    
+    try {
+        console.log("=== DEBUG NOTIFICAÇÕES ===");
+        console.log("Usuário atual:", currentUser.uid, currentUser.email);
+        
+        // Verificar todas as notificações
+        const allNotifications = await db.collection('notifications').get();
+        console.log("Total de notificações no sistema:", allNotifications.size);
+        
+        allNotifications.forEach(doc => {
+            const notif = doc.data();
+            console.log(`Notificação ${doc.id}:`, {
+                userId: notif.userId,
+                title: notif.title,
+                read: notif.read,
+                type: notif.type,
+                userName: notif.userName
+            });
+        });
+        
+        // Verificar notificações do usuário atual
+        const userNotifications = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .get();
+        
+        console.log(`Notificações do usuário atual (${currentUser.uid}):`, userNotifications.size);
+        
+        userNotifications.forEach(doc => {
+            const notif = doc.data();
+            console.log(`- ${doc.id}: ${notif.title} (lida: ${notif.read})`);
+        });
+        
+    } catch (error) {
+        console.error("Erro no debug:", error);
+    }
+}
+
+// Adicionar botão de debug (apenas para desenvolvimento)
+function addDebugButton() {
+    if (currentUser && currentUser.role === 'admin') {
+        const debugBtn = document.createElement('button');
+        debugBtn.className = 'btn btn-sm btn-warning';
+        debugBtn.innerHTML = '<i class="fas fa-bug"></i>';
+        debugBtn.style.marginLeft = '10px';
+        debugBtn.style.fontSize = '12px';
+        debugBtn.style.padding = '5px 8px';
+        debugBtn.title = 'Debug Notificações';
+        debugBtn.onclick = debugNotifications;
+        
+        document.querySelector('.user-info').appendChild(debugBtn);
+    }
+}
+
+async function cleanupOldNotifications() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    
+    try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const oldNotifications = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .where('createdAt', '<', thirtyDaysAgo)
+            .get();
+        
+        const batch = db.batch();
+        oldNotifications.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        console.log(`Removidas ${oldNotifications.size} notificações antigas.`);
+        
+    } catch (error) {
+        console.error('Erro ao limpar notificações antigas:', error);
+    }
+}
+
+// Executar limpeza uma vez por dia
+setInterval(cleanupOldNotifications, 24 * 60 * 60 * 1000);
+
+// ========== FUNÇÃO DE DEBUG PARA NOTIFICAÇÕES ==========
+async function debugNotificationsSystem() {
+    console.log('=== DEBUG DO SISTEMA DE NOTIFICAÇÕES ===');
+    
+    if (!currentUser) {
+        console.error('Usuário não autenticado');
+        return;
+    }
+    
+    console.log('Informações do usuário atual:');
+    console.log('- UID:', currentUser.uid);
+    console.log('- Email:', currentUser.email);
+    console.log('- Role:', currentUser.role);
+    
+    try {
+        // 1. VERIFICAR NOTIFICAÇÕES NO BANCO
+        console.log('\n1. Buscando todas as notificações...');
+        const allNotifications = await db.collection('notifications').get();
+        console.log(`Total de notificações no sistema: ${allNotifications.size}`);
+        
+        // 2. VERIFICAR NOTIFICAÇÕES DO USUÁRIO ATUAL
+        console.log('\n2. Notificações do usuário atual:');
+        const userNotifications = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .get();
+        
+        console.log(`Notificações do usuário ${currentUser.uid}: ${userNotifications.size}`);
+        
+        userNotifications.forEach((doc, index) => {
+            const data = doc.data();
+            console.log(`\n  ${index + 1}. ID: ${doc.id}`);
+            console.log(`     Título: ${data.title || 'N/A'}`);
+            console.log(`     Tipo: ${data.type || 'N/A'}`);
+            console.log(`     Lida: ${data.read ? 'Sim' : 'Não'}`);
+            console.log(`     Data: ${data.createdAt ? data.createdAt.toDate().toLocaleString('pt-BR') : 'N/A'}`);
+            console.log(`     Sistema: ${data.systemGenerated ? 'Sim' : 'Não'}`);
+        });
+        
+        // 3. VERIFICAR NÃO LIDAS
+        console.log('\n3. Notificações não lidas:');
+        const unreadNotifications = await db.collection('notifications')
+            .where('userId', '==', currentUser.uid)
+            .where('read', '==', false)
+            .get();
+        
+        console.log(`Não lidas: ${unreadNotifications.size}`);
+        
+        // 4. CRIAR NOTIFICAÇÃO DE TESTE
+        console.log('\n4. Criando notificação de teste...');
+        const testNotification = {
+            type: 'info',
+            title: 'Notificação de Teste',
+            message: 'Esta é uma notificação de teste criada via debug.',
+            userId: currentUser.uid,
+            userName: currentUser.name,
+            read: false,
+            systemGenerated: true,
+            createdAt: new Date(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        const testDocRef = await db.collection('notifications').add(testNotification);
+        console.log(`Notificação de teste criada com ID: ${testDocRef.id}`);
+        
+        // 5. VERIFICAR REGRAS DE PERMISSÃO
+        console.log('\n5. Testando permissões...');
+        console.log('Usuário é admin?', currentUser.role === 'admin');
+        console.log('Usuário é qualidade?', currentUser.role === 'qualidade');
+        
+        // 6. ATUALIZAR UI
+        console.log('\n6. Atualizando interface...');
+        updateNotificationCount();
+        
+        alert(`DEBUG COMPLETO!\n\n• Total no sistema: ${allNotifications.size}\n• Suas notificações: ${userNotifications.size}\n• Não lidas: ${unreadNotifications.size}\n\nNotificação de teste criada.`);
+        
+    } catch (error) {
+        console.error('Erro no debug:', error);
+        alert(`ERRO NO DEBUG:\n\n${error.message}\n\nCode: ${error.code}`);
+    }
+}
+
+// Adicionar botão de debug (apenas em desenvolvimento)
+function addDebugButtonToUI() {
+    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
+        const debugBtn = document.createElement('button');
+        debugBtn.className = 'btn btn-sm btn-warning';
+        debugBtn.innerHTML = '<i class="fas fa-bug"></i>';
+        debugBtn.style.marginLeft = '10px';
+        debugBtn.style.padding = '5px 8px';
+        debugBtn.title = 'Debug Notificações';
+        debugBtn.onclick = debugNotificationsSystem;
+        
+        document.querySelector('.user-info').appendChild(debugBtn);
+        
+        console.log('Botão de debug adicionado à UI');
+    }
+}
+
+// Chamar após login
+// No handleUserLogin, após updateUI():
+// setTimeout(addDebugButtonToUI, 1000);
     </script>
 </body>
 </html>
