@@ -62,6 +62,106 @@
             min-height: 100vh;
         }
         
+
+        /* Estilos para Modais Personalizados */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.custom-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: slideUp 0.3s;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-modal-header {
+    padding: 20px 25px;
+    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.custom-modal-header i {
+    font-size: 28px;
+}
+
+.custom-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.custom-modal-body {
+    padding: 25px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.custom-modal-body p {
+    margin: 0;
+}
+
+.custom-modal-footer {
+    padding: 20px 25px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Tipos de modais */
+.custom-modal.success .custom-modal-header {
+    background: linear-gradient(135deg, var(--success) 0%, #1e8449 100%);
+}
+
+.custom-modal.warning .custom-modal-header {
+    background: linear-gradient(135deg, var(--warning) 0%, #d68910 100%);
+}
+
+.custom-modal.error .custom-modal-header {
+    background: linear-gradient(135deg, var(--danger) 0%, #b03a2e 100%);
+}
+
+.custom-modal.info .custom-modal-header {
+    background: linear-gradient(135deg, var(--secondary) 0%, #21618c 100%);
+}
+        
         /* Sidebar */
         .sidebar {
             width: 250px;
@@ -589,6 +689,7 @@
     padding: 20px;
     border-radius: 8px;
     text-align: center;
+    width: 30%;
 }
         
         .modal-title {
@@ -2087,6 +2188,40 @@
         </div>
     </div>
 
+    <!-- Modal Estilizado para Alertas -->
+<div id="custom-modal" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <i id="modal-icon" class="fas fa-exclamation-circle"></i>
+            <h3 id="modal-title">Alerta do Sistema</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="modal-message">Mensagem de alerta</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button id="modal-ok-btn" class="btn btn-primary">OK</button>
+            <button id="modal-cancel-btn" class="btn btn-secondary" style="display: none;">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div id="confirm-modal" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <i class="fas fa-question-circle" style="color: #3498db;"></i>
+            <h3>Confirmação</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="confirm-message">Tem certeza que deseja continuar?</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button id="confirm-yes-btn" class="btn btn-primary">Sim</button>
+            <button id="confirm-no-btn" class="btn btn-secondary">Não</button>
+        </div>
+    </div>
+</div>
+
     <script>
         // ========== FUNÇÕES DE VALIDAÇÃO GLOBAIS ==========
 
@@ -2194,6 +2329,7 @@ async function initializeApp() {
         
         // 4. CONFIGURAR EVENT LISTENERS
         setupEventListeners();
+        console.log('=== CONFIGURANDO SISTEMA DE NOTIFICAÇÕES ===');
         setupOsmosisTabs();
         
         // 5. ATUALIZAR HORA E DATA
@@ -2660,21 +2796,14 @@ async function handleUserLogin(user) {
             });
         }
 
-        // ========== FUNÇÕES PARA SALVAR DADOS ==========
-
-        // ========== FUNÇÃO saveTemperatureData() VALIDADA ==========
+// ========== FUNÇÃO saveTemperatureData() COMPLETA ==========
+// ========== FUNÇÃO saveTemperatureData() COMPLETA ==========
 async function saveTemperatureData() {
     console.log('=== SALVANDO DADOS DE TEMPERATURA ===');
     
     // 1. VERIFICAÇÃO DE PERMISSÃO
     if (!currentUser) {
-        alert('Usuário não autenticado.');
-        return;
-    }
-    
-    // Verificar se usuário tem permissão para criar
-    if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
-        alert('Apenas administradores e equipe de qualidade podem registrar leituras.');
+        showError('Acesso Negado', 'Usuário não autenticado. Por favor, faça login novamente.');
         return;
     }
     
@@ -2683,7 +2812,7 @@ async function saveTemperatureData() {
     const room = rooms.find(r => r.id === roomId);
     
     if (!room) {
-        alert('Por favor, selecione uma sala válida.');
+        showWarning('Sala Inválida', 'Por favor, selecione uma sala válida da lista.');
         return;
     }
     
@@ -2698,47 +2827,48 @@ async function saveTemperatureData() {
     const errors = [];
     
     if (isNaN(tempMin) || tempMin < -50 || tempMin > 100) {
-        errors.push('Temperatura mínima inválida (-50°C a 100°C)');
+        errors.push('Temp mínima fora do range (-50°C a 100°C)');
     }
     
     if (isNaN(tempMax) || tempMax < -50 || tempMax > 100) {
-        errors.push('Temperatura máxima inválida (-50°C a 100°C)');
+        errors.push('Temp máxima fora do range (-50°C a 100°C)');
     }
     
     if (isNaN(tempActual) || tempActual < -50 || tempActual > 100) {
-        errors.push('Temperatura atual inválida (-50°C a 100°C)');
+        errors.push('Temp atual fora do range (-50°C a 100°C)');
     }
     
     if (tempMin > tempMax) {
-        errors.push('Temperatura mínima não pode ser maior que a máxima');
+        errors.push('Temp mínima > máxima');
     }
     
     if (tempActual < tempMin || tempActual > tempMax) {
-        errors.push('Temperatura atual fora da faixa mínima/máxima');
+        errors.push('Temp atual fora da faixa');
     }
     
     if (isNaN(humidityMin) || humidityMin < 0 || humidityMin > 100) {
-        errors.push('Umidade mínima inválida (0% a 100%)');
+        errors.push('Umid mínima fora do range (0% a 100%)');
     }
     
     if (isNaN(humidityMax) || humidityMax < 0 || humidityMax > 100) {
-        errors.push('Umidade máxima inválida (0% a 100%)');
+        errors.push('Umid máxima fora do range (0% a 100%)');
     }
     
     if (isNaN(humidityActual) || humidityActual < 0 || humidityActual > 100) {
-        errors.push('Umidade atual inválida (0% a 100%)');
+        errors.push('Umid atual fora do range (0% a 100%)');
     }
     
     if (humidityMin > humidityMax) {
-        errors.push('Umidade mínima não pode ser maior que a máxima');
+        errors.push('Umid mínima > máxima');
     }
     
     if (humidityActual < humidityMin || humidityActual > humidityMax) {
-        errors.push('Umidade atual fora da faixa mínima/máxima');
+        errors.push('Umid atual fora da faixa');
     }
     
     if (errors.length > 0) {
-        alert('Erros de validação:\n\n' + errors.join('\n• '));
+        const errorMessage = 'Erros de validação:\n\n• ' + errors.join('\n• ');
+        showError('Erro de Validação', errorMessage);
         return;
     }
     
@@ -2788,17 +2918,19 @@ async function saveTemperatureData() {
             `${data.roomName} (${data.period}): Temp: ${data.tempActual}°C, Umid: ${data.humidityActual}%`
         );
         
-        // 8. VERIFICAR SE PRECISA CRIAR NOTIFICAÇÃO
+        // 8. VERIFICAR SE PRECISA CRIAR NOTIFICAÇÃO (PARA QUALQUER USUÁRIO)
         if (data.status === 'alert' || data.status === 'critical') {
+            console.log(`⚠️ Status ${data.status} detectado - criando notificação automática`);
             await checkAndCreateNotification(data, 'temperature_readings', docRef.id);
         }
         
         // 9. MENSAGEM DE SUCESSO
-        alert('✅ Dados de temperatura registrados com sucesso!');
-        
-        // 10. LIMPAR FORMULÁRIO E RECARREGAR
-        clearTemperatureForm();
-        loadTemperatureHistory();
+        showSuccess('Sucesso', 'Dados de temperatura registrados com sucesso!', {
+            onOk: () => {
+                clearTemperatureForm();
+                loadTemperatureHistory();
+            }
+        });
         
     } catch (error) {
         console.error('Erro ao salvar temperatura:', error);
@@ -2810,30 +2942,72 @@ async function saveTemperatureData() {
             errorMessage += error.message;
         }
         
-        alert('❌ ' + errorMessage);
+        showError('Erro', errorMessage);
         
     } finally {
-        // 11. RESTAURAR BOTÃO
+        // 10. RESTAURAR BOTÃO
         saveButton.innerHTML = originalText;
         saveButton.disabled = false;
     }
 }
 
-        async function savePressureData() {
-    if (!currentUser) return;
+// Função auxiliar para limpar formulário de temperatura
+function clearTemperatureForm() {
+    document.getElementById('temp-min').value = '';
+    document.getElementById('temp-max').value = '';
+    document.getElementById('temp-atual').value = '';
+    document.getElementById('umid-min').value = '';
+    document.getElementById('umid-max').value = '';
+    document.getElementById('umid-atual').value = '';
+    document.getElementById('temp-notes').value = '';
+}
+
+// Função auxiliar para calcular status de temperatura
+function calculateTemperatureStatus(temperature, humidity, tempMin, tempMax, humidityMin, humidityMax) {
+    if (!tempMin || !tempMax || !humidityMin || !humidityMax) {
+        return 'normal'; // Fallback se não houver parâmetros definidos
+    }
+
+    const tempInRange = temperature >= tempMin && temperature <= tempMax;
+    const humidityInRange = humidity >= humidityMin && humidity <= humidityMax;
+
+    if (tempInRange && humidityInRange) {
+        return 'normal';
+    } else if ((temperature >= tempMin - 1 && temperature <= tempMax + 1) || 
+               (humidity >= humidityMin - 5 && humidity <= humidityMax + 5)) {
+        return 'alert';
+    } else {
+        return 'critical';
+    }
+}
+
+// Função auxiliar para obter texto do status
+function getStatusText(status) {
+    const statusMap = {
+        'normal': 'Normal',
+        'alert': 'Alerta', 
+        'critical': 'Crítico'
+    };
+    return statusMap[status] || status;
+}
+   async function savePressureData() {
+    if (!currentUser) {
+        showError('Acesso Negado', 'Usuário não autenticado. Por favor, faça login novamente.');
+        return;
+    }
     
     const roomId = document.getElementById('pressure-room').value;
     const room = rooms.find(r => r.id === roomId);
     
     if (!room) {
-        alert('Por favor, selecione uma sala válida.');
+        showWarning('Sala Inválida', 'Por favor, selecione uma sala válida.');
         return;
     }
 
     const pressureValue = parseInt(document.getElementById('pressure-value').value);
 
     if (isNaN(pressureValue)) {
-        alert('Por favor, preencha o campo de pressão com um valor numérico válido.');
+        showWarning('Dado Inválido', 'Por favor, preencha o campo de pressão com um valor numérico válido.');
         return;
     }
 
@@ -2860,25 +3034,34 @@ async function saveTemperatureData() {
         );
         
         // Verificar se precisa criar notificação
-        await checkAndCreateNotification(data, 'pressure_readings', docRef.id);
+        if (data.status === 'alert' || data.status === 'critical') {
+            console.log(`⚠️ Status ${data.status} detectado - criando notificação automática`);
+            await checkAndCreateNotification(data, 'pressure_readings', docRef.id);
+        }
         
-        alert('Dados de pressão registrados com sucesso!');
-        clearPressureForm();
-        loadPressureHistory();
+        showSuccess('Sucesso', 'Dados de pressão registrados com sucesso!', {
+            onOk: () => {
+                clearPressureForm();
+                loadPressureHistory();
+            }
+        });
         
     } catch (error) {
         console.error('Erro ao salvar pressão:', error);
-        alert('Erro ao salvar dados de pressão: ' + error.message);
+        showError('Erro', 'Erro ao salvar dados de pressão: ' + error.message);
     }
 }
 
-        async function saveOsmosisDaily() {
-    if (!currentUser) return;
+  async function saveOsmosisDaily() {
+    if (!currentUser) {
+        showError('Acesso Negado', 'Usuário não autenticado. Por favor, faça login novamente.');
+        return;
+    }
 
     const conductivity = parseFloat(document.getElementById('condutividade').value);
 
     if (isNaN(conductivity)) {
-        alert('Por favor, preencha o campo de condutividade com um valor numérico válido.');
+        showWarning('Dado Inválido', 'Por favor, preencha o campo de condutividade com um valor numérico válido.');
         return;
     }
 
@@ -2921,26 +3104,35 @@ async function saveTemperatureData() {
         );
         
         // Verificar se precisa criar notificação
-        await checkAndCreateNotification(data, 'osmosis_daily', docRef.id);
+        if (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical') {
+            console.log(`⚠️ Status ${data.conductivityStatus} detectado - criando notificação automática`);
+            await checkAndCreateNotification(data, 'osmosis_daily', docRef.id);
+        }
         
-        alert('Controle diário do sistema de osmose registrado com sucesso!');
-        clearOsmosisDailyForm();
-        loadOsmosisHistory();
+        showSuccess('Sucesso', 'Controle diário do sistema de osmose registrado com sucesso!', {
+            onOk: () => {
+                clearOsmosisDailyForm();
+                loadOsmosisHistory();
+            }
+        });
         
     } catch (error) {
         console.error('Erro ao salvar osmose diária:', error);
-        alert('Erro ao salvar dados de osmose diária: ' + error.message);
+        showError('Erro', 'Erro ao salvar dados de osmose diária: ' + error.message);
     }
 }
 
-       async function saveOsmosisMaintenance() {
-    if (!currentUser) return;
+   async function saveOsmosisMaintenance() {
+    if (!currentUser) {
+        showError('Acesso Negado', 'Usuário não autenticado. Por favor, faça login novamente.');
+        return;
+    }
     
     const procedure = document.getElementById('procedimento').value;
     const maintenanceDate = document.getElementById('data-manutencao').value;
 
     if (!procedure || !maintenanceDate) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+        showWarning('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios.');
         return;
     }
 
@@ -2962,71 +3154,77 @@ async function saveTemperatureData() {
             `Procedimento: ${data.procedure.substring(0, 50)}...`
         );
         
-        alert('Manutenção do sistema de osmose registrada com sucesso!');
-        clearMaintenanceForm();
-        loadMaintenanceHistory();
+        showSuccess('Sucesso', 'Manutenção do sistema de osmose registrada com sucesso!', {
+            onOk: () => {
+                clearMaintenanceForm();
+                loadMaintenanceHistory();
+            }
+        });
         
     } catch (error) {
         console.error('Erro ao salvar manutenção de osmose:', error);
-        alert('Erro ao salvar dados de manutenção: ' + error.message);
+        showError('Erro', 'Erro ao salvar dados de manutenção: ' + error.message);
     }
 }
 
-        async function addRoom() {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem adicionar salas.');
-                return;
-            }
+ async function addRoom() {
+    if (currentUser.role !== 'admin') {
+        showWarning('Permissão Insuficiente', 'Apenas administradores podem adicionar salas.');
+        return;
+    }
 
-            const code = document.getElementById('room-code').value;
-            const name = document.getElementById('room-name').value;
-            const responsible = document.getElementById('room-responsible').value;
-            const tempMin = parseFloat(document.getElementById('temp-min-room').value);
-            const tempMax = parseFloat(document.getElementById('temp-max-room').value);
-            const humidityMin = parseFloat(document.getElementById('umid-min-room').value);
-            const humidityMax = parseFloat(document.getElementById('umid-max-room').value);
-            const pressureMin = parseInt(document.getElementById('pressure-value-min').value);
+    const code = document.getElementById('room-code').value;
+    const name = document.getElementById('room-name').value;
+    const responsible = document.getElementById('room-responsible').value;
+    const tempMin = parseFloat(document.getElementById('temp-min-room').value);
+    const tempMax = parseFloat(document.getElementById('temp-max-room').value);
+    const humidityMin = parseFloat(document.getElementById('umid-min-room').value);
+    const humidityMax = parseFloat(document.getElementById('umid-max-room').value);
+    const pressureMin = parseInt(document.getElementById('pressure-value-min').value);
 
-            if (!code || !name || !responsible || isNaN(tempMin) || isNaN(tempMax) || 
-                isNaN(humidityMin) || isNaN(humidityMax) || isNaN(pressureMin)) {
-                alert('Por favor, preencha todos os campos obrigatórios com valores válidos.');
-                return;
-            }
+    if (!code || !name || !responsible || isNaN(tempMin) || isNaN(tempMax) || 
+        isNaN(humidityMin) || isNaN(humidityMax) || isNaN(pressureMin)) {
+        showWarning('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios com valores válidos.');
+        return;
+    }
 
-            const data = {
-                code: code,
-                name: name,
-                type: document.getElementById('room-type').value,
-                responsible: responsible,
-                tempMin: tempMin,
-                tempMax: tempMax,
-                humidityMin: humidityMin,
-                humidityMax: humidityMax,
-                pressureMin: pressureMin,
-                description: document.getElementById('room-description').value,
-                status: 'active',
-                createdAt: new Date(),
-                createdBy: currentUser.uid,
-                createdByName: currentUser.name
-            };
+    const data = {
+        code: code,
+        name: name,
+        type: document.getElementById('room-type').value,
+        responsible: responsible,
+        tempMin: tempMin,
+        tempMax: tempMax,
+        humidityMin: humidityMin,
+        humidityMax: humidityMax,
+        pressureMin: pressureMin,
+        description: document.getElementById('room-description').value,
+        status: 'active',
+        createdAt: new Date(),
+        createdBy: currentUser.uid,
+        createdByName: currentUser.name
+    };
 
-            try {
-                await db.collection('rooms').add(data);
-                await addTraceability(
-                    'Adição de sala', 
-                    `${data.name} (${data.code}) adicionada`
-                );
-                
-                alert('Sala adicionada com sucesso!');
+    try {
+        await db.collection('rooms').add(data);
+        await addTraceability(
+            'Adição de sala', 
+            `${data.name} (${data.code}) adicionada`
+        );
+        
+        showSuccess('Sucesso', 'Sala adicionada com sucesso!', {
+            onOk: () => {
                 clearRoomForm();
-                await loadRooms(); // Recarregar salas
-                loadRoomsList(); // Recarregar lista
-                
-            } catch (error) {
-                console.error('Erro ao adicionar sala:', error);
-                alert('Erro ao adicionar sala: ' + error.message);
+                loadRooms();
+                loadRoomsList();
             }
-        }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao adicionar sala:', error);
+        showError('Erro', 'Erro ao adicionar sala: ' + error.message);
+    }
+}
 
         // ========== FUNÇÕES DE EDIÇÃO E EXCLUSÃO ==========
 
@@ -3284,21 +3482,25 @@ async function saveTemperatureData() {
             }
         }
 
-        async function deleteRecord(collection, docId, confirmationMessage) {
-            if (!confirm(confirmationMessage || 'Tem certeza que deseja excluir este registro?')) {
-                return;
-            }
+   async function deleteRecord(collection, docId, confirmationMessage) {
+    // Usar modal de confirmação
+    const confirm = await showConfirm(confirmationMessage || 'Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.');
+    
+    if (!confirm) {
+        showInfo('Cancelado', 'A exclusão foi cancelada.');
+        return;
+    }
 
-            try {
-                await db.collection(collection).doc(docId).delete();
-                
-                await addTraceability(
-                    `Exclusão de ${collection.replace('_', ' ')}`, 
-                    `Registro ${docId} excluído`
-                );
+    try {
+        await db.collection(collection).doc(docId).delete();
+        
+        await addTraceability(
+            `Exclusão de ${collection.replace('_', ' ')}`, 
+            `Registro ${docId} excluído`
+        );
 
-                alert('Registro excluído com sucesso!');
-                
+        showSuccess('Sucesso', 'Registro excluído com sucesso!', {
+            onOk: () => {
                 // Recarregar dados
                 switch(collection) {
                     case 'temperature_readings':
@@ -3309,7 +3511,7 @@ async function saveTemperatureData() {
                         break;
                     case 'rooms':
                         loadRoomsList();
-                        loadRooms(); // Para atualizar os selects
+                        loadRooms();
                         break;
                     case 'osmosis_daily':
                         loadOsmosisHistory();
@@ -3318,172 +3520,127 @@ async function saveTemperatureData() {
                         loadMaintenanceHistory();
                         break;
                 }
-
-            } catch (error) {
-                console.error('Erro ao excluir registro:', error);
-                alert('Erro ao excluir registro: ' + error.message);
             }
-        }
+        });
+
+    } catch (error) {
+        console.error('Erro ao excluir registro:', error);
+        showError('Erro', 'Erro ao excluir registro: ' + error.message);
+    }
+}
 
         // ========== GERENCIAMENTO DE USUÁRIOS ==========
 
         // ========== FUNÇÃO addUser() CORRIGIDA ==========
 async function addUser() {
-    console.log('=== INICIANDO CRIAÇÃO DE USUÁRIO ===');
-    
-    // 1. VERIFICAÇÃO DE PERMISSÕES
-    if (!currentUser) {
-        alert('Usuário não autenticado.');
-        return;
-    }
-    
     if (currentUser.role !== 'admin') {
-        alert('Apenas administradores podem adicionar usuários.');
+        showWarning('Permissão Insuficiente', 'Apenas administradores podem adicionar usuários.');
         return;
     }
-    
-    // 2. COLETAR DADOS DO FORMULÁRIO
+
     const name = document.getElementById('user-name').value.trim();
-    const email = document.getElementById('user-email').value.trim().toLowerCase();
+    const email = document.getElementById('user-email').value.trim();
     const password = document.getElementById('user-password').value;
     const role = document.getElementById('user-role').value;
-    
-    console.log('Dados coletados:', { name, email, password: '***', role });
-    
-    // 3. VALIDAÇÕES DETALHADAS
-    const errors = [];
-    
-    if (!name || name.length < 3) {
-        errors.push('Nome deve ter pelo menos 3 caracteres');
-    }
-    
-    if (!email) {
-        errors.push('Email é obrigatório');
-    }
-    
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-        errors.push('Email inválido');
-    }
-    
-    if (!password || password.length < 6) {
-        errors.push('Senha deve ter pelo menos 6 caracteres');
-    }
-    
-    if (!['user', 'admin', 'qualidade'].includes(role)) {
-        errors.push('Tipo de usuário inválido');
-    }
-    
-    if (errors.length > 0) {
-        alert('Erros de validação:\n\n' + errors.join('\n• '));
+
+    console.log('Dados do formulário:', { name, email, password, role });
+
+    if (!name || !email || !password) {
+        showWarning('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios.');
         return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showWarning('Email Inválido', 'Por favor, insira um email válido.');
+        return;
+    }
+
+    if (password.length < 6) {
+        showWarning('Senha Fraca', 'A senha deve ter pelo menos 6 caracteres.');
+        return;
+    }
+
+    const userRole = role || 'user';
     
-    // 4. DESABILITAR BOTÃO E MOSTRAR LOADING
+    // Usar modal de confirmação
+    const confirm = await showConfirm(`Criar novo usuário?\n\nNome: ${name}\nEmail: ${email}\nTipo: ${userRole === 'admin' ? 'Administrador' : 'Usuário Normal'}`);
+    
+    if (!confirm) {
+        showInfo('Cancelado', 'A criação do usuário foi cancelada.');
+        return;
+    }
+
+    // Desabilitar botão durante o processo
     const addButton = document.getElementById('add-user-btn');
     const originalText = addButton.innerHTML;
     addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando usuário...';
     addButton.disabled = true;
-    
+
     try {
-        console.log('Verificando se email já existe...');
-        
-        // 5. VERIFICAR SE EMAIL JÁ EXISTE NO FIRESTORE
-        const existingUserQuery = await db.collection('users')
-            .where('email', '==', email)
-            .limit(1)
-            .get();
-        
-        if (!existingUserQuery.empty) {
-            throw new Error('Este email já está cadastrado no sistema.');
+        // Verificar se usuário já existe no Firestore
+        const existingUser = await checkUserExists(email);
+        if (existingUser) {
+            showError('Email em Uso', 'Este email já está cadastrado no sistema.');
+            return;
         }
+
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
         
-        console.log('Email não existe, criando usuário no Firebase Auth...');
-        
-        // 6. CRIAR USUÁRIO NO FIREBASE AUTH
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const newUser = userCredential.user;
-        
-        console.log('Usuário criado no Auth com ID:', newUser.uid);
-        
-        // 7. FAZER LOGOUT DO NOVO USUÁRIO E RELOGAR COMO ADMIN
-        await auth.signOut();
-        await auth.signInWithEmailAndPassword(currentUser.email, prompt('Digite sua senha de administrador para confirmar:'));
-        
-        // 8. CRIAR DOCUMENTO NO FIRESTORE
-        const userData = {
-            name: name,
-            email: email,
-            role: role,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'active',
-            createdBy: currentUser.uid,
-            createdByName: currentUser.name,
-            uid: newUser.uid
-        };
-        
-        console.log('Salvando dados no Firestore:', userData);
-        
-        await db.collection('users').doc(newUser.uid).set(userData);
-        
-        // 9. REGISTRAR RASTREABILIDADE
+        // Criar usuário no Firebase Authentication
+        const authResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                returnSecureToken: true
+            })
+        });
+
+        const authData = await authResponse.json();
+
+        if (!authResponse.ok) {
+            if (authData.error?.message === 'EMAIL_EXISTS') {
+                console.log('Usuário já existe no Auth, tentando recuperar...');
+                await handleExistingAuthUser(email, name, userRole);
+            } else {
+                const errorMessage = getFirebaseAuthErrorMessage(authData.error?.message);
+                showError('Erro', errorMessage);
+                return;
+            }
+        } else {
+            // Usuário criado com sucesso no Auth
+            const userId = authData.localId;
+            console.log('Usuário criado no Auth com ID:', userId);
+            await saveUserToFirestore(userId, name, email, userRole);
+        }
+
         await addTraceability(
             'Criação de usuário', 
-            `Usuário "${name}" (${email}) criado como ${role}`
+            `Usuário ${name} (${email}) criado como ${userRole}`
         );
         
-        // 10. MENSAGEM DE SUCESSO
-        alert(`✅ Usuário criado com sucesso!\n\n• Nome: ${name}\n• Email: ${email}\n• Tipo: ${role === 'admin' ? 'Administrador' : 'Usuário Normal'}`);
-        
-        // 11. LIMPAR FORMULÁRIO E RECARREGAR LISTA
-        clearUserForm();
-        await loadUsersList();
-        
-        console.log('=== USUÁRIO CRIADO COM SUCESSO ===');
+        showSuccess('Sucesso', `Usuário "${name}" criado com sucesso!\n\nEmail: ${email}`, {
+            onOk: () => {
+                clearUserForm();
+                loadUsersList();
+            }
+        });
         
     } catch (error) {
-        console.error('Erro completo:', error);
-        
-        // 12. TRATAMENTO DE ERROS DETALHADO
-        let errorMessage = 'Erro ao criar usuário: ';
-        
-        if (error.code === 'auth/email-already-in-use') {
-            errorMessage += 'Este email já está em uso por outro usuário.';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage += 'Email inválido.';
-        } else if (error.code === 'auth/operation-not-allowed') {
-            errorMessage += 'Operação não permitida. Contate o suporte.';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage += 'Senha muito fraca. Use pelo menos 6 caracteres.';
-        } else if (error.message.includes('já está cadastrado')) {
-            errorMessage = 'Este email já está cadastrado no sistema.';
-        } else {
-            errorMessage += error.message;
-        }
-        
-        alert('❌ ' + errorMessage);
-        
-        // Tentar fazer login novamente como admin
-        try {
-            await auth.signInWithEmailAndPassword(currentUser.email, prompt('Digite sua senha para restaurar sessão:'));
-        } catch (loginError) {
-            console.error('Erro ao restaurar sessão:', loginError);
-        }
-        
+        console.error('Erro ao criar usuário:', error);
+        showError('Erro', 'Erro ao criar usuário: ' + error.message);
     } finally {
-        // 13. RESTAURAR BOTÃO
+        // Restaurar botão
         addButton.innerHTML = originalText;
         addButton.disabled = false;
     }
 }
 
-// Função auxiliar para limpar formulário
-function clearUserForm() {
-    document.getElementById('user-name').value = '';
-    document.getElementById('user-email').value = '';
-    document.getElementById('user-password').value = '';
-    document.getElementById('user-role').value = 'user';
-}
 
 // FUNÇÃO PRINCIPAL: Criar usuário via REST API do Firebase
 async function createUserWithRestAPI(email, password, name, role) {
@@ -3740,41 +3897,59 @@ async function addUser() {
 async function handleExistingAuthUser(email, name, role) {
     console.log('Tentando recuperar usuário existente no Auth...');
     
-    try {
-        // SOLUÇÃO SEGURA: Não pedir a senha, apenas informar o admin
-        const shouldContinue = confirm(
-            `⚠️ Atenção!\n\nO usuário ${email} já existe no sistema de autenticação, mas não está cadastrado no painel administrativo.\n\nPara resolver:\n\n1. O usuário deve usar a função "Esqueci minha senha" no login\n2. Ou entre em contato com o suporte técnico\n\nDeseja continuar com o cadastro administrativo?`
-        );
+    // Pedir senha com modal de confirmação
+    const confirm = await showConfirm(`O usuário ${email} já existe na autenticação.\n\nPara vincular esta conta ao sistema, digite a senha do usuário:`);
+    
+    if (!confirm) {
+        showInfo('Cancelado', 'Operação cancelada. É necessária a senha para recuperar o usuário.');
+        return;
+    }
 
-        if (!shouldContinue) {
-            throw new Error('Operação cancelada pelo administrador.');
+    try {
+        const API_KEY = 'AIzaSyBQVm5-PrEojIObPC5t2H0ErHM4H2lTOWE';
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+        
+        // Pedir senha (simplificado - em produção use um modal com campo de senha)
+        const userPassword = prompt('Digite a senha do usuário:');
+        
+        if (!userPassword) {
+            showWarning('Cancelado', 'É necessária a senha para recuperar o usuário.');
+            return;
         }
 
-        // Como não podemos obter o UID sem a senha, vamos criar um registro pendente
-        const pendingUserData = {
-            name: name,
-            email: email,
-            role: role,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'pending_auth_link',
-            createdBy: currentUser.uid,
-            createdByName: currentUser.name,
-            notes: 'Usuário existe no Auth mas precisa vincular conta'
-        };
+        // Tentar fazer login para obter o UID
+        const loginResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: userPassword,
+                returnSecureToken: true
+            })
+        });
 
-        // Usar o email como ID temporário (substituindo @ e . por _)
-        const tempUserId = email.replace(/[@.]/g, '_');
-        await db.collection('users').doc(tempUserId).set(pendingUserData);
+        const loginData = await loginResponse.json();
         
-        // CORREÇÃO: Mensagem sem nenhuma referência à senha
-        alert(`✅ Cadastro administrativo criado!\n\n• Nome: ${name}\n• Email: ${email}\n• Status: Pendente de vinculação\n\nInstruções:\n1. O usuário deve usar "Esqueci minha senha" no login\n2. Após redefinir a senha, a conta será vinculada automaticamente`);
+        if (!loginResponse.ok) {
+            showError('Erro', 'Senha incorreta ou erro ao acessar a conta existente.');
+            return;
+        }
+
+        const userId = loginData.localId;
+        console.log('UID do usuário existente:', userId);
+
+        // Agora salvar no Firestore
+        await saveUserToFirestore(userId, name, email, role);
+        
+        showSuccess('Sucesso', `Usuário "${name}" vinculado com sucesso!\n\nEmail: ${email}`);
 
     } catch (error) {
         console.error('Erro ao recuperar usuário existente:', error);
-        throw new Error(`Não foi possível processar o usuário existente: ${error.message}`);
+        showError('Erro', `Não foi possível recuperar o usuário existente: ${error.message}`);
     }
 }
-
 // Função para salvar usuário no Firestore (CORRIGIDA)
 async function saveUserToFirestore(userId, name, email, role) {
     console.log('Salvando usuário no Firestore:', { userId, name, email, role });
@@ -4370,105 +4545,122 @@ async function createCustomToken(email) {
         }
 
         async function editUser(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
 
-            const newName = prompt('Novo nome:', user.name);
-            if (!newName) return;
+    // Usar modal para edição (simplificado)
+    const confirm = await showConfirm(`Editar usuário: ${user.name} (${user.email})\n\nDeseja alterar o nome e tipo deste usuário?`);
+    
+    if (!confirm) return;
 
-            const newRole = prompt('Novo tipo (admin/user):', user.role);
-            if (!newRole || !['admin', 'user'].includes(newRole)) {
-                alert('Tipo inválido. Use "admin" ou "user".');
-                return;
-            }
+    try {
+        // Em produção, crie um modal com campos de edição
+        const newName = prompt('Novo nome:', user.name);
+        if (!newName) return;
 
-            try {
-                await db.collection('users').doc(userId).update({
-                    name: newName,
-                    role: newRole
-                });
-
-                await addTraceability(
-                    'Edição de usuário', 
-                    `Usuário ${user.email} atualizado: nome="${newName}", tipo="${newRole}"`
-                );
-
-                alert('Usuário atualizado com sucesso!');
-                loadUsersList();
-            } catch (error) {
-                console.error('Erro ao editar usuário:', error);
-                alert('Erro ao editar usuário');
-            }
+        const newRole = prompt('Novo tipo (admin/user/qualidade):', user.role);
+        if (!newRole || !['admin', 'user', 'qualidade'].includes(newRole)) {
+            showWarning('Tipo Inválido', 'Use "admin", "user" ou "qualidade".');
+            return;
         }
 
-        async function deleteUser(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
+        await db.collection('users').doc(userId).update({
+            name: newName,
+            role: newRole
+        });
 
-            if (!confirm(`Tem certeza que deseja excluir permanentemente o usuário ${user.name} (${user.email})?`)) {
-                return;
-            }
+        await addTraceability(
+            'Edição de usuário', 
+            `Usuário ${user.email} atualizado: nome="${newName}", tipo="${newRole}"`
+        );
 
-            try {
-                // Deletar do Firestore
-                await db.collection('users').doc(userId).delete();
+        showSuccess('Sucesso', 'Usuário atualizado com sucesso!', {
+            onOk: () => loadUsersList()
+        });
+    } catch (error) {
+        console.error('Erro ao editar usuário:', error);
+        showError('Erro', 'Erro ao editar usuário');
+    }
+}
 
-                await addTraceability(
-                    'Exclusão de usuário', 
-                    `Usuário ${user.name} (${user.email}) excluído permanentemente`
-                );
+  async function deleteUser(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
 
-                alert('Usuário excluído com sucesso!');
-                loadUsersList();
-            } catch (error) {
-                console.error('Erro ao excluir usuário:', error);
-                alert('Erro ao excluir usuário: ' + error.message);
-            }
-        }
+    const confirm = await showConfirm(`Excluir permanentemente o usuário ${user.name} (${user.email})?\n\n⚠️ Esta ação não pode ser desfeita!`);
+    
+    if (!confirm) return;
 
-        async function deactivateUser(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
+    try {
+        // Deletar do Firestore
+        await db.collection('users').doc(userId).delete();
 
-            try {
-                await db.collection('users').doc(userId).update({
-                    status: 'inactive'
-                });
+        await addTraceability(
+            'Exclusão de usuário', 
+            `Usuário ${user.name} (${user.email}) excluído permanentemente`
+        );
 
-                await addTraceability(
-                    'Desativação de usuário', 
-                    `Usuário ${user.name} (${user.email}) desativado`
-                );
+        showSuccess('Sucesso', 'Usuário excluído com sucesso!', {
+            onOk: () => loadUsersList()
+        });
+    } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        showError('Erro', 'Erro ao excluir usuário: ' + error.message);
+    }
+}
 
-                alert('Usuário desativado com sucesso!');
-                loadUsersList();
-            } catch (error) {
-                console.error('Erro ao desativar usuário:', error);
-                alert('Erro ao desativar usuário');
-            }
-        }
+ async function deactivateUser(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
 
-        async function activateUser(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
+    const confirm = await showConfirm(`Desativar o usuário ${user.name} (${user.email})?\n\nO usuário não poderá mais acessar o sistema.`);
+    
+    if (!confirm) return;
 
-            try {
-                await db.collection('users').doc(userId).update({
-                    status: 'active'
-                });
+    try {
+        await db.collection('users').doc(userId).update({
+            status: 'inactive'
+        });
 
-                await addTraceability(
-                    'Ativação de usuário', 
-                    `Usuário ${user.name} (${user.email}) ativado`
-                );
+        await addTraceability(
+            'Desativação de usuário', 
+            `Usuário ${user.name} (${user.email}) desativado`
+        );
 
-                alert('Usuário ativado com sucesso!');
-                loadUsersList();
-            } catch (error) {
-                console.error('Erro ao ativar usuário:', error);
-                alert('Erro ao ativar usuário');
-            }
-        }
+        showSuccess('Sucesso', 'Usuário desativado com sucesso!', {
+            onOk: () => loadUsersList()
+        });
+    } catch (error) {
+        console.error('Erro ao desativar usuário:', error);
+        showError('Erro', 'Erro ao desativar usuário');
+    }
+}
+ async function activateUser(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    const confirm = await showConfirm(`Ativar o usuário ${user.name} (${user.email})?\n\nO usuário poderá acessar o sistema novamente.`);
+    
+    if (!confirm) return;
+
+    try {
+        await db.collection('users').doc(userId).update({
+            status: 'active'
+        });
+
+        await addTraceability(
+            'Ativação de usuário', 
+            `Usuário ${user.name} (${user.email}) ativado`
+        );
+
+        showSuccess('Sucesso', 'Usuário ativado com sucesso!', {
+            onOk: () => loadUsersList()
+        });
+    } catch (error) {
+        console.error('Erro ao ativar usuário:', error);
+        showError('Erro', 'Erro ao ativar usuário');
+    }
+}
 
         function clearUserForm() {
             document.getElementById('user-name').value = '';
@@ -5392,62 +5584,69 @@ async function createCustomToken(email) {
         }
 
         // Funções para limpar formulários
-        function clearTemperatureForm() {
-            document.getElementById('temp-min').value = '';
-            document.getElementById('temp-max').value = '';
-            document.getElementById('temp-atual').value = '';
-            document.getElementById('umid-min').value = '';
-            document.getElementById('umid-max').value = '';
-            document.getElementById('umid-atual').value = '';
-            document.getElementById('temp-notes').value = '';
-        }
+   function clearTemperatureForm() {
+    document.getElementById('temp-min').value = '';
+    document.getElementById('temp-max').value = '';
+    document.getElementById('temp-atual').value = '';
+    document.getElementById('umid-min').value = '';
+    document.getElementById('umid-max').value = '';
+    document.getElementById('umid-atual').value = '';
+    document.getElementById('temp-notes').value = '';
+}
 
-        function clearPressureForm() {
-            document.getElementById('pressure-value').value = '';
-            document.getElementById('correcao-imediata').value = '';
-            document.getElementById('pressure-notes').value = '';
-        }
+function clearPressureForm() {
+    document.getElementById('pressure-value').value = '';
+    document.getElementById('correcao-imediata').value = '';
+    document.getElementById('pressure-notes').value = '';
+}
 
-        function clearOsmosisDailyForm() {
-            document.getElementById('condutividade').value = '';
-            document.getElementById('ultima-sanitizacao').value = '';
-            document.getElementById('proxima-sanitizacao').value = '';
-            document.getElementById('ultima-higienizacao').value = '';
-            document.getElementById('proxima-higienizacao').value = '';
-            document.getElementById('ultima-coleta').value = '';
-            document.getElementById('proxima-coleta').value = '';
-            document.getElementById('anormalidade-nao').checked = true;
-            document.getElementById('anormalidade-detalhes').style.display = 'none';
-            document.getElementById('motivo-anormalidade').value = '';
-            document.getElementById('ultima-fpp001').value = '';
-            document.getElementById('ultima-fca001').value = '';
-            document.getElementById('ultima-drm001').value = '';
-            document.getElementById('ultima-drm002').value = '';
-            document.getElementById('proxima-fpp001').value = '';
-            document.getElementById('proxima-fca001').value = '';
-            document.getElementById('proxima-drm001').value = '';
-            document.getElementById('proxima-drm002').value = '';
-            document.getElementById('osmosis-daily-notes').value = '';
-        }
+function clearOsmosisDailyForm() {
+    document.getElementById('condutividade').value = '';
+    document.getElementById('ultima-sanitizacao').value = '';
+    document.getElementById('proxima-sanitizacao').value = '';
+    document.getElementById('ultima-higienizacao').value = '';
+    document.getElementById('proxima-higienizacao').value = '';
+    document.getElementById('ultima-coleta').value = '';
+    document.getElementById('proxima-coleta').value = '';
+    document.getElementById('anormalidade-nao').checked = true;
+    document.getElementById('anormalidade-detalhes').style.display = 'none';
+    document.getElementById('motivo-anormalidade').value = '';
+    document.getElementById('ultima-fpp001').value = '';
+    document.getElementById('ultima-fca001').value = '';
+    document.getElementById('ultima-drm001').value = '';
+    document.getElementById('ultima-drm002').value = '';
+    document.getElementById('proxima-fpp001').value = '';
+    document.getElementById('proxima-fca001').value = '';
+    document.getElementById('proxima-drm001').value = '';
+    document.getElementById('proxima-drm002').value = '';
+    document.getElementById('osmosis-daily-notes').value = '';
+}
 
-        function clearMaintenanceForm() {
-            document.getElementById('procedimento').value = '';
-            document.getElementById('data-manutencao').value = '';
-            document.getElementById('obs-manutencao').value = '';
-        }
+function clearMaintenanceForm() {
+    document.getElementById('procedimento').value = '';
+    document.getElementById('data-manutencao').value = '';
+    document.getElementById('obs-manutencao').value = '';
+}
 
-        function clearRoomForm() {
-            document.getElementById('room-name').value = '';
-            document.getElementById('room-code').value = '';
-            document.getElementById('room-type').value = 'estoque';
-            document.getElementById('room-responsible').value = '';
-            document.getElementById('temp-min-room').value = '18.0';
-            document.getElementById('temp-max-room').value = '26.0';
-            document.getElementById('umid-min-room').value = '40.0';
-            document.getElementById('umid-max-room').value = '60.0';
-            document.getElementById('pressure-value-min').value = '5';
-            document.getElementById('room-description').value = '';
-        }
+function clearRoomForm() {
+    document.getElementById('room-name').value = '';
+    document.getElementById('room-code').value = '';
+    document.getElementById('room-type').value = 'estoque';
+    document.getElementById('room-responsible').value = '';
+    document.getElementById('temp-min-room').value = '18.0';
+    document.getElementById('temp-max-room').value = '26.0';
+    document.getElementById('umid-min-room').value = '40.0';
+    document.getElementById('umid-max-room').value = '60.0';
+    document.getElementById('pressure-value-min').value = '5';
+    document.getElementById('room-description').value = '';
+}
+
+function clearUserForm() {
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('user-role').value = 'user';
+}
 
         function showLoginModal() {
             document.getElementById('login-modal').style.display = 'flex';
@@ -6287,10 +6486,10 @@ async function createNotification(type, title, message, recordId, recordType) {
     console.log(`=== CRIANDO NOTIFICAÇÃO (${type}) ===`);
     
     // VERIFICAÇÕES CRÍTICAS
-    if (!currentUser || currentUser.role !== 'admin') {
-        console.error('Apenas administradores podem criar notificações do sistema');
-        return;
-    }
+if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+    console.error('Apenas administradores e equipe de qualidade podem criar notificações do sistema');
+    return;
+}
     
     // VALIDAR DADOS
     if (!type || !title || !message) {
@@ -6431,67 +6630,65 @@ async function checkNotificationExistsForUser(recordId, userId) {
 }
 
 // ========== FUNÇÃO checkAndCreateNotification() ATUALIZADA ==========
+// ========== FUNÇÃO checkAndCreateNotification() ATUALIZADA ==========
 async function checkAndCreateNotification(data, recordType, recordId) {
-    console.log(`Verificando necessidade de notificação para ${recordType}`);
+    console.log(`=== VERIFICANDO NOTIFICAÇÃO PARA ${recordType.toUpperCase()} ===`);
+    console.log(`Usuário que fez apontamento: ${currentUser?.name} (${currentUser?.role})`);
     
-    // 1. DETERMINAR SE PRECISA DE NOTIFICAÇÃO
+    // 1. VERIFICAR SE PRECISA DE NOTIFICAÇÃO (QUALQUER USUÁRIO)
     let needsNotification = false;
-    let type = '';
-    let title = '';
-    let message = '';
+    let alertType = '';
     
     switch(recordType) {
         case 'temperature_readings':
+            console.log(`Status temperatura: ${data.status}`);
             if (data.status === 'alert' || data.status === 'critical') {
                 needsNotification = true;
-                type = data.status;
-                title = `⚠️ Alerta de ${data.status === 'critical' ? 'CRÍTICO' : 'ALERTA'}`;
-                message = `Sala: ${data.roomName}\n`;
-                message += `Temperatura: ${data.tempActual}°C (${data.tempMin}-${data.tempMax}°C)\n`;
-                message += `Umidade: ${data.humidityActual}% (${data.humidityMin}-${data.humidityMax}%)`;
+                alertType = data.status;
+                console.log(`⚠️ Temperatura ${alertType} detectada!`);
             }
             break;
             
         case 'pressure_readings':
+            console.log(`Status pressão: ${data.status}`);
             if (data.status === 'alert' || data.status === 'critical') {
                 needsNotification = true;
-                type = data.status;
-                title = `⚠️ Alerta de Pressão`;
-                message = `Sala: ${data.roomName}\n`;
-                message += `Pressão: ${data.pressure} Pa\n`;
-                if (data.immediateCorrection) {
-                    message += `Correção: ${data.immediateCorrection}`;
-                }
+                alertType = data.status;
+                console.log(`⚠️ Pressão ${alertType} detectada!`);
             }
             break;
             
         case 'osmosis_daily':
+            console.log(`Status osmose: ${data.conductivityStatus}`);
             if (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical') {
                 needsNotification = true;
-                type = data.conductivityStatus;
-                title = `⚠️ Alerta de Osmose`;
-                message = `Condutividade: ${data.conductivity} µS/cm\n`;
-                message += `Limite: 1.3 µS/cm`;
+                alertType = data.conductivityStatus;
+                console.log(`⚠️ Osmose ${alertType} detectada!`);
             }
             break;
     }
     
-    // 2. CRIAR NOTIFICAÇÃO SE NECESSÁRIO
-    if (needsNotification && type && title && message) {
-        console.log(`Criando notificação ${type} para ${recordId}`);
+    // 2. CRIAR NOTIFICAÇÃO SE NECESSÁRIO (PARA QUALQUER USUÁRIO)
+    if (needsNotification && alertType) {
+        console.log(`✅ CRIANDO NOTIFICAÇÃO ${alertType.toUpperCase()} PARA ADMIN/QUALIDADE`);
+        console.log(`Registro: ${recordType} - ID: ${recordId}`);
         
-        // Verificar se usuário atual é admin (necessário pelas regras)
-        if (currentUser && currentUser.role === 'admin') {
-            await createNotification(type, title, message, recordId, recordType);
-        } else {
-            console.log('Usuário não é admin, notificação não criada');
-        }
+        // NÃO VERIFICAR PERMISSÕES AQUI - QUALQUER USUÁRIO PODE DISPARAR NOTIFICAÇÃO
+        await createNotificationForAdmins(data, recordType, recordId, alertType);
+        
+        // Registrar rastreabilidade
+        await addTraceability(
+            'Notificação automática criada',
+            `${recordType.replace('_', ' ')} com status ${alertType} criou notificação para admin/qualidade`
+        );
+        
     } else {
-        console.log('Não precisa de notificação');
+        console.log('✅ Status normal, sem notificação necessária');
     }
 }
 
 // ========== FUNÇÃO updateNotificationCount() CORRIGIDA ==========
+// ========== FUNÇÃO updateNotificationCount() ATUALIZADA ==========
 async function updateNotificationCount() {
     console.log('=== ATUALIZANDO CONTADOR DE NOTIFICAÇÕES ===');
     
@@ -6501,21 +6698,13 @@ async function updateNotificationCount() {
         return;
     }
     
-    // Verificar se usuário é admin ou qualidade
-    if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
-        console.log('Usuário não tem permissão para notificações');
-        document.getElementById('notification-btn').style.display = 'none';
-        return;
-    }
-    
     const countElement = document.getElementById('notification-count');
-    const bellIcon = document.querySelector('#notification-btn i');
     const notificationBtn = document.getElementById('notification-btn');
     
     try {
         console.log('Buscando notificações não lidas para:', currentUser.uid);
         
-        // BUSCAR APENAS NOTIFICAÇÕES NÃO LIDAS
+        // BUSCAR APENAS NOTIFICAÇÕES NÃO LIDAS DO USUÁRIO ATUAL
         const unreadQuery = await db.collection('notifications')
             .where('userId', '==', currentUser.uid)
             .where('read', '==', false)
@@ -6524,70 +6713,53 @@ async function updateNotificationCount() {
         const unreadCount = unreadQuery.size;
         console.log('Notificações não lidas encontradas:', unreadCount);
         
-        // MOSTRAR/OCULTAR BOTÃO
-        notificationBtn.style.display = 'inline-flex';
-        
-        if (unreadCount > 0) {
-            // ATUALIZAR CONTADOR
-            countElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            countElement.style.display = 'flex';
+        // MOSTRAR BOTÃO DE NOTIFICAÇÕES APENAS SE USUÁRIO TEM PERMISSÃO
+        // (admin/qualidade veem, outros não)
+        if (currentUser.role === 'admin' || currentUser.role === 'qualidade') {
+            notificationBtn.style.display = 'inline-flex';
             
-            // ANIMAÇÃO DE ALERTA
-            bellIcon.style.color = '#e74c3c';
-            countElement.style.animation = 'pulse 2s infinite';
-            
-            // ADICIONAR BORDA VERMELHA NO BOTÃO
-            notificationBtn.style.border = '2px solid #e74c3c';
-            notificationBtn.style.boxShadow = '0 0 10px rgba(231, 76, 60, 0.5)';
-            
-            console.log(`Contador atualizado: ${unreadCount} notificações não lidas`);
-            
+            if (unreadCount > 0) {
+                countElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                countElement.style.display = 'flex';
+                countElement.style.animation = 'pulse 2s infinite';
+                notificationBtn.style.border = '2px solid #e74c3c';
+            } else {
+                countElement.style.display = 'none';
+                notificationBtn.style.border = 'none';
+            }
         } else {
-            // OCULTAR CONTADOR
-            countElement.style.display = 'none';
-            bellIcon.style.color = '#ffffff';
-            countElement.style.animation = '';
-            
-            // REMOVER EFEITOS VISUAIS
-            notificationBtn.style.border = 'none';
-            notificationBtn.style.boxShadow = 'none';
-            
-            console.log('Sem notificações não lidas');
+            // Usuários comuns não veem o botão de notificações
+            notificationBtn.style.display = 'none';
         }
         
     } catch (error) {
         console.error('Erro ao atualizar contador:', error);
-        
-        // Em caso de erro, ocultar o contador
         countElement.style.display = 'none';
-        bellIcon.style.color = '';
-        countElement.style.animation = '';
-        
-        // Mostrar botão mesmo com erro (para permitir acesso)
-        notificationBtn.style.display = 'inline-flex';
     }
 }
 
 // ========== FUNÇÃO loadNotifications() CORRIGIDA ==========
+// ========== FUNÇÃO loadNotifications() CORRIGIDA ==========
 async function loadNotifications() {
     console.log('=== CARREGANDO NOTIFICAÇÕES ===');
     
-    // Verificar se usuário está autenticado e é admin/qualidade
-    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
-        console.log('Usuário não tem permissão para ver notificações');
+    // Verificar se usuário está autenticado
+    if (!currentUser) {
+        console.log('Usuário não autenticado');
         document.getElementById('notification-list').innerHTML = `
             <div class="empty-notifications">
                 <i class="fas fa-ban"></i>
-                <p>Permissão insuficiente para acessar notificações</p>
+                <p>Faça login para ver notificações</p>
             </div>
         `;
         return;
     }
     
+    // PERMITIR ACESSO A QUALQUER USUÁRIO, MAS MOSTRAR APENAS SUAS NOTIFICAÇÕES
     try {
         console.log('Buscando notificações para usuário:', currentUser.uid);
         
-        // BUSCAR NOTIFICAÇÕES DO USUÁRIO ATUAL
+        // BUSCAR NOTIFICAÇÕES DO USUÁRIO ATUAL (admin/qualidade veem suas próprias)
         const notificationsSnapshot = await db.collection('notifications')
             .where('userId', '==', currentUser.uid)
             .orderBy('createdAt', 'desc')
@@ -6607,51 +6779,17 @@ async function loadNotifications() {
                     <small style="color: #999;">Novas notificações aparecerão aqui</small>
                 </div>
             `;
-            
-            // Atualizar título do modal
-            document.querySelector('#notification-modal .edit-modal-title').innerHTML = `
-                <i class="fas fa-bell"></i> Notificações do Sistema
-                <button class="btn btn-sm" onclick="markAllAsRead()" style="float: right; display: none;">
-                    Marcar todas como lidas
-                </button>
-            `;
-            
             return;
         }
-        
-        // CONTADOR DE NÃO LIDAS
-        let unreadCount = 0;
         
         // PERCORRER NOTIFICAÇÕES
         notificationsSnapshot.forEach(doc => {
             const notification = { id: doc.id, ...doc.data() };
             
-            // Contar não lidas
-            if (!notification.read) {
-                unreadCount++;
-            }
-            
             // Criar elemento de notificação
             const notificationElement = createNotificationElement(notification);
             notificationList.appendChild(notificationElement);
         });
-        
-        console.log(`Notificações não lidas: ${unreadCount}`);
-        
-        // ATUALIZAR TÍTULO DO MODAL
-        const titleElement = document.querySelector('#notification-modal .edit-modal-title');
-        if (titleElement) {
-            titleElement.innerHTML = `
-                <i class="fas fa-bell"></i> Notificações do Sistema
-                ${unreadCount > 0 ? `<span style="color: #e74c3c; font-size: 14px; margin-left: 10px;">(${unreadCount} não lidas)</span>` : ''}
-                ${unreadCount > 0 ? `<button class="btn btn-sm btn-primary" onclick="markAllAsRead()" style="float: right; margin-left: 10px;">
-                    <i class="fas fa-check-double"></i> Marcar todas
-                </button>` : ''}
-                <button class="btn btn-sm btn-secondary" onclick="refreshNotifications()" style="float: right;">
-                    <i class="fas fa-sync-alt"></i> Atualizar
-                </button>
-            `;
-        }
         
         // ATUALIZAR CONTADOR NO BOTÃO
         updateNotificationCount();
@@ -6889,10 +7027,10 @@ async function markSingleAsRead(notificationId, event = null) {
 async function markAllAsRead() {
     if (!currentUser) return;
     
-    if (!confirm('Marcar todas as notificações como lidas?')) {
-        return;
-    }
+    const confirm = await showConfirm('Marcar todas as notificações como lidas?');
     
+    if (!confirm) return;
+
     try {
         console.log('Marcando todas as notificações como lidas para:', currentUser.uid);
         
@@ -6903,7 +7041,7 @@ async function markAllAsRead() {
             .get();
         
         if (unreadNotifications.empty) {
-            alert('Nenhuma notificação não lida encontrada.');
+            showInfo('Informação', 'Nenhuma notificação não lida encontrada.');
             return;
         }
         
@@ -6925,9 +7063,11 @@ async function markAllAsRead() {
         // Atualizar contador
         updateNotificationCount();
         
+        showSuccess('Sucesso', `${unreadNotifications.size} notificações marcadas como lidas.`);
+        
     } catch (error) {
         console.error('Erro ao marcar todas como lidas:', error);
-        alert('Erro ao marcar notificações como lidas: ' + error.message);
+        showError('Erro', 'Erro ao marcar notificações como lidas: ' + error.message);
     }
 }
 
@@ -7076,15 +7216,13 @@ function formatRecordType(type) {
 function showNotificationModal() {
     console.log('=== ABRINDO MODAL DE NOTIFICAÇÕES ===');
     
-    // Verificar se usuário está autenticado
     if (!currentUser) {
-        alert('Por favor, faça login para ver notificações.');
+        showWarning('Acesso Negado', 'Por favor, faça login para ver notificações.');
         return;
     }
     
-    // Verificar se usuário tem permissão
     if (currentUser.role !== 'admin' && currentUser.role !== 'qualidade') {
-        alert('Apenas administradores e equipe de qualidade podem acessar notificações.');
+        showWarning('Permissão Insuficiente', 'Apenas administradores e equipe de qualidade podem acessar notificações.');
         return;
     }
     
@@ -7092,28 +7230,10 @@ function showNotificationModal() {
     const modal = document.getElementById('notification-modal');
     modal.style.display = 'flex';
     
-    // Adicionar animação de entrada
-    modal.querySelector('.edit-modal-content').style.animation = 'slideIn 0.3s';
-    
     // Carregar notificações
     setTimeout(() => {
         loadNotifications();
     }, 100);
-    
-    // Configurar clique fora para fechar
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            hideNotificationModal();
-        }
-    };
-    
-    // Configurar tecla ESC para fechar
-    document.addEventListener('keydown', function closeOnEsc(event) {
-        if (event.key === 'Escape') {
-            hideNotificationModal();
-            document.removeEventListener('keydown', closeOnEsc);
-        }
-    });
 }
 
 function hideNotificationModal() {
@@ -7229,101 +7349,843 @@ async function cleanupOldNotifications() {
 setInterval(cleanupOldNotifications, 24 * 60 * 60 * 1000);
 
 // ========== FUNÇÃO DE DEBUG PARA NOTIFICAÇÕES ==========
+// ========== FUNÇÃO DE DEBUG PARA NOTIFICAÇÕES (SEM ENVIO DE TESTE) ==========
 async function debugNotificationsSystem() {
     console.log('=== DEBUG DO SISTEMA DE NOTIFICAÇÕES ===');
     
     if (!currentUser) {
-        console.error('Usuário não autenticado');
+        showError('Erro', 'Usuário não autenticado');
         return;
     }
     
-    console.log('Informações do usuário atual:');
-    console.log('- UID:', currentUser.uid);
-    console.log('- Email:', currentUser.email);
-    console.log('- Role:', currentUser.role);
-    
     try {
         // 1. VERIFICAR NOTIFICAÇÕES NO BANCO
-        console.log('\n1. Buscando todas as notificações...');
         const allNotifications = await db.collection('notifications').get();
-        console.log(`Total de notificações no sistema: ${allNotifications.size}`);
         
         // 2. VERIFICAR NOTIFICAÇÕES DO USUÁRIO ATUAL
-        console.log('\n2. Notificações do usuário atual:');
         const userNotifications = await db.collection('notifications')
             .where('userId', '==', currentUser.uid)
             .get();
         
-        console.log(`Notificações do usuário ${currentUser.uid}: ${userNotifications.size}`);
-        
-        userNotifications.forEach((doc, index) => {
-            const data = doc.data();
-            console.log(`\n  ${index + 1}. ID: ${doc.id}`);
-            console.log(`     Título: ${data.title || 'N/A'}`);
-            console.log(`     Tipo: ${data.type || 'N/A'}`);
-            console.log(`     Lida: ${data.read ? 'Sim' : 'Não'}`);
-            console.log(`     Data: ${data.createdAt ? data.createdAt.toDate().toLocaleString('pt-BR') : 'N/A'}`);
-            console.log(`     Sistema: ${data.systemGenerated ? 'Sim' : 'Não'}`);
-        });
-        
         // 3. VERIFICAR NÃO LIDAS
-        console.log('\n3. Notificações não lidas:');
         const unreadNotifications = await db.collection('notifications')
             .where('userId', '==', currentUser.uid)
             .where('read', '==', false)
             .get();
         
-        console.log(`Não lidas: ${unreadNotifications.size}`);
+        showInfo('Debug do Sistema', 
+            `📊 Informações do usuário:\n• UID: ${currentUser.uid}\n• Email: ${currentUser.email}\n• Role: ${currentUser.role}\n\n📈 Resultados:\n• Total no sistema: ${allNotifications.size}\n• Suas notificações: ${userNotifications.size}\n• Não lidas: ${unreadNotifications.size}\n\n✅ Debug completo!`,
+            {
+                onOk: () => {
+                    updateNotificationCount();
+                    loadNotifications();
+                }
+            }
+        );
         
-        // 4. CRIAR NOTIFICAÇÃO DE TESTE
-        console.log('\n4. Criando notificação de teste...');
-        const testNotification = {
-            type: 'info',
-            title: 'Notificação de Teste',
-            message: 'Esta é uma notificação de teste criada via debug.',
-            userId: currentUser.uid,
-            userName: currentUser.name,
-            read: false,
-            systemGenerated: true,
+    } catch (error) {
+        console.error('Erro no debug:', error);
+        showError('Erro no Debug', `❌ ERRO\n\nMensagem: ${error.message}\nCódigo: ${error.code || 'N/A'}`);
+    }
+}
+
+
+// ========== FUNÇÃO PARA NOTIFICAR ADMIN/QUALIDADE SOBRE APONTAMENTOS CRÍTICOS ==========
+async function notifyAdminsAboutCriticalReading(data, recordType, recordId) {
+    console.log(`Notificando sobre leitura crítica em ${recordType}`);
+    
+    // Determinar tipo e mensagem
+    let type = '';
+    let title = '';
+    let message = '';
+    
+    switch(recordType) {
+        case 'temperature_readings':
+            type = data.status;
+            title = `🌡️ Alerta de Temperatura/Umidade`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Status: ${getStatusText(data.status)}\n`;
+            message += `Temperatura: ${data.tempActual}°C (Faixa: ${data.tempMin}-${data.tempMax}°C)\n`;
+            message += `Umidade: ${data.humidityActual}% (Faixa: ${data.humidityMin}-${data.humidityMax}%)\n`;
+            message += `Operador: ${data.userName || 'Desconhecido'}`;
+            break;
+            
+        case 'pressure_readings':
+            type = data.status;
+            title = `📊 Alerta de Pressão`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Status: ${getStatusText(data.status)}\n`;
+            message += `Pressão: ${data.pressure} Pa\n`;
+            message += `Operador: ${data.userName || 'Desconhecido'}`;
+            if (data.immediateCorrection) {
+                message += `\nCorreção: ${data.immediateCorrection}`;
+            }
+            break;
+            
+        case 'osmosis_daily':
+            type = data.conductivityStatus;
+            title = `💧 Alerta de Osmose`;
+            message = `Status: ${getStatusText(data.conductivityStatus)}\n`;
+            message += `Condutividade: ${data.conductivity} µS/cm\n`;
+            message += `Limite: 1.3 µS/cm\n`;
+            message += `Operador: ${data.userName || 'Desconhecido'}`;
+            break;
+    }
+    
+    // Buscar todos os administradores e equipe de qualidade
+    try {
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .where('role', 'in', ['admin', 'qualidade'])
+            .get();
+        
+        if (adminsSnapshot.empty) {
+            console.log('Nenhum admin/qualidade encontrado para notificar');
+            return;
+        }
+        
+        const batch = db.batch();
+        const now = new Date();
+        
+        adminsSnapshot.forEach(doc => {
+            const user = doc.data();
+            const notificationRef = db.collection('notifications').doc();
+            
+            const notificationData = {
+                type: type,
+                title: title,
+                message: message,
+                recordId: recordId,
+                recordType: recordType,
+                userId: doc.id,
+                userName: user.name || 'Usuário',
+                read: false,
+                systemGenerated: true,
+                createdByUserId: currentUser ? currentUser.uid : 'system',
+                createdByUserName: currentUser ? currentUser.name : 'Sistema',
+                createdAt: now,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            batch.set(notificationRef, notificationData);
+        });
+        
+        await batch.commit();
+        console.log(`✅ ${adminsSnapshot.size} notificação(ões) criada(s) para admin/qualidade`);
+        
+    } catch (error) {
+        console.error('Erro ao notificar admin/qualidade:', error);
+    }
+}
+
+// ========== FUNÇÃO PARA CRIAR NOTIFICAÇÕES DO SISTEMA ==========
+async function createSystemNotificationForAdmins(data, recordType, recordId, alertType) {
+    console.log(`=== CRIANDO NOTIFICAÇÃO DO SISTEMA PARA ADMINS ===`);
+    
+    // Validação básica
+    if (!recordType || !recordId || !alertType) {
+        console.error('Dados incompletos para criar notificação do sistema');
+        return;
+    }
+    
+    // Determinar título e mensagem baseado no tipo de registro
+    let title = '';
+    let message = '';
+    const userName = data.userName || currentUser?.name || 'Usuário';
+    
+    switch(recordType) {
+        case 'temperature_readings':
+            title = `🌡️ ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Temperatura/Umidade`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Status: ${getStatusText(alertType)}\n`;
+            message += `Temperatura: ${data.tempActual}°C (Faixa: ${data.tempMin}-${data.tempMax}°C)\n`;
+            message += `Umidade: ${data.humidityActual}% (Faixa: ${data.humidityMin}-${data.humidityMax}%)\n`;
+            message += `Registrado por: ${userName}`;
+            break;
+            
+        case 'pressure_readings':
+            title = `📊 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Pressão`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Status: ${getStatusText(alertType)}\n`;
+            message += `Pressão: ${data.pressure} Pa\n`;
+            message += `Registrado por: ${userName}`;
+            if (data.immediateCorrection) {
+                message += `\nCorreção: ${data.immediateCorrection}`;
+            }
+            break;
+            
+        case 'osmosis_daily':
+            title = `💧 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Sistema de Osmose`;
+            message = `Status: ${getStatusText(alertType)}\n`;
+            message += `Condutividade: ${data.conductivity} µS/cm\n`;
+            message += `Limite: 1.3 µS/cm\n`;
+            message += `Registrado por: ${userName}`;
+            break;
+            
+        default:
+            title = `⚠️ ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'} no Sistema`;
+            message = `Tipo: ${recordType}\n`;
+            message += `Status: ${getStatusText(alertType)}\n`;
+            message += `Registrado por: ${userName}`;
+    }
+    
+    try {
+        // BUSCAR TODOS OS ADMIN/QUALIDADE ATIVOS
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .get();
+        
+        console.log(`Total de usuários ativos: ${adminsSnapshot.size}`);
+        
+        const targetUsers = [];
+        adminsSnapshot.forEach(doc => {
+            const user = doc.data();
+            // APENAS admin e qualidade recebem notificações
+            if (user.role === 'admin' || user.role === 'qualidade') {
+                targetUsers.push({
+                    id: doc.id,
+                    name: user.name || 'Usuário',
+                    email: user.email,
+                    role: user.role
+                });
+            }
+        });
+        
+        console.log(`Usuários alvo (admin/qualidade): ${targetUsers.length}`);
+        
+        if (targetUsers.length === 0) {
+            console.log('Nenhum administrador/qualidade encontrado para notificar');
+            return;
+        }
+        
+        // IMPORTANTE: Para criar notificações, precisamos estar autenticados como admin/qualidade
+        // Mas o usuário atual pode ser um usuário comum
+        // Vamos usar uma abordagem diferente
+        
+        // Criar notificações em batch
+        const batch = db.batch();
+        const now = new Date();
+        
+        for (const user of targetUsers) {
+            const notificationRef = db.collection('notifications').doc();
+            
+            const notificationData = {
+                type: alertType,
+                title: title,
+                message: message,
+                recordId: recordId,
+                recordType: recordType,
+                userId: user.id, // Usuário que vai RECEBER a notificação
+                userName: user.name,
+                read: false,
+                systemGenerated: true,
+                triggeredByUserId: currentUser?.uid || 'system', // Quem DISPAROU a notificação
+                triggeredByUserName: userName,
+                triggeredByUserRole: currentUser?.role || 'user',
+                createdAt: now,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            console.log(`Criando notificação para: ${user.email} (${user.role})`);
+            batch.set(notificationRef, notificationData);
+        }
+        
+        // EXECUTAR BATCH - IMPORTANTE: Isso requer que o usuário atual TENHA permissão
+        // Pelas regras, apenas admin/qualidade podem criar notificações
+        // Então precisamos de uma solução alternativa
+        
+        // Tentar executar o batch
+        try {
+            await batch.commit();
+            console.log(`✅ ${targetUsers.length} notificação(ões) criada(s) com sucesso!`);
+            
+            // ATUALIZAR CONTADOR PARA USUÁRIOS ADMIN/QUALIDADE
+            // Se o usuário atual for admin/qualidade, atualize seu contador
+            if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
+    updateNotificationCount();
+    setInterval(updateNotificationCount, 30000); // Atualizar a cada 30 segundos
+}
+            
+        } catch (batchError) {
+            console.error('Erro no batch commit:', batchError);
+            
+            // Se falhar por permissão, tentar criar uma notificação alternativa
+            await createAlternativeNotification(title, message, recordType, recordId, alertType);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar notificações do sistema:', error);
+        
+        // Tentar método alternativo
+        await createAlternativeNotification(title, message, recordType, recordId, alertType);
+    }
+}
+
+// ========== FUNÇÃO SIMPLIFICADA PARA CRIAR NOTIFICAÇÕES ==========
+// ========== FUNÇÃO createNotificationForAdmins() - PARA QUALQUER USUÁRIO ==========
+// ========== FUNÇÃO createNotificationForAdmins() SIMPLIFICADA ==========
+async function createNotificationForAdmins(data, recordType, recordId, alertType) {
+    console.log(`=== CRIANDO NOTIFICAÇÃO PARA ADMIN/QUALIDADE ===`);
+    
+    // Validação básica
+    if (!recordType || !recordId || !alertType) {
+        console.error('Dados incompletos para criar notificação');
+        return;
+    }
+    
+    // 1. DETERMINAR TÍTULO E MENSAGEM
+    let title = '';
+    let message = '';
+    const userName = data.userName || currentUser?.name || 'Usuário Desconhecido';
+    const userRole = currentUser?.role || 'usuário';
+    
+    const now = new Date();
+    const dataFormatada = now.toLocaleDateString('pt-BR');
+    const horaFormatada = now.toLocaleTimeString('pt-BR');
+    
+    switch(recordType) {
+        case 'temperature_readings':
+            title = `🌡️ ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Temperatura/Umidade`;
+            message = `Sala: ${data.roomName || 'Não informada'}\n`;
+            message += `Temperatura: ${data.tempActual}°C (Faixa: ${data.tempMin}-${data.tempMax}°C)\n`;
+            message += `Umidade: ${data.humidityActual}% (Faixa: ${data.humidityMin}-${data.humidityMax}%)\n`;
+            message += `Registrado por: ${userName} (${userRole})\n`;
+            message += `Data: ${dataFormatada} ${horaFormatada}`;
+            break;
+            
+        case 'pressure_readings':
+            title = `📊 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Pressão`;
+            message = `Sala: ${data.roomName || 'Não informada'}\n`;
+            message += `Pressão: ${data.pressure} Pa\n`;
+            message += `Registrado por: ${userName} (${userRole})\n`;
+            message += `Data: ${dataFormatada} ${horaFormatada}`;
+            if (data.immediateCorrection) {
+                message += `\nCorreção: ${data.immediateCorrection}`;
+            }
+            break;
+            
+        case 'osmosis_daily':
+            title = `💧 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Sistema de Osmose`;
+            message = `Condutividade: ${data.conductivity} µS/cm (Limite: 1.3 µS/cm)\n`;
+            message += `Registrado por: ${userName} (${userRole})\n`;
+            message += `Data: ${dataFormatada} ${horaFormatada}`;
+            if (data.hasAbnormality) {
+                message += `\nAnormalidade: Sim\n`;
+                if (data.abnormalityReason) {
+                    message += `Motivo: ${data.abnormalityReason}`;
+                }
+            }
+            break;
+    }
+    
+    console.log(`📨 Criando notificação: ${title}`);
+    
+    try {
+        // 2. BUSCAR TODOS OS ADMIN/QUALIDADE ATIVOS
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .get();
+        
+        const targetUsers = [];
+        adminsSnapshot.forEach(doc => {
+            const user = doc.data();
+            if (user.role === 'admin' || user.role === 'qualidade') {
+                targetUsers.push({
+                    id: doc.id,
+                    name: user.name || 'Usuário',
+                    email: user.email,
+                    role: user.role
+                });
+            }
+        });
+        
+        console.log(`🎯 Admin/Qualidade encontrados: ${targetUsers.length}`);
+        
+        if (targetUsers.length === 0) {
+            console.log('❌ Nenhum admin/qualidade encontrado');
+            return;
+        }
+        
+        // 3. CRIAR NOTIFICAÇÕES INDIVIDUALMENTE
+        let successCount = 0;
+        
+        for (const user of targetUsers) {
+            try {
+                const notificationData = {
+                    type: alertType,
+                    title: title,
+                    message: message,
+                    recordId: recordId,
+                    recordType: recordType,
+                    userId: user.id,
+                    userName: user.name,
+                    read: false,
+                    systemGenerated: true,
+                    triggeredByUserId: currentUser?.uid || 'system',
+                    triggeredByName: userName,
+                    createdAt: now,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('notifications').add(notificationData);
+                successCount++;
+                console.log(`✅ Notificação criada para: ${user.email}`);
+                
+            } catch (userError) {
+                console.error(`❌ Erro para ${user.email}:`, userError.message);
+            }
+        }
+        
+        console.log(`📊 Resultado: ${successCount}/${targetUsers.length} notificações criadas`);
+        
+        // 4. ATUALIZAR CONTADOR DE NOTIFICAÇÕES (se o usuário atual for admin/qualidade)
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
+            setTimeout(updateNotificationCount, 1000);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro geral ao criar notificações:', error);
+    }
+}
+
+// ========== FUNÇÃO PARA CRIAR NOTIFICAÇÕES DO SISTEMA ==========
+async function createSystemNotification(data, recordType, recordId, alertType) {
+    console.log(`Criando notificação do sistema para ${recordType}...`);
+    
+    try {
+        // Determinar título e mensagem
+        let title = '';
+        let message = '';
+        const userName = data.userName || currentUser?.name || 'Usuário';
+        const userRole = currentUser?.role || 'user';
+        
+        if (recordType === 'temperature_readings') {
+            title = `🌡️ ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Temperatura`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Temperatura: ${data.tempActual}°C (Faixa: ${data.tempMin}-${data.tempMax}°C)\n`;
+            message += `Umidade: ${data.humidityActual}% (Faixa: ${data.humidityMin}-${data.humidityMax}%)`;
+        } else if (recordType === 'pressure_readings') {
+            title = `📊 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Pressão`;
+            message = `Sala: ${data.roomName}\n`;
+            message += `Pressão: ${data.pressure} Pa`;
+            if (data.immediateCorrection) {
+                message += `\nCorreção: ${data.immediateCorrection}`;
+            }
+        } else if (recordType === 'osmosis_daily') {
+            title = `💧 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Osmose`;
+            message = `Condutividade: ${data.conductivity} µS/cm\n`;
+            message += `Limite: 1.3 µS/cm`;
+        }
+        
+        message += `\n\n📝 Registrado por: ${userName} (${userRole})`;
+        message += `\n🕒 Data: ${new Date().toLocaleString('pt-BR')}`;
+        
+        // Criar notificação do sistema (qualquer usuário pode criar)
+        const systemNotification = {
+            type: alertType,
+            title: title,
+            message: message,
+            recordId: recordId,
+            recordType: recordType,
+            // IMPORTANTE: Não temos 'userId' aqui - é uma notificação do sistema
+            // Admin/qualidade vão buscar todas as notificações do sistema
+            createdByUserId: currentUser?.uid || 'system',
+            createdByName: userName,
+            createdByRole: userRole,
+            readBy: [], // Array de IDs de admin/qualidade que leram
+            systemNotification: true, // Flag para identificar como notificação do sistema
             createdAt: new Date(),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        const testDocRef = await db.collection('notifications').add(testNotification);
-        console.log(`Notificação de teste criada com ID: ${testDocRef.id}`);
+        await db.collection('system_notifications').add(systemNotification);
+        console.log(`✅ Notificação do sistema criada com sucesso!`);
         
-        // 5. VERIFICAR REGRAS DE PERMISSÃO
-        console.log('\n5. Testando permissões...');
-        console.log('Usuário é admin?', currentUser.role === 'admin');
-        console.log('Usuário é qualidade?', currentUser.role === 'qualidade');
-        
-        // 6. ATUALIZAR UI
-        console.log('\n6. Atualizando interface...');
-        updateNotificationCount();
-        
-        alert(`DEBUG COMPLETO!\n\n• Total no sistema: ${allNotifications.size}\n• Suas notificações: ${userNotifications.size}\n• Não lidas: ${unreadNotifications.size}\n\nNotificação de teste criada.`);
+        // Se o usuário atual for admin/qualidade, também criar notificação pessoal
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
+            await createPersonalNotificationForAdmins(data, recordType, recordId, alertType);
+        }
         
     } catch (error) {
-        console.error('Erro no debug:', error);
-        alert(`ERRO NO DEBUG:\n\n${error.message}\n\nCode: ${error.code}`);
+        console.error('❌ Erro ao criar notificação do sistema:', error);
     }
 }
 
-// Adicionar botão de debug (apenas em desenvolvimento)
-function addDebugButtonToUI() {
-    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
-        const debugBtn = document.createElement('button');
-        debugBtn.className = 'btn btn-sm btn-warning';
-        debugBtn.innerHTML = '<i class="fas fa-bug"></i>';
-        debugBtn.style.marginLeft = '10px';
-        debugBtn.style.padding = '5px 8px';
-        debugBtn.title = 'Debug Notificações';
-        debugBtn.onclick = debugNotificationsSystem;
+// ========== FUNÇÃO PARA CRIAR NOTIFICAÇÕES PESSOAIS (APENAS ADMIN/QUALIDADE) ==========
+async function createPersonalNotificationForAdmins(data, recordType, recordId, alertType) {
+    // Esta função só é chamada se o usuário atual for admin/qualidade
+    console.log(`Criando notificações pessoais para outros admins...`);
+    
+    try {
+        // Buscar todos os outros admin/qualidade (excluindo o usuário atual)
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .where('role', 'in', ['admin', 'qualidade'])
+            .get();
         
-        document.querySelector('.user-info').appendChild(debugBtn);
+        for (const doc of adminsSnapshot.docs) {
+            const adminUser = doc.data();
+            const adminUserId = doc.id;
+            
+            // Pular o usuário atual
+            if (adminUserId === currentUser?.uid) {
+                continue;
+            }
+            
+            // Criar notificação pessoal
+            const personalNotification = {
+                type: alertType,
+                title: `📢 Notificação de ${currentUser?.name || 'Sistema'}`,
+                message: `Novo apontamento ${alertType} registrado`,
+                recordId: recordId,
+                recordType: recordType,
+                userId: adminUserId, // Para quem é a notificação
+                userName: adminUser.name || 'Administrador',
+                read: false,
+                createdByUserId: currentUser?.uid,
+                createdAt: new Date(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('notifications').add(personalNotification);
+            console.log(`Notificação pessoal criada para: ${adminUser.email}`);
+        }
         
-        console.log('Botão de debug adicionado à UI');
+    } catch (error) {
+        console.error('Erro ao criar notificações pessoais:', error);
     }
+}
+
+// ========== FUNÇÃO PRINCIPAL ATUALIZADA ==========
+// ========== FUNÇÃO checkAndCreateNotification() ATUALIZADA ==========
+async function checkAndCreateNotification(data, recordType, recordId) {
+    console.log(`=== VERIFICANDO NOTIFICAÇÃO PARA ${recordType.toUpperCase()} ===`);
+    
+    // 1. VERIFICAR SE PRECISA DE NOTIFICAÇÃO (QUALQUER USUÁRIO)
+    let needsNotification = false;
+    let alertType = '';
+    
+    switch(recordType) {
+        case 'temperature_readings':
+            console.log(`Status temperatura: ${data.status}`);
+            if (data.status === 'alert' || data.status === 'critical') {
+                needsNotification = true;
+                alertType = data.status;
+                console.log(`⚠️ Temperatura ${alertType} detectada!`);
+            }
+            break;
+            
+        case 'pressure_readings':
+            console.log(`Status pressão: ${data.status}`);
+            if (data.status === 'alert' || data.status === 'critical') {
+                needsNotification = true;
+                alertType = data.status;
+                console.log(`⚠️ Pressão ${alertType} detectada!`);
+            }
+            break;
+            
+        case 'osmosis_daily':
+            console.log(`Status osmose: ${data.conductivityStatus}`);
+            if (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical') {
+                needsNotification = true;
+                alertType = data.conductivityStatus;
+                console.log(`⚠️ Osmose ${alertType} detectada!`);
+            }
+            break;
+    }
+    
+    // 2. CRIAR NOTIFICAÇÃO SE NECESSÁRIO (PARA QUALQUER USUÁRIO)
+    if (needsNotification && alertType) {
+        console.log(`✅ CRIANDO NOTIFICAÇÃO ${alertType.toUpperCase()} PARA ADMIN/QUALIDADE`);
+        console.log(`Usuário que fez apontamento: ${currentUser?.name} (${currentUser?.role})`);
+        console.log(`Registro: ${recordType} - ID: ${recordId}`);
+        
+        // CHAMAR FUNÇÃO DE CRIAÇÃO DE NOTIFICAÇÃO
+        await createNotificationForAdmins(data, recordType, recordId, alertType);
+        
+        // Registrar rastreabilidade
+        await addTraceability(
+            'Notificação automática criada',
+            `${recordType.replace('_', ' ')} com status ${alertType} criou notificação para admin/qualidade`
+        );
+        
+    } else {
+        console.log('✅ Status normal, sem notificação necessária');
+    }
+}
+
+// ========== FUNÇÃO PARA CARREGAR NOTIFICAÇÕES DO SISTEMA ==========
+async function loadSystemNotifications() {
+    // Esta função é chamada apenas por admin/qualidade
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+        return;
+    }
+    
+    try {
+        const snapshot = await db.collection('system_notifications')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        
+        // Processar notificações do sistema
+        snapshot.forEach(doc => {
+            const notification = doc.data();
+            // Marcar como lida pelo usuário atual (se ainda não foi)
+            if (!notification.readBy || !notification.readBy.includes(currentUser.uid)) {
+                // Atualizar array de leitores
+                db.collection('system_notifications').doc(doc.id).update({
+                    readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                });
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao carregar notificações do sistema:', error);
+    }
+}
+
+// ========== FUNÇÃO createIndividualNotifications() - MÉTODO ALTERNATIVO ==========
+async function createIndividualNotifications(data, recordType, recordId, alertType, title, message) {
+    console.log('🔄 Tentando método alternativo de criação individual...');
+    
+    try {
+        const userName = data.userName || currentUser?.name || 'Usuário Desconhecido';
+        const userRole = currentUser?.role || 'usuário';
+        const now = new Date();
+        
+        // Buscar admin/qualidade individualmente
+        const adminsSnapshot = await db.collection('users')
+            .where('status', '==', 'active')
+            .get();
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const doc of adminsSnapshot.docs) {
+            const user = doc.data();
+            
+            // Apenas admin e qualidade
+            if (user.role !== 'admin' && user.role !== 'qualidade') {
+                continue;
+            }
+            
+            try {
+                const notificationData = {
+                    type: alertType,
+                    title: title,
+                    message: message,
+                    recordId: recordId,
+                    recordType: recordType,
+                    userId: doc.id,
+                    userName: user.name || 'Usuário',
+                    userEmail: user.email,
+                    userRole: user.role,
+                    read: false,
+                    systemGenerated: true,
+                    triggeredByUserId: currentUser?.uid || 'system',
+                    triggeredByName: userName,
+                    triggeredByRole: userRole,
+                    createdAt: now,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('notifications').add(notificationData);
+                successCount++;
+                console.log(`✅ Notificação criada para: ${user.email}`);
+                
+            } catch (individualError) {
+                errorCount++;
+                console.error(`❌ Erro para ${user.email}:`, individualError.message);
+            }
+        }
+        
+        console.log(`📊 Resultado: ${successCount} sucessos, ${errorCount} erros`);
+        
+        if (successCount > 0) {
+            console.log(`🎉 Notificações criadas com sucesso via método alternativo!`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no método alternativo:', error);
+    }
+}
+
+// ========== SISTEMA DE MODAIS ESTILIZADOS ==========
+
+// Objeto para armazenar callbacks
+let modalCallbacks = {
+    ok: null,
+    cancel: null,
+    confirmYes: null,
+    confirmNo: null
+};
+
+// Inicializar modais após DOM carregado
+document.addEventListener('DOMContentLoaded', function() {
+    setupModals();
+});
+
+function setupModals() {
+    // Modal padrão
+    const modal = document.getElementById('custom-modal');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    
+    modalOkBtn.addEventListener('click', function() {
+        hideModal();
+        if (modalCallbacks.ok) {
+            modalCallbacks.ok();
+            modalCallbacks.ok = null;
+        }
+    });
+    
+    modalCancelBtn.addEventListener('click', function() {
+        hideModal();
+        if (modalCallbacks.cancel) {
+            modalCallbacks.cancel();
+            modalCallbacks.cancel = null;
+        }
+    });
+    
+    // Modal de confirmação
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    const confirmNoBtn = document.getElementById('confirm-no-btn');
+    
+    confirmYesBtn.addEventListener('click', function() {
+        hideConfirmModal();
+        if (modalCallbacks.confirmYes) {
+            modalCallbacks.confirmYes();
+            modalCallbacks.confirmYes = null;
+        }
+    });
+    
+    confirmNoBtn.addEventListener('click', function() {
+        hideConfirmModal();
+        if (modalCallbacks.confirmNo) {
+            modalCallbacks.confirmNo();
+            modalCallbacks.confirmNo = null;
+        }
+    });
+    
+    // Fechar ao clicar fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            hideModal();
+        }
+    });
+    
+    confirmModal.addEventListener('click', function(e) {
+        if (e.target === confirmModal) {
+            hideConfirmModal();
+        }
+    });
+    
+    // Fechar com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (modal.style.display === 'flex') hideModal();
+            if (confirmModal.style.display === 'flex') hideConfirmModal();
+        }
+    });
+}
+
+// Função para mostrar modal de alerta
+function showModal(title, message, type = 'info', options = {}) {
+    const modal = document.getElementById('custom-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    
+    // Configurar tipo
+    modal.className = 'custom-modal';
+    modal.classList.add(type);
+    
+    // Configurar ícone baseado no tipo
+    let iconClass = 'fa-info-circle';
+    let okText = 'OK';
+    
+    switch(type) {
+        case 'success':
+            iconClass = 'fa-check-circle';
+            break;
+        case 'warning':
+            iconClass = 'fa-exclamation-triangle';
+            break;
+        case 'error':
+            iconClass = 'fa-times-circle';
+            break;
+        case 'info':
+            iconClass = 'fa-info-circle';
+            break;
+    }
+    
+    // Configurar conteúdo
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    modalIcon.className = `fas ${iconClass}`;
+    
+    // Configurar botões
+    modalCancelBtn.style.display = options.showCancel ? 'inline-block' : 'none';
+    modalOkBtn.textContent = options.okText || 'OK';
+    
+    // Armazenar callbacks
+    modalCallbacks.ok = options.onOk || null;
+    modalCallbacks.cancel = options.onCancel || null;
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
+    
+    // Focar no botão OK
+    setTimeout(() => modalOkBtn.focus(), 100);
+}
+
+function hideModal() {
+    document.getElementById('custom-modal').style.display = 'none';
+}
+
+// Função para mostrar modal de confirmação
+function showConfirm(message, options = {}) {
+    return new Promise((resolve) => {
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessage = document.getElementById('confirm-message');
+        
+        confirmMessage.textContent = message;
+        
+        modalCallbacks.confirmYes = function() {
+            resolve(true);
+        };
+        
+        modalCallbacks.confirmNo = function() {
+            resolve(false);
+        };
+        
+        confirmModal.style.display = 'flex';
+        setTimeout(() => document.getElementById('confirm-yes-btn').focus(), 100);
+    });
+}
+
+function hideConfirmModal() {
+    document.getElementById('confirm-modal').style.display = 'none';
+}
+
+// Funções de conveniência
+function showSuccess(title, message, options = {}) {
+    showModal(title, message, 'success', options);
+}
+
+function showError(title, message, options = {}) {
+    showModal(title, message, 'error', options);
+}
+
+function showWarning(title, message, options = {}) {
+    showModal(title, message, 'warning', options);
+}
+
+function showInfo(title, message, options = {}) {
+    showModal(title, message, 'info', options);
 }
 
 // Chamar após login
