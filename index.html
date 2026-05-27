@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cleanroom DataLog</title>
+    <title>IBEG CleanSense</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -57,14 +57,14 @@ try {
     
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
+            --primary: #1a2e4a;
+            --secondary: #e8731a;
             --success: #27ae60;
-            --warning: #f39c12;
+            --warning: #f0a500;
             --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-            --gray: #95a5a6;
+            --light: #f0f4f8;
+            --dark: #1a2e4a;
+            --gray: #7f8c8d;
         }
         
         * {
@@ -129,7 +129,7 @@ try {
 
 .custom-modal-header {
     padding: 20px 25px;
-    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #0d1e33 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -182,7 +182,7 @@ try {
 }
 
 .custom-modal.info .custom-modal-header {
-    background: linear-gradient(135deg, var(--secondary) 0%, #21618c 100%);
+    background: linear-gradient(135deg, var(--secondary) 0%, #c45e0f 100%);
 }
         
         /* Sidebar */
@@ -199,12 +199,52 @@ try {
         }
         
         .sidebar-header {
-            padding: 20px;
-            background-color: rgba(0,0,0,0.2);
+            padding: 18px 20px 14px;
+            background-color: var(--primary);
             text-align: center;
             position: sticky;
             top: 0;
-            background-color: var(--primary);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo-icon {
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo-text {
+            text-align: left;
+        }
+
+        .sidebar-logo-text .brand-ibeg {
+            display: block;
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+
+        .sidebar-logo-text .brand-clean {
+            display: block;
+            font-size: 13px;
+            font-weight: 300;
+            color: #e8731a;
+            letter-spacing: 3px;
+            line-height: 1.3;
+        }
+
+        .sidebar-tagline {
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.5px;
+            margin-top: 8px;
         }
         
         .sidebar-menu {
@@ -394,7 +434,7 @@ try {
         }
 
         .btn-ok {
-            background: #007bff;
+            background: #e8731a;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -409,7 +449,7 @@ try {
         }
         
         .btn-primary:hover {
-            background-color: #2980b9;
+            background-color: #c45e0f;
         }
         
         .btn-success {
@@ -679,7 +719,7 @@ try {
 
 .notification-item.unread {
     background-color: #f0f8ff;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #e8731a;
 }
 
 .notification-item:hover {
@@ -964,12 +1004,12 @@ try {
 
 /* Estilo para notificações de informação */
 .notification-info {
-    border-left: 4px solid #3498db !important;
+    border-left: 4px solid #e8731a !important;
     background-color: #e8f4fc !important;
 }
 
 .notification-info .notification-type {
-    background-color: #3498db !important;
+    background-color: #e8731a !important;
     color: white !important;
 }
 
@@ -1015,7 +1055,7 @@ try {
 
 .notification-title {
     font-weight: 600;
-    color: #2c3e50;
+    color: #1a2e4a;
     font-size: 14px;
     flex: 1;
 }
@@ -1198,12 +1238,12 @@ try {
                 padding: 10px;
             }
             
-            .sidebar-header h2 {
-                font-size: 18px;
+            .sidebar-header .brand-ibeg {
+                font-size: 15px;
             }
-            
-            .sidebar-header p {
-                font-size: 12px;
+
+            .sidebar-header .brand-clean {
+                font-size: 11px;
             }
             
             .page-title {
@@ -1343,8 +1383,22 @@ try {
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-clinic-medical"></i> Clean DataLog</h2>
-                <p>Sistema de Monitoramento</p>
+                <div class="sidebar-logo">
+                    <!-- Ícone hexágono + cruz + arcos -->
+                    <div class="sidebar-logo-icon">
+                        <svg width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="21,3 36,12 36,30 21,39 6,30 6,12" fill="#1a2e4a" stroke="#e8731a" stroke-width="1.5"/>
+                            <rect x="17.5" y="11" width="7" height="20" rx="2" fill="#e8731a"/>
+                            <rect x="11" y="17.5" width="20" height="7" rx="2" fill="#e8731a"/>
+                            <path d="M3 21 A18 18 0 0 1 39 21" fill="none" stroke="#e8731a" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="brand-ibeg">IBEG</span>
+                        <span class="brand-clean">CleanSense</span>
+                    </div>
+                </div>
+                <div class="sidebar-tagline">Monitoramento Ambiental</div>
             </div>
             <div class="sidebar-menu">
                 <div class="menu-item active" data-page="temperature">
@@ -2406,7 +2460,7 @@ try {
 <div id="confirm-modal" class="custom-modal">
     <div class="custom-modal-content">
         <div class="custom-modal-header">
-            <i class="fas fa-question-circle" style="color: #3498db;"></i>
+            <i class="fas fa-question-circle" style="color: #e8731a;"></i>
             <h3>Confirmação</h3>
         </div>
         <div class="custom-modal-body">
@@ -2670,7 +2724,7 @@ async function createManualBackup() {
 
         const backupData = {
             metadata: {
-                system: 'Clean DataLog',
+                system: 'IBEG CleanSense',
                 version: '2.0',
                 backupDate: new Date().toISOString(),
                 createdBy: currentUser.email,
@@ -2696,7 +2750,7 @@ async function createManualBackup() {
         
         // 4. Criar link para download
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const filename = `cleanroom-backup-${timestamp}.json`;
+        const filename = `cleansense-backup-${timestamp}.json`;
         
         const a = document.createElement('a');
         a.href = url;
@@ -2887,7 +2941,7 @@ async function generateBackupReport() {
         ];
         
         const reportData = {
-            title: 'Relatório de Backup e Conformidade - Clean DataLog',
+            title: 'Relatório de Backup e Conformidade - IBEG CleanSense',
             generatedAt: new Date().toISOString(),
             generatedBy: currentUser.email,
             systemInfo: {
@@ -2938,7 +2992,7 @@ async function generateBackupReport() {
         doc.setFontSize(16);
         doc.text('RELATÓRIO DE CONFORMIDADE - BACKUP', 105, 15, { align: 'center' });
         doc.setFontSize(10);
-        doc.text('Clean DataLog - Sistema de Monitoramento Hospitalar', 105, 22, { align: 'center' });
+        doc.text('IBEG CleanSense - Sistema de Monitoramento Ambiental', 105, 22, { align: 'center' });
         
         // Informações do Relatório
         doc.setTextColor(0, 0, 0);
@@ -7372,7 +7426,7 @@ function clearUserForm() {
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
         doc.text(`Relatório gerado em: ${formatDateTime(new Date())}`, margin, footerY);
-        doc.text(`Clean DataLog - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
+        doc.text(`IBEG CleanSense - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
         doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin - 20, footerY, { align: 'right' });
     }
     
@@ -7582,7 +7636,7 @@ function clearUserForm() {
                 doc.setFontSize(8);
                 doc.setTextColor(100, 100, 100);
                 doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, footerY);
-                doc.text(`Clean DataLog - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
+                doc.text(`IBEG CleanSense - Sistema de Monitoramento`, pageWidth / 2, footerY, { align: 'center' });
                 doc.text(`Página ${i + 1} de ${filteredOsmosisData.length}`, pageWidth - margin - 20, footerY, { align: 'right' });
             }
             
@@ -8263,7 +8317,7 @@ function createNotificationElement(notification) {
             </div>
             ${!notification.read ? `
             <button class="btn-mark-read" onclick="markSingleAsRead('${notification.id}', event)" 
-                    style="background: none; border: none; color: #3498db; cursor: pointer; padding: 5px;" 
+                    style="background: none; border: none; color: #e8731a; cursor: pointer; padding: 5px;" 
                     title="Marcar como lida">
                 <i class="fas fa-check"></i>
             </button>
