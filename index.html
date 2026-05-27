@@ -677,18 +677,16 @@ try {
             display: block;
         }
         
-        /* Login Modal */
+        /* ══ LOGIN MODAL — Full-screen redesign ══ */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2000;
+            justify-content: stretch;
+            align-items: stretch;
+            background: var(--primary);
         }
 
         /* Animação para o contador de notificações */
@@ -747,19 +745,254 @@ try {
     color: white;
 }
         
-        .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    width: 30%;
-}
-        
-        .modal-title {
-            font-size: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: var(--primary);
+        /* Login wrapper — two-panel layout */
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* LEFT: brand panel */
+        .login-brand {
+            flex: 1;
+            background: linear-gradient(160deg, #0d1e33 0%, #1a2e4a 55%, #1f3a5c 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-brand::before,
+        .login-brand::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: .06;
+            background: var(--secondary);
+        }
+        .login-brand::before { width:500px;height:500px;top:-180px;left:-180px; }
+        .login-brand::after  { width:320px;height:320px;bottom:-120px;right:-120px; }
+
+        .lb-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            z-index: 1;
+        }
+
+        .lb-icon {
+            width: 86px; height: 86px;
+            background: linear-gradient(135deg, var(--secondary), #c45e0f);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 32px rgba(232,115,26,.35);
+        }
+        .lb-icon svg { width:44px;height:44px; }
+
+        .lb-name { text-align: center; }
+        .lb-name .lb-ibeg {
+            display: block;
+            font-size: 36px; font-weight: 800;
+            color: #fff; letter-spacing: 3px; line-height: 1;
+        }
+        .lb-name .lb-clean {
+            display: block;
+            font-size: 13px; font-weight: 300;
+            color: var(--secondary); letter-spacing: 8px; margin-top: 4px;
+        }
+        .lb-tagline {
+            color: rgba(255,255,255,.4);
+            font-size: 12px; letter-spacing: 1px; text-align: center; margin-top: 6px;
+        }
+
+        .lb-features {
+            margin-top: 48px; z-index: 1;
+            display: flex; flex-direction: column; gap: 18px;
+            width: 100%; max-width: 320px;
+        }
+        .lb-feature {
+            display: flex; align-items: center; gap: 14px;
+            color: rgba(255,255,255,.65); font-size: 13px;
+        }
+        .lb-feature i {
+            width:36px;height:36px;border-radius:10px;
+            background:rgba(255,255,255,.07);
+            display:flex;align-items:center;justify-content:center;
+            color:var(--secondary);flex-shrink:0;font-size:15px;
+        }
+        .lb-footer {
+            position: absolute; bottom: 24px;
+            font-size: 11px; color: rgba(255,255,255,.2);
+            z-index: 1; letter-spacing: .5px;
+        }
+
+        /* RIGHT: form panel */
+        .login-form-panel {
+            width: 440px;
+            background: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 36px;
+            overflow-y: auto;
+        }
+
+        .lf-header { text-align:center; margin-bottom:28px; }
+        .lf-header h2 { font-size:22px;font-weight:700;color:var(--primary); }
+        .lf-header p  { color:var(--gray);font-size:13px;margin-top:6px; }
+        .lf-badge {
+            display:inline-flex;align-items:center;gap:6px;
+            padding:5px 10px;background:rgba(26,46,74,.06);
+            border-radius:20px;font-size:11px;color:var(--primary);font-weight:600;margin-top:10px;
+        }
+        .lf-badge i { color:var(--secondary); }
+
+        .login-card {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(26,46,74,.1);
+            padding: 28px 24px;
+        }
+
+        /* form fields inside login card */
+        .login-card .lf-group { margin-bottom:16px; }
+        .login-card .lf-group label {
+            display:block;font-weight:600;font-size:11px;
+            text-transform:uppercase;letter-spacing:.6px;
+            color:var(--primary);margin-bottom:6px;
+        }
+        .lf-input-wrap { position:relative; }
+        .lf-input-wrap .lf-icon {
+            position:absolute;left:12px;top:50%;
+            transform:translateY(-50%);
+            color:var(--gray);font-size:13px;pointer-events:none;
+        }
+        .lf-input-wrap input {
+            width:100%;padding:11px 36px 11px 36px;
+            border:1.5px solid #dde3eb;border-radius:7px;
+            font-size:14px;color:#333;background:#fafbfc;
+            transition:border-color .2s,box-shadow .2s;
+            outline:none;font-family:inherit;
+        }
+        .lf-input-wrap input:focus {
+            border-color:var(--secondary);
+            box-shadow:0 0 0 3px rgba(232,115,26,.12);
+            background:white;
+        }
+        .lf-input-wrap input.lf-error { border-color:var(--danger); }
+        .lf-toggle-pw {
+            position:absolute;right:11px;top:50%;
+            transform:translateY(-50%);
+            background:none;border:none;cursor:pointer;
+            color:var(--gray);font-size:13px;padding:4px;
+            transition:color .2s;
+        }
+        .lf-toggle-pw:hover { color:var(--primary); }
+
+        .lf-options {
+            display:flex;justify-content:space-between;
+            align-items:center;margin-bottom:20px;
+        }
+        .lf-remember {
+            display:flex;align-items:center;gap:7px;
+            color:var(--gray);font-size:13px;cursor:pointer;
+        }
+        .lf-remember input[type="checkbox"] { width:15px;height:15px;accent-color:var(--secondary); }
+        .lf-forgot {
+            font-size:12px;color:var(--secondary);
+            text-decoration:none;font-weight:600;transition:color .2s;
+        }
+        .lf-forgot:hover { color:#c45e0f;text-decoration:underline; }
+
+        .btn-lf-submit {
+            width:100%;padding:13px;
+            background:linear-gradient(135deg, var(--secondary), #c45e0f);
+            color:white;border:none;border-radius:7px;
+            font-size:15px;font-weight:700;cursor:pointer;
+            letter-spacing:.5px;transition:transform .15s,box-shadow .15s,opacity .2s;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            font-family:inherit;
+        }
+        .btn-lf-submit:hover:not(:disabled) {
+            transform:translateY(-1px);
+            box-shadow:0 6px 20px rgba(232,115,26,.35);
+        }
+        .btn-lf-submit:disabled { opacity:.7;cursor:not-allowed; }
+        .btn-lf-submit .lf-spinner {
+            width:18px;height:18px;
+            border:2px solid rgba(255,255,255,.4);
+            border-top-color:white;border-radius:50%;
+            animation:lf-spin .7s linear infinite;
+        }
+        @keyframes lf-spin { to { transform:rotate(360deg); } }
+
+        /* alert boxes inside card */
+        .lf-alert {
+            display:none;padding:10px 13px;
+            border-radius:7px;font-size:13px;
+            margin-bottom:16px;align-items:center;gap:9px;
+        }
+        .lf-alert.lf-show { display:flex; }
+        .lf-alert-error   { background:#fef2f0;color:#c0392b;border:1px solid #f5c6c2; }
+        .lf-alert-success { background:#eafaf1;color:#1e8449;border:1px solid #a9dfbf; }
+        .lf-alert-info    { background:#fef5ec;color:#c45e0f;border:1px solid #f9c88a; }
+
+        /* reset section */
+        .lf-reset-section { display:none; }
+        .lf-reset-section.lf-show { display:block; }
+        .lf-main-section.lf-hide  { display:none; }
+
+        .lf-back-btn {
+            display:inline-flex;align-items:center;gap:6px;
+            color:var(--secondary);font-size:13px;font-weight:600;
+            cursor:pointer;border:none;background:none;
+            padding:0;margin-bottom:16px;transition:color .2s;font-family:inherit;
+        }
+        .lf-back-btn:hover { color:#c45e0f; }
+
+        .lf-footer {
+            margin-top:20px;text-align:center;
+            font-size:12px;color:var(--gray);
+        }
+        .lf-footer strong { color:var(--primary); }
+
+        /* Mobile logo (shows when brand panel is hidden) */
+        .lf-mobile-logo {
+            display:none;flex-direction:column;
+            align-items:center;margin-bottom:24px;
+        }
+        .lf-mobile-logo .lf-ml-icon {
+            width:60px;height:60px;border-radius:16px;
+            background:linear-gradient(135deg, var(--secondary),#c45e0f);
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 8px 20px rgba(232,115,26,.3);margin-bottom:10px;
+        }
+        .lf-mobile-logo .lf-ml-icon svg { width:30px;height:30px; }
+        .lf-mobile-logo .lf-ml-ibeg {
+            font-size:24px;font-weight:800;color:var(--primary);letter-spacing:3px;
+        }
+        .lf-mobile-logo .lf-ml-clean {
+            font-size:10px;color:var(--secondary);letter-spacing:6px;text-transform:uppercase;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 860px) {
+            .login-brand { display: none; }
+            .login-form-panel { width:100%; }
+            .lf-mobile-logo { display:flex; }
+        }
+        @media (max-width: 480px) {
+            .login-form-panel { padding:28px 16px; justify-content:flex-start; padding-top:36px; }
+            .login-card { padding:22px 16px; }
+            .lf-header h2 { font-size:20px; }
         }
         
         /* Mobile Cards */
@@ -1325,26 +1558,167 @@ try {
 </head>
 <body>
     <!-- Login Modal -->
+    <!-- ══ LOGIN MODAL — Full-screen redesign ══ -->
     <div class="modal" id="login-modal">
-        <div class="modal-content">
-            <div class="modal-title">Login do Sistema</div>
-            <div class="form-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" placeholder="seu@email.com">
+      <div class="login-wrapper">
+
+        <!-- LEFT: Brand -->
+        <div class="login-brand">
+          <div class="lb-logo">
+            <div class="lb-icon">
+              <svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="21,3 36,12 36,30 21,39 6,30 6,12" fill="#1a2e4a" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+                <rect x="17.5" y="11" width="7" height="20" rx="2" fill="white"/>
+                <rect x="11" y="17.5" width="20" height="7" rx="2" fill="white"/>
+                <path d="M3 21 A18 18 0 0 1 39 21" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
             </div>
-            <div class="form-group">
-                <label for="login-password">Senha:</label>
-                <input type="password" id="login-password" placeholder="Sua senha">
+            <div class="lb-name">
+              <span class="lb-ibeg">IBEG</span>
+              <span class="lb-clean">CleanSense</span>
             </div>
-            <div id="login-error" style="color: red; margin-bottom: 15px; display: none;"></div>
-            <button class="btn btn-primary" id="login-btn" style="width: 100%;">
-                <i class="fas fa-sign-in-alt"></i> Entrar
-            </button>
-            <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #666;">
-                <!-- Informações adicionais podem ser adicionadas aqui -->
+            <p class="lb-tagline">Sistema de Monitoramento ANVISA</p>
+          </div>
+
+          <div class="lb-features">
+            <div class="lb-feature">
+              <i class="fas fa-thermometer-half"></i>
+              <span>Monitoramento de temperatura e umidade em tempo real</span>
             </div>
+            <div class="lb-feature">
+              <i class="fas fa-gauge-high"></i>
+              <span>Controle de pressão diferencial de salas</span>
+            </div>
+            <div class="lb-feature">
+              <i class="fas fa-droplet"></i>
+              <span>Gestão e qualidade de água por osmose reversa</span>
+            </div>
+            <div class="lb-feature">
+              <i class="fas fa-file-shield"></i>
+              <span>Relatórios e rastreabilidade para conformidade ANVISA</span>
+            </div>
+          </div>
+
+          <span class="lb-footer">© 2024 IBEG CleanSense — Todos os direitos reservados</span>
         </div>
-    </div>
+
+        <!-- RIGHT: Form -->
+        <div class="login-form-panel">
+
+          <!-- Mobile logo (visible on small screens) -->
+          <div class="lf-mobile-logo">
+            <div class="lf-ml-icon">
+              <svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="21,3 36,12 36,30 21,39 6,30 6,12" fill="#1a2e4a" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+                <rect x="17.5" y="11" width="7" height="20" rx="2" fill="white"/>
+                <rect x="11" y="17.5" width="20" height="7" rx="2" fill="white"/>
+              </svg>
+            </div>
+            <span class="lf-ml-ibeg">IBEG</span>
+            <span class="lf-ml-clean">CleanSense</span>
+          </div>
+
+          <div class="lf-header">
+            <h2>Bem-vindo de volta</h2>
+            <p>Faça login para acessar o sistema de monitoramento</p>
+            <div class="lf-badge"><i class="fas fa-certificate"></i> Conformidade ANVISA</div>
+          </div>
+
+          <!-- Main login card -->
+          <div class="login-card lf-main-section" id="lf-main-section">
+
+            <div class="lf-alert lf-alert-error" id="lf-error-alert">
+              <i class="fas fa-circle-exclamation"></i>
+              <span id="login-error-msg">E-mail ou senha incorretos.</span>
+            </div>
+            <div class="lf-alert lf-alert-success" id="lf-success-alert">
+              <i class="fas fa-circle-check"></i>
+              <span>Login realizado! Carregando o sistema…</span>
+            </div>
+
+            <!-- hidden legacy error div kept for JS compatibility -->
+            <div id="login-error" style="display:none;"></div>
+
+            <div class="lf-group">
+              <label for="login-email"><i class="fas fa-envelope" style="margin-right:4px;color:var(--secondary);font-size:10px"></i>E-mail</label>
+              <div class="lf-input-wrap">
+                <i class="fas fa-envelope lf-icon"></i>
+                <input type="email" id="login-email" placeholder="seu@email.com"
+                       autocomplete="email" inputmode="email">
+              </div>
+            </div>
+
+            <div class="lf-group">
+              <label for="login-password"><i class="fas fa-lock" style="margin-right:4px;color:var(--secondary);font-size:10px"></i>Senha</label>
+              <div class="lf-input-wrap">
+                <i class="fas fa-lock lf-icon"></i>
+                <input type="password" id="login-password" placeholder="••••••••"
+                       autocomplete="current-password">
+                <button type="button" class="lf-toggle-pw" id="lf-toggle-pw" tabindex="-1" aria-label="Mostrar senha">
+                  <i class="fas fa-eye" id="lf-toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="lf-options">
+              <label class="lf-remember">
+                <input type="checkbox" id="lf-remember-me"> Lembrar-me
+              </label>
+              <a href="#" class="lf-forgot" id="lf-forgot-link">Esqueci a senha</a>
+            </div>
+
+            <button class="btn-lf-submit" id="login-btn">
+              <i class="fas fa-right-to-bracket"></i>
+              Entrar no Sistema
+            </button>
+
+            <div class="lf-footer">
+              Acesso restrito a colaboradores autorizados.<br>
+              Problemas? Contate o <strong>administrador do sistema</strong>.
+            </div>
+          </div><!-- /login-card main -->
+
+          <!-- Reset password card -->
+          <div class="login-card lf-reset-section" id="lf-reset-section">
+
+            <div class="lf-alert lf-alert-info lf-show" id="lf-reset-info">
+              <i class="fas fa-circle-info"></i>
+              <span>Informe seu e-mail para receber o link de redefinição de senha.</span>
+            </div>
+            <div class="lf-alert lf-alert-success" id="lf-reset-success">
+              <i class="fas fa-circle-check"></i>
+              <span id="lf-reset-success-msg">E-mail enviado com sucesso!</span>
+            </div>
+            <div class="lf-alert lf-alert-error" id="lf-reset-error">
+              <i class="fas fa-circle-exclamation"></i>
+              <span id="lf-reset-error-msg">Erro ao enviar e-mail.</span>
+            </div>
+
+            <button type="button" class="lf-back-btn" id="lf-back-btn">
+              <i class="fas fa-arrow-left"></i> Voltar ao login
+            </button>
+
+            <div class="lf-group">
+              <label for="lf-reset-email">E-mail cadastrado</label>
+              <div class="lf-input-wrap">
+                <i class="fas fa-envelope lf-icon"></i>
+                <input type="email" id="lf-reset-email" placeholder="seu@email.com" inputmode="email">
+              </div>
+            </div>
+
+            <button class="btn-lf-submit" id="lf-reset-btn">
+              <i class="fas fa-paper-plane"></i>
+              Enviar link de redefinição
+            </button>
+
+            <div class="lf-footer" style="margin-top:16px">
+              Verifique sua caixa de entrada e pasta de spam.
+            </div>
+          </div><!-- /reset card -->
+
+        </div><!-- /login-form-panel -->
+      </div><!-- /login-wrapper -->
+    </div><!-- /login-modal -->
     
     <!-- Edit Modal -->
     <div class="edit-modal" id="edit-modal">
@@ -2582,6 +2956,7 @@ setupBackupEventListeners();
         
         // 4. CONFIGURAR EVENT LISTENERS
         setupEventListeners();
+        setupLoginUI();
         console.log('=== CONFIGURANDO SISTEMA DE NOTIFICAÇÕES ===');
         setupOsmosisTabs();
         
@@ -3290,6 +3665,104 @@ async function createDefaultAdmin() {
         }
     }
 }
+        // ══ Login UI enhancements ══
+        function setupLoginUI() {
+            // Toggle password visibility
+            const toggleBtn  = document.getElementById('lf-toggle-pw');
+            const pwInput    = document.getElementById('login-password');
+            const toggleIcon = document.getElementById('lf-toggle-icon');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    if (pwInput.type === 'password') {
+                        pwInput.type = 'text';
+                        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                    } else {
+                        pwInput.type = 'password';
+                        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                    }
+                });
+            }
+
+            // Enter key on email/password
+            ['login-email','login-password'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+            });
+
+            // Forgot password link
+            const forgotLink = document.getElementById('lf-forgot-link');
+            if (forgotLink) {
+                forgotLink.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.getElementById('lf-main-section').classList.add('lf-hide');
+                    document.getElementById('lf-reset-section').classList.add('lf-show');
+                    const emailVal = document.getElementById('login-email').value;
+                    document.getElementById('lf-reset-email').value = emailVal;
+                });
+            }
+
+            // Back button in reset section
+            const backBtn = document.getElementById('lf-back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    document.getElementById('lf-main-section').classList.remove('lf-hide');
+                    document.getElementById('lf-reset-section').classList.remove('lf-show');
+                    ['lf-reset-success','lf-reset-error'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.classList.remove('lf-show');
+                    });
+                    const infoEl = document.getElementById('lf-reset-info');
+                    if (infoEl) infoEl.classList.add('lf-show');
+                });
+            }
+
+            // Reset password button
+            const resetBtn = document.getElementById('lf-reset-btn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', async () => {
+                    const email = document.getElementById('lf-reset-email').value.trim();
+                    const successEl = document.getElementById('lf-reset-success');
+                    const errorEl   = document.getElementById('lf-reset-error');
+                    const infoEl    = document.getElementById('lf-reset-info');
+
+                    successEl.classList.remove('lf-show');
+                    errorEl.classList.remove('lf-show');
+
+                    if (!email) {
+                        document.getElementById('lf-reset-error-msg').textContent = 'Por favor, informe o e-mail.';
+                        errorEl.classList.add('lf-show');
+                        return;
+                    }
+
+                    resetBtn.disabled = true;
+                    resetBtn.innerHTML = '<div class="lf-spinner"></div> Enviando…';
+
+                    try {
+                        await auth.sendPasswordResetEmail(email);
+                        if (infoEl) infoEl.classList.remove('lf-show');
+                        document.getElementById('lf-reset-success-msg').textContent =
+                            `Link de redefinição enviado para ${email}. Verifique sua caixa de entrada.`;
+                        successEl.classList.add('lf-show');
+                    } catch (err) {
+                        const msgs = {
+                            'auth/user-not-found':         'Nenhuma conta encontrada com este e-mail.',
+                            'auth/invalid-email':          'E-mail inválido.',
+                            'auth/network-request-failed': 'Sem conexão. Verifique sua internet.',
+                        };
+                        document.getElementById('lf-reset-error-msg').textContent =
+                            msgs[err.code] || 'Erro ao enviar e-mail. Tente novamente.';
+                        errorEl.classList.add('lf-show');
+                    } finally {
+                        resetBtn.disabled = false;
+                        resetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar link de redefinição';
+                    }
+                });
+            }
+        }
+
+        // Patch handleLogin to also show/hide the new UI alerts
+        const _origHandleLogin = typeof handleLogin !== 'undefined' ? handleLogin : null;
+
         function setupEventListeners() {
             // Login
             document.getElementById('login-btn').addEventListener('click', handleLogin);
@@ -3478,9 +3951,19 @@ document.getElementById('user-role').addEventListener('change', function() {
     const errorDiv = document.getElementById('login-error');
     const loginBtn = document.getElementById('login-btn');
 
+    // new UI helpers
+    const lfError   = document.getElementById('lf-error-alert');
+    const lfSuccess = document.getElementById('lf-success-alert');
+    const lfErrMsg  = document.getElementById('login-error-msg');
+    function lfClear() {
+        if (lfError)   lfError.classList.remove('lf-show');
+        if (lfSuccess) lfSuccess.classList.remove('lf-show');
+    }
+
     try {
+        lfClear();
         // Mostrar loading
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+        loginBtn.innerHTML = '<div class="lf-spinner"></div> Verificando…';
         loginBtn.disabled = true;
         errorDiv.style.display = 'none';
 
@@ -3494,6 +3977,8 @@ document.getElementById('user-role').addEventListener('change', function() {
         // Tentar login
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         console.log('✅ Login bem-sucedido no Auth:', userCredential.user.uid);
+
+        if (lfSuccess) lfSuccess.classList.add('lf-show');
         
         // Processar usuário
         await handleUserLogin(userCredential.user);
@@ -3505,36 +3990,41 @@ document.getElementById('user-role').addEventListener('change', function() {
         
         switch(error.code) {
             case 'auth/invalid-email':
-                errorMessage = 'Email inválido';
+                errorMessage = 'E-mail inválido. Verifique o formato.';
                 break;
             case 'auth/user-disabled':
-                errorMessage = 'Usuário desativado';
+                errorMessage = 'Usuário desativado. Contate o administrador.';
                 break;
             case 'auth/user-not-found':
-                errorMessage = 'Usuário não encontrado';
+                errorMessage = 'Nenhuma conta encontrada com este e-mail.';
                 break;
             case 'auth/wrong-password':
-                errorMessage = 'Senha incorreta';
+                errorMessage = 'Senha incorreta. Tente novamente.';
+                break;
+            case 'auth/invalid-credential':
+                errorMessage = 'E-mail ou senha incorretos.';
                 break;
             case 'auth/too-many-requests':
-                errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
+                errorMessage = 'Muitas tentativas. Aguarde alguns minutos.';
                 break;
             case 'auth/network-request-failed':
-                errorMessage = 'Erro de conexão. Verifique sua internet.';
+                errorMessage = 'Sem conexão. Verifique sua internet.';
                 break;
             default:
                 errorMessage = `Erro: ${error.message}`;
         }
         
+        // legacy div
         errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
-        
-        // Scroll para o erro
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // new UI
+        if (lfErrMsg) lfErrMsg.textContent = errorMessage;
+        if (lfError)  lfError.classList.add('lf-show');
         
     } finally {
         // Restaurar botão
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+        loginBtn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Entrar no Sistema';
         loginBtn.disabled = false;
     }
 }
