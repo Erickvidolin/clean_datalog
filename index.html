@@ -1106,6 +1106,138 @@ try {
             border-bottom: 1px solid #f0f0f0;
         }
         
+        /* ── Collapsible osmosis cards ── */
+        .osmosis-card-collapsible {
+            padding: 0 !important;
+            overflow: hidden;
+        }
+        .osmosis-card-collapse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            border-radius: 8px;
+        }
+        .osmosis-card-collapsible .osmosis-card-collapse-header:hover {
+            background: #f5f7fa;
+        }
+        .osmosis-card-collapse-title {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .osmosis-card-collapse-meta {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .osmosis-card-body {
+            padding: 0 16px 16px;
+            border-top: 1px solid #eee;
+            background: #fafbfc;
+            border-radius: 0 0 8px 8px;
+        }
+        .osmosis-chevron {
+            color: var(--gray);
+            font-size: 12px;
+        }
+        
+        /* ── Export Period Modal ── */
+        .export-period-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 3500;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.25s;
+        }
+        .export-period-content {
+            background: white;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: slideUp 0.3s;
+        }
+        .export-period-header {
+            padding: 22px 26px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0d1e33 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .export-period-header i { font-size: 26px; color: var(--secondary); }
+        .export-period-header h3 { margin: 0; font-size: 18px; font-weight: 700; }
+        .export-period-header p { margin: 2px 0 0; font-size: 12px; opacity: 0.65; }
+        .export-period-body {
+            padding: 26px;
+        }
+        .export-period-body .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .export-period-body label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .export-period-body input[type="date"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #dde3eb;
+            border-radius: 7px;
+            font-size: 14px;
+            color: #333;
+            background: #fafbfc;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .export-period-body input[type="date"]:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(232,115,26,.12);
+            background: white;
+        }
+        .export-period-hint {
+            background: #fef5ec;
+            border: 1px solid #f9c88a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #c45e0f;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .export-period-footer {
+            padding: 18px 26px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
         .filter-section {
             background: #f8f9fa;
             padding: 15px;
@@ -1494,9 +1626,171 @@ try {
             }
         }
         
-        /* Hidden elements for non-admin users */
-        .admin-only {
+        /* ── Edit-user modal (full-screen overlay) ── */
+        .user-edit-modal {
             display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 3600;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.25s;
+        }
+        .user-edit-content {
+            background: white;
+            border-radius: 14px;
+            width: 95%;
+            max-width: 680px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        }
+        .user-edit-header {
+            padding: 20px 26px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0d1e33 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .user-edit-header i { font-size: 24px; color: var(--secondary); }
+        .user-edit-header h3 { margin: 0; font-size: 18px; font-weight: 700; }
+        .user-edit-header p  { margin: 2px 0 0; font-size: 12px; opacity: 0.6; }
+        .user-edit-header .ue-close {
+            margin-left: auto;
+            background: rgba(255,255,255,.15);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .2s;
+        }
+        .user-edit-header .ue-close:hover { background: rgba(255,255,255,.28); }
+        .user-edit-body { padding: 26px; }
+        .user-edit-footer {
+            padding: 18px 26px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        /* Permission grid */
+        .perm-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .perm-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .perm-section-title i { color: var(--secondary); }
+        .perm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .perm-item {
+            background: white;
+            border: 1.5px solid #e0e6ef;
+            border-radius: 8px;
+            padding: 10px 12px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .perm-item:has(input:checked) {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(232,115,26,.12);
+        }
+        .perm-item label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--primary);
+            margin: 0;
+        }
+        .perm-item input[type="checkbox"] {
+            width: 15px; height: 15px;
+            accent-color: var(--secondary);
+            flex-shrink: 0;
+        }
+        .perm-item .perm-sub {
+            margin-top: 6px;
+            margin-left: 23px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .perm-item .perm-sub label {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--gray);
+        }
+        .perm-item .perm-sub input[type="checkbox"] {
+            width: 13px; height: 13px;
+        }
+        
+        /* Inline action badges */
+        .perm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin: 1px;
+        }
+        .perm-badge.view  { background: #e8f4fd; color: #1a7fc4; }
+        .perm-badge.edit  { background: #fff3e0; color: #e67e22; }
+        .perm-badge.del   { background: #fce8e8; color: #c0392b; }
+        
+        /* Danger zone in edit modal */
+        .danger-zone {
+            border: 1.5px solid #f5c6c2;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            background: #fef9f9;
+        }
+        .danger-zone-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .danger-zone .danger-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
         .user-admin .admin-only {
@@ -1553,6 +1847,78 @@ try {
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        /* ========== FILTER CONFIG STYLES ========== */
+        .filter-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .filter-status-ok { background: #d4edda; color: #155724; }
+        .filter-status-warning { background: #fff3cd; color: #856404; }
+        .filter-status-overdue { background: #f8d7da; color: #721c24; }
+        .filter-status-no-date { background: #e2e3e5; color: #383d41; }
+
+        .filter-alert-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            border-left: 5px solid;
+        }
+        .filter-alert-banner.warning { background: #fff8e1; border-color: #f0a500; color: #6d4c00; }
+        .filter-alert-banner.danger  { background: #fff0f0; border-color: #e74c3c; color: #7b1e1e; }
+        .filter-alert-banner i { margin-top: 2px; flex-shrink: 0; }
+
+        .filter-date-group {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+        .filter-date-group label.filter-tag-label {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .filter-period-hint {
+            font-size: 11px;
+            color: var(--gray);
+            font-weight: normal;
+        }
+        .filter-date-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .filter-next-date-display {
+            padding: 10px;
+            background: #f0f8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2a5885;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 42px;
+        }
+        @media (max-width: 600px) {
+            .filter-date-pair { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -2051,6 +2417,7 @@ try {
                 <div class="tabs">
                     <div class="tab active" data-tab="daily">Controle Diário</div>
                     <div class="tab" data-tab="maintenance">Controle de Manutenção</div>
+                    <div class="tab admin-only" data-tab="filter-config">⚙️ Cadastro de Filtros</div>
                 </div>
                 
                 <!-- Daily Control Tab -->
@@ -2133,55 +2500,13 @@ try {
                         
                         <div class="form-section">
                             <div class="section-title">6. Troca de Filtros</div>
-                            
-                            <div class="form-group">
-                                <label>Data da última troca:</label>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="ultima-fpp001">FPP-001:</label>
-                                        <input type="date" id="ultima-fpp001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="ultima-fca001">FCA-001:</label>
-                                        <input type="date" id="ultima-fca001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="ultima-drm001">DRM-001:</label>
-                                        <input type="date" id="ultima-drm001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="ultima-drm002">DRM-002:</label>
-                                        <input type="date" id="ultima-drm002">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Data prevista para a próxima troca:</label>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="proxima-fpp001">FPP-001:</label>
-                                        <input type="date" id="proxima-fpp001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="proxima-fca001">FCA-001:</label>
-                                        <input type="date" id="proxima-fca001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="proxima-drm001">DRM-001:</label>
-                                        <input type="date" id="proxima-drm001">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="proxima-drm002">DRM-002:</label>
-                                        <input type="date" id="proxima-drm002">
-                                    </div>
-                                </div>
+                            <p style="color:var(--gray);font-size:12px;margin-bottom:12px;">
+                                <i class="fas fa-info-circle"></i> Apenas filtros cadastrados na aba <strong>Cadastro de Filtros</strong> aparecem aqui. A próxima troca é calculada automaticamente.
+                            </p>
+                            <div id="dynamic-filter-fields">
+                                <p style="color:var(--gray);font-size:13px;text-align:center;padding:12px 0;">
+                                    <i class="fas fa-filter"></i> Nenhum filtro cadastrado ainda. Acesse a aba <strong>Cadastro de Filtros</strong> para adicionar.
+                                </p>
                             </div>
                         </div>
                         
@@ -2255,7 +2580,52 @@ try {
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Filter Config Tab -->
+                <div id="filter-config-tab" class="tab-content">
+                    <!-- Painel de notificações de filtros -->
+                    <div id="filter-alerts-panel" style="margin-bottom:16px;"></div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="fas fa-filter" style="color:var(--secondary);margin-right:8px;"></i>Cadastro de Filtros</div>
+                        </div>
+                        <p style="color:var(--gray);font-size:13px;margin-bottom:16px;">Cadastre os filtros do sistema de osmose com suas periodicidades. Os filtros cadastrados serão exibidos na seção de Troca de Filtros do Controle Diário, e o sistema calculará automaticamente a próxima troca e enviará alertas.</p>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:20px;">
+                            <div class="form-group" style="margin:0;">
+                                <label for="new-filter-tag">Tag do Filtro:</label>
+                                <input type="text" id="new-filter-tag" placeholder="Ex: FPP-001, FCA-002..." style="text-transform:uppercase;">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label for="new-filter-period">Periodicidade (dias):</label>
+                                <input type="number" id="new-filter-period" min="1" placeholder="Ex: 90">
+                            </div>
+                            <button class="btn btn-primary" onclick="addFilterConfig()" style="white-space:nowrap;height:42px;">
+                                <i class="fas fa-plus"></i> Adicionar Filtro
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="filter-config-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tag do Filtro</th>
+                                        <th>Periodicidade</th>
+                                        <th>Última Troca</th>
+                                        <th>Próxima Troca</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="filter-config-list">
+                                    <tr><td colspan="6" style="text-align:center;color:var(--gray);">Nenhum filtro cadastrado.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card admin-only">
                     <div class="card-header">
                         <div class="card-title">Histórico de Osmose - Controles Diários</div>
@@ -2409,9 +2779,18 @@ try {
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="pressure-value-min">Pressão deve ser maior ou igual a (Pa):</label>
-                        <input type="number" id="pressure-value-min" placeholder="Ex: 5" value="5">
+                    <div class="form-section">
+                        <div class="section-title">Parâmetros de Pressão</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pressure-value-min">Pressão Mínima (Pa):</label>
+                                <input type="number" id="pressure-value-min" placeholder="Ex: 5" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="pressure-value-max">Pressão Máxima (Pa):</label>
+                                <input type="number" id="pressure-value-max" placeholder="Ex: 50" value="50">
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -2443,7 +2822,7 @@ try {
                                     <th>Responsável</th>
                                     <th>Temp. Min-Max</th>
                                     <th>Umid. Min-Max</th>
-                                    <th>Pressão Mínima</th>
+                                    <th>Pressão Min-Max</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -2570,6 +2949,8 @@ try {
                                     <th>Nome</th>
                                     <th>Email</th>
                                     <th>Tipo</th>
+                                    <th>Áreas Liberadas</th>
+                                    <th>Pode Editar/Excluir</th>
                                     <th>Data de Criação</th>
                                     <th>Status</th>
                                     <th>Ações</th>
@@ -2813,7 +3194,69 @@ try {
         </div>
     </div>
 
-    <!-- Modal Estilizado para Alertas -->
+    <!-- ══ Modal de Edição de Usuário ══ -->
+<div id="user-edit-modal" class="user-edit-modal">
+    <div class="user-edit-content">
+        <div class="user-edit-header">
+            <i class="fas fa-user-cog"></i>
+            <div>
+                <h3 id="ue-modal-title">Editar Usuário</h3>
+                <p id="ue-modal-subtitle">Altere os dados e permissões do colaborador</p>
+            </div>
+            <button class="ue-close" onclick="hideUserEditModal()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="user-edit-body" id="ue-modal-body">
+            <!-- conteúdo dinâmico -->
+        </div>
+        <div class="user-edit-footer">
+            <button class="btn" style="background:#f0f4f8;color:var(--primary);font-weight:600;" onclick="hideUserEditModal()">
+                <i class="fas fa-xmark"></i> Cancelar
+            </button>
+            <button class="btn btn-primary" id="ue-save-btn" onclick="saveUserEdit()">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Período de Exportação -->
+<div id="export-period-modal" class="export-period-modal">
+    <div class="export-period-content">
+        <div class="export-period-header">
+            <i class="fas fa-file-export"></i>
+            <div>
+                <h3>Exportar Dados</h3>
+                <p>Selecione o período desejado para exportação</p>
+            </div>
+        </div>
+        <div class="export-period-body">
+            <div class="form-row-2">
+                <div>
+                    <label for="export-date-from"><i class="fas fa-calendar-day" style="margin-right:4px;color:var(--secondary);"></i>Data Inicial</label>
+                    <input type="date" id="export-date-from">
+                </div>
+                <div>
+                    <label for="export-date-to"><i class="fas fa-calendar-check" style="margin-right:4px;color:var(--secondary);"></i>Data Final</label>
+                    <input type="date" id="export-date-to">
+                </div>
+            </div>
+            <div class="export-period-hint">
+                <i class="fas fa-circle-info" style="margin-top:1px;flex-shrink:0;"></i>
+                <span>Deixe os campos em branco para exportar <strong>todos os registros</strong> disponíveis.</span>
+            </div>
+        </div>
+        <div class="export-period-footer">
+            <button class="btn" id="export-period-cancel" style="background:#f0f4f8;color:var(--primary);font-weight:600;" onclick="hideExportPeriodModal()">
+                <i class="fas fa-xmark"></i> Cancelar
+            </button>
+            <button class="btn btn-primary" id="export-period-confirm" onclick="confirmExportWithPeriod()">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Estilizado para Alertas -->
 <div id="custom-modal" class="custom-modal">
     <div class="custom-modal-content">
         <div class="custom-modal-header">
@@ -2843,6 +3286,34 @@ try {
         <div class="custom-modal-footer">
             <button id="confirm-yes-btn" class="btn btn-primary">Sim</button>
             <button id="confirm-no-btn" class="btn btn-secondary">Não</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL EDIÇÃO DE FILTRO ========== -->
+<div id="edit-filter-modal" class="custom-modal" style="z-index:3500;">
+    <div class="custom-modal-content" style="max-width:420px;">
+        <div class="custom-modal-header" style="background:linear-gradient(135deg,var(--primary) 0%,#0d1e33 100%);">
+            <i class="fas fa-edit" style="font-size:22px;"></i>
+            <h3>Editar Filtro</h3>
+        </div>
+        <div class="custom-modal-body" style="padding:24px;">
+            <input type="hidden" id="edit-filter-id">
+            <div class="form-group" style="margin-bottom:16px;">
+                <label for="edit-filter-tag" style="font-weight:600;">Tag do Filtro:</label>
+                <input type="text" id="edit-filter-tag" style="text-transform:uppercase;margin-top:6px;">
+            </div>
+            <div class="form-group" style="margin-bottom:4px;">
+                <label for="edit-filter-period" style="font-weight:600;">Periodicidade (dias):</label>
+                <input type="number" id="edit-filter-period" min="1" style="margin-top:6px;">
+            </div>
+            <p style="font-size:12px;color:var(--gray);margin-top:6px;">
+                <i class="fas fa-info-circle"></i> A próxima troca será recalculada automaticamente com a nova periodicidade.
+            </p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn btn-primary" onclick="saveEditFilter()"><i class="fas fa-save"></i> Salvar</button>
+            <button class="btn" style="background:#e9ecef;color:#495057;" onclick="closeEditFilterModal()">Cancelar</button>
         </div>
     </div>
 </div>
@@ -2890,7 +3361,7 @@ function validateOsmosisData(conductivity) {
 }
 
 // Validação de sala
-function validateRoomData(name, code, tempMin, tempMax, humidityMin, humidityMax, pressureMin) {
+function validateRoomData(name, code, tempMin, tempMax, humidityMin, humidityMax, pressureMin, pressureMax) {
     const errors = [];
     
     if (!name || name.length < 3) errors.push('Nome da sala muito curto');
@@ -2902,6 +3373,8 @@ function validateRoomData(name, code, tempMin, tempMax, humidityMin, humidityMax
     if (humidityMax < 0 || humidityMax > 100) errors.push('Umid máxima inválida (0% a 100%)');
     if (humidityMin > humidityMax) errors.push('Umid mínima > máxima');
     if (pressureMin < 0) errors.push('Pressão mínima não pode ser negativa');
+    if (pressureMax !== undefined && pressureMax < 0) errors.push('Pressão máxima não pode ser negativa');
+    if (pressureMax !== undefined && pressureMin > pressureMax) errors.push('Pressão mínima > máxima');
     
     return errors;
 }
@@ -2938,7 +3411,10 @@ async function initializeApp() {
         const app = firebase.app();
         console.log('Firebase carregado:', app.name);
         
-        // 2. CONFIGURAR OBSERVADOR DE AUTENTICAÇÃO
+        // 2. CONFIGURAR PERSISTÊNCIA DE SESSÃO (apenas para a aba atual)
+        await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        
+        // CONFIGURAR OBSERVADOR DE AUTENTICAÇÃO
         auth.onAuthStateChanged(async (user) => {
             console.log('Estado de autenticação:', user ? 'Usuário logado' : 'Usuário deslogado');
             
@@ -3840,6 +4316,7 @@ document.getElementById('user-role').addEventListener('change', function() {
                         loadTraceabilityLog();
                     } else if (targetPage === 'osmosis') {
                         loadOsmosisHistory();
+                        loadFilterConfigs();
                     }
                 });
             });
@@ -3862,12 +4339,12 @@ document.getElementById('user-role').addEventListener('change', function() {
             });
 
             // Exportar PDF
-            document.getElementById('export-temp-pdf').addEventListener('click', () => exportToPDF('temperature'));
-            document.getElementById('export-pressure-pdf').addEventListener('click', () => exportToPDF('pressure'));
-            document.getElementById('export-osmosis-pdf').addEventListener('click', () => exportToPDF('osmosis'));
-            document.getElementById('export-maintenance-pdf').addEventListener('click', () => exportToPDF('maintenance'));
+            document.getElementById('export-temp-pdf').addEventListener('click', () => showExportPeriodModal('temperature'));
+            document.getElementById('export-pressure-pdf').addEventListener('click', () => showExportPeriodModal('pressure'));
+            document.getElementById('export-osmosis-pdf').addEventListener('click', () => showExportPeriodModal('osmosis'));
+            document.getElementById('export-maintenance-pdf').addEventListener('click', () => showExportPeriodModal('maintenance'));
             document.getElementById('export-rooms-pdf').addEventListener('click', () => exportToPDF('rooms'));
-            document.getElementById('export-traceability-pdf').addEventListener('click', () => exportToPDF('traceability'));
+            document.getElementById('export-traceability-pdf').addEventListener('click', () => showExportPeriodModal('traceability'));
             document.getElementById('generate-report-btn').addEventListener('click', generateReport);
 
             // Filtros
@@ -4068,7 +4545,18 @@ async function handleUserLogin(user) {
                 ...userData
             };
             
+            // Garantir arrays de permissões
+            if (!currentUser.editPermissions)   currentUser.editPermissions   = [];
+            if (!currentUser.deletePermissions) currentUser.deletePermissions = [];
+            if (!currentUser.accessAreas)       currentUser.accessAreas       = [];
+            
             console.log('✅ Usuário carregado:', currentUser.name, currentUser.role);
+            
+            // Gravar sessionStarted para satisfazer hasExplicitSession() nas regras do Firestore
+            await db.collection('users').doc(user.uid).update({
+                sessionStarted: true,
+                lastLogin: new Date()
+            });
             
         } else {
             // 2. CRIAR USUÁRIO PADRÃO SE NÃO EXISTIR
@@ -4163,7 +4651,14 @@ async function handleUserLogin(user) {
     }
 }
 
-        function handleLogout() {
+        async function handleLogout() {
+            try {
+                if (currentUser) {
+                    await db.collection('users').doc(currentUser.uid).update({
+                        sessionStarted: false
+                    });
+                }
+            } catch(e) { /* silencioso */ }
             auth.signOut();
             currentUser = null;
             showLoginModal();
@@ -4221,6 +4716,9 @@ function updateUI() {
         loadPressureHistory();
         loadOsmosisHistory();
     }, 500);
+
+    // Verificar filtros após login
+    scheduleFilterCheck();
 }
 
 // Atualize a função checkUserAccess para incluir o perfil qualidade:
@@ -4573,9 +5071,11 @@ function getStatusText(status) {
         roomName: `${room.code} - ${room.name}`,
         period: document.getElementById('pressure-periodo').value,
         pressure: pressureValue,
+        pressureMin: room.pressureMin || null,
+        pressureMax: room.pressureMax || null,
         immediateCorrection: document.getElementById('correcao-imediata').value,
         notes: document.getElementById('pressure-notes').value,
-        status: calculatePressureStatus(pressureValue, room.pressureMin),
+        status: calculatePressureStatus(pressureValue, room.pressureMin, room.pressureMax),
         userId: currentUser.uid,
         userName: currentUser.name,
         createdAt: new Date(),
@@ -4634,16 +5134,18 @@ function getStatusText(status) {
         hasAbnormality: document.querySelector('input[name="anormalidade"]:checked').value === 'sim',
         abnormalityReason: document.getElementById('motivo-anormalidade').value,
         lastFilterChange: {
-            fpp001: document.getElementById('ultima-fpp001').value,
-            fca001: document.getElementById('ultima-fca001').value,
-            drm001: document.getElementById('ultima-drm001').value,
-            drm002: document.getElementById('ultima-drm002').value
+            fpp001: document.getElementById('ultima-fpp001') ? document.getElementById('ultima-fpp001').value : null,
+            fca001: document.getElementById('ultima-fca001') ? document.getElementById('ultima-fca001').value : null,
+            drm001: document.getElementById('ultima-drm001') ? document.getElementById('ultima-drm001').value : null,
+            drm002: document.getElementById('ultima-drm002') ? document.getElementById('ultima-drm002').value : null,
+            ...collectFilterChangeData().lastFilterChange
         },
         nextFilterChange: {
-            fpp001: document.getElementById('proxima-fpp001').value,
-            fca001: document.getElementById('proxima-fca001').value,
-            drm001: document.getElementById('proxima-drm001').value,
-            drm002: document.getElementById('proxima-drm002').value
+            fpp001: document.getElementById('proxima-fpp001') ? document.getElementById('proxima-fpp001').value : null,
+            fca001: document.getElementById('proxima-fca001') ? document.getElementById('proxima-fca001').value : null,
+            drm001: document.getElementById('proxima-drm001') ? document.getElementById('proxima-drm001').value : null,
+            drm002: document.getElementById('proxima-drm002') ? document.getElementById('proxima-drm002').value : null,
+            ...collectFilterChangeData().nextFilterChange
         },
         notes: document.getElementById('osmosis-daily-notes').value,
         userId: currentUser.uid,
@@ -4738,10 +5240,16 @@ function getStatusText(status) {
     const humidityMin = parseFloat(document.getElementById('umid-min-room').value);
     const humidityMax = parseFloat(document.getElementById('umid-max-room').value);
     const pressureMin = parseInt(document.getElementById('pressure-value-min').value);
+    const pressureMax = parseInt(document.getElementById('pressure-value-max').value);
 
     if (!code || !name || !responsible || isNaN(tempMin) || isNaN(tempMax) || 
-        isNaN(humidityMin) || isNaN(humidityMax) || isNaN(pressureMin)) {
+        isNaN(humidityMin) || isNaN(humidityMax) || isNaN(pressureMin) || isNaN(pressureMax)) {
         showWarning('Campos Obrigatórios', 'Por favor, preencha todos os campos obrigatórios com valores válidos.');
+        return;
+    }
+
+    if (pressureMin > pressureMax) {
+        showWarning('Pressão Inválida', 'A pressão mínima não pode ser maior que a pressão máxima.');
         return;
     }
 
@@ -4755,6 +5263,7 @@ function getStatusText(status) {
         humidityMin: humidityMin,
         humidityMax: humidityMax,
         pressureMin: pressureMin,
+        pressureMax: pressureMax,
         description: document.getElementById('room-description').value,
         status: 'active',
         createdAt: new Date(),
@@ -4942,6 +5451,10 @@ function getStatusText(status) {
                         <input type="number" id="edit-pressure-value-min" value="${data.pressureMin || ''}">
                     </div>
                     <div class="form-group">
+                        <label for="edit-pressure-value-max">Pressão Máxima (Pa):</label>
+                        <input type="number" id="edit-pressure-value-max" value="${data.pressureMax || ''}">
+                    </div>
+                    <div class="form-group">
                         <label for="edit-room-description">Descrição:</label>
                         <textarea id="edit-room-description" rows="3">${data.description || ''}</textarea>
                     </div>
@@ -5037,7 +5550,7 @@ function getStatusText(status) {
                     pressure: pressure,
                     immediateCorrection: document.getElementById('edit-correcao-imediata').value || '',
                     notes: document.getElementById('edit-pressure-notes').value || '',
-                    status: calculatePressureStatus(pressure, originalData.pressureMin),
+                    status: calculatePressureStatus(pressure, originalData.pressureMin, originalData.pressureMax),
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
                     updatedByName: currentUser.name
@@ -5062,6 +5575,7 @@ function getStatusText(status) {
                     humidityMin: parseFloat(document.getElementById('edit-umid-min-room').value) || 40.0,
                     humidityMax: parseFloat(document.getElementById('edit-umid-max-room').value) || 60.0,
                     pressureMin: parseInt(document.getElementById('edit-pressure-value-min').value) || 5,
+                    pressureMax: parseInt(document.getElementById('edit-pressure-value-max').value) || 50,
                     description: document.getElementById('edit-room-description').value || '',
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
@@ -6275,6 +6789,8 @@ async function createCustomToken(email) {
                 allUsers = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    // Ignorar documentos marcados como deleted (defesa extra além da regra do Firestore)
+                    if (data.status === 'deleted') return;
                     allUsers.push({ id: doc.id, ...data });
                     const row = createUserRow(data, doc.id);
                     tbody.appendChild(row);
@@ -6282,6 +6798,12 @@ async function createCustomToken(email) {
                     const card = createUserCard(data, doc.id);
                     cardsContainer.appendChild(card);
                 });
+
+                if (allUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
+                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
+                    return;
+                }
                 
             } catch (error) {
                 console.error('Erro ao carregar lista de usuários:', error);
@@ -6295,25 +6817,58 @@ async function createCustomToken(email) {
             const createdAt = data.createdAt ? 
                 new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleDateString('pt-BR') : '-';
             
+            const areaLabels = { temperature:'Temp.', pressure:'Pressão', osmosis:'Osmose', rooms:'Salas', users:'Usuários', traceability:'Rastrea.', reports:'Relatórios', backup:'Backup' };
+            let areasHtml = '';
+            if (data.role === 'admin') {
+                areasHtml = '<span class="perm-badge view">Todas</span>';
+            } else if (data.accessAreas && data.accessAreas.length) {
+                areasHtml = data.accessAreas.map(a => `<span class="perm-badge view">${areaLabels[a]||a}</span>`).join('');
+            } else {
+                areasHtml = '<span style="color:var(--gray);font-size:11px;">Nenhuma</span>';
+            }
+            
+            const editPerms  = data.editPermissions  || [];
+            const delPerms   = data.deletePermissions || [];
+            const allAreas   = data.role === 'admin' ? Object.keys(areaLabels) : (data.accessAreas || []);
+            let editDelHtml = '';
+            if (data.role === 'admin') {
+                editDelHtml = '<span class="perm-badge edit">Editar: Todas</span><span class="perm-badge del">Excluir: Todas</span>';
+            } else {
+                const editAny = editPerms.length > 0;
+                const delAny  = delPerms.length > 0;
+                if (!editAny && !delAny) { editDelHtml = '<span style="color:var(--gray);font-size:11px;">Somente leitura</span>'; }
+                else {
+                    if (editAny) editDelHtml += editPerms.map(a=>`<span class="perm-badge edit">${areaLabels[a]||a}</span>`).join('');
+                    if (delAny)  editDelHtml += delPerms.map(a=>`<span class="perm-badge del">${areaLabels[a]||a}</span>`).join('');
+                }
+            }
+            
+            const roleNames = { admin:'Administrador', qualidade:'Qualidade', manutencao:'Manutenção', user:'Usuário' };
+            
             row.innerHTML = `
-                <td>${data.name || '-'}</td>
-                <td>${data.email || '-'}</td>
-                <td>${data.role === 'admin' ? 'Administrador' : 'Usuário Normal'}</td>
+                <td><strong>${data.name || '-'}</strong></td>
+                <td style="font-size:12px;">${data.email || '-'}</td>
+                <td>${roleNames[data.role] || data.role}</td>
+                <td style="max-width:180px;">${areasHtml}</td>
+                <td style="max-width:200px;">${editDelHtml}</td>
                 <td>${createdAt}</td>
                 <td><span class="status ${data.status === 'active' ? 'status-normal' : 'status-critical'}">${data.status === 'active' ? 'Ativo' : 'Inativo'}</span></td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="editUser('${userId}')">
+                    <button class="btn btn-warning btn-sm" onclick="openUserEditModal('${userId}')" title="Editar usuário">
                         <i class="fas fa-edit"></i>
                     </button>
-                    
                     ${data.status === 'active' ? 
-                        `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')">
+                        `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')" title="Desativar">
                             <i class="fas fa-user-slash"></i>
                         </button>` :
-                        `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')">
+                        `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')" title="Ativar">
                             <i class="fas fa-user-check"></i>
                         </button>`
                     }
+                    ${data.uid !== currentUser?.uid ? `
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser('${userId}')" title="Excluir funcionário">
+                        <i class="fas fa-trash"></i>
+                    </button>` : ''}
                 </td>
             `;
             return row;
@@ -6325,193 +6880,300 @@ async function createCustomToken(email) {
     const createdAt = data.createdAt ? 
         new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleDateString('pt-BR') : '-';
     
-    // Mapear tipos de usuário
-    const roleNames = {
-        'admin': 'Administrador',
-        'qualidade': 'Qualidade',
-        'manutencao': 'Manutenção',
-        'user': 'Usuário Normal'
-    };
+    const roleNames = { admin:'Administrador', qualidade:'Qualidade', manutencao:'Manutenção', user:'Usuário Normal' };
+    const areaLabels = { temperature:'Temperatura', pressure:'Pressão', osmosis:'Osmose', rooms:'Salas', users:'Usuários', traceability:'Rastreabilidade', reports:'Relatórios', backup:'Backup' };
     
-    // Formatar áreas de acesso
-    let accessAreasText = 'Todas as áreas';
-    if (data.role !== 'admin' && data.accessAreas && data.accessAreas.length > 0) {
-        const areaNames = {
-            'temperature': 'Temperatura',
-            'pressure': 'Pressão',
-            'osmosis': 'Osmose',
-            'rooms': 'Salas',
-            'users': 'Usuários',
-            'traceability': 'Rastreabilidade',
-            'reports': 'Relatórios',
-            'backup': 'Backup'
-        };
-        accessAreasText = data.accessAreas.map(area => areaNames[area] || area).join(', ');
-    }
+    let accessAreasText = data.role === 'admin' ? 'Todas as áreas' : (data.accessAreas||[]).map(a=>areaLabels[a]||a).join(', ') || 'Nenhuma';
+    const editPerms = data.editPermissions  || [];
+    const delPerms  = data.deletePermissions || [];
+    const canEditSome  = data.role==='admin' || editPerms.length > 0;
+    const canDeleteSome= data.role==='admin' || delPerms.length  > 0;
     
     card.innerHTML = `
         <div class="mobile-card-header">
-            <div>
+            <div style="width:100%">
                 <div class="mobile-card-title">${data.name || '-'}</div>
-                <div class="mobile-card-field">
-                    <span class="mobile-card-label">Email:</span>
-                    <span class="mobile-card-value">${data.email || '-'}</span>
-                </div>
-                <div class="mobile-card-field">
-                    <span class="mobile-card-label">Tipo:</span>
-                    <span class="mobile-card-value">${roleNames[data.role] || data.role}</span>
-                </div>
-                <div class="mobile-card-field">
-                    <span class="mobile-card-label">Criado em:</span>
-                    <span class="mobile-card-value">${createdAt}</span>
-                </div>
-                <div class="mobile-card-field">
-                    <span class="mobile-card-label">Áreas de Acesso:</span>
-                    <span class="mobile-card-value" style="font-size: 12px;">${accessAreasText}</span>
-                </div>
-                <div class="mobile-card-field">
-                    <span class="mobile-card-label">Status:</span>
-                    <span class="mobile-card-value"><span class="status ${data.status === 'active' ? 'status-normal' : 'status-critical'}">${data.status === 'active' ? 'Ativo' : 'Inativo'}</span></span>
-                </div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Email:</span><span class="mobile-card-value">${data.email || '-'}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Tipo:</span><span class="mobile-card-value">${roleNames[data.role]||data.role}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Áreas:</span><span class="mobile-card-value" style="font-size:12px;">${accessAreasText}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Pode editar:</span><span class="mobile-card-value">${data.role==='admin' ? 'Todas' : (editPerms.map(a=>areaLabels[a]||a).join(', ')||'Não')}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Pode excluir:</span><span class="mobile-card-value">${data.role==='admin' ? 'Todas' : (delPerms.map(a=>areaLabels[a]||a).join(', ')||'Não')}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Criado em:</span><span class="mobile-card-value">${createdAt}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Status:</span><span class="mobile-card-value"><span class="status ${data.status==='active'?'status-normal':'status-critical'}">${data.status==='active'?'Ativo':'Inativo'}</span></span></div>
             </div>
         </div>
         <div class="mobile-card-actions">
-            <button class="btn btn-warning btn-sm" onclick="editUser('${userId}')">
-                <i class="fas fa-edit"></i> Editar
-            </button>
-            ${data.status === 'active' ? 
-                `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')">
-                    <i class="fas fa-user-slash"></i> Desativar
-                </button>` :
-                `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')">
-                    <i class="fas fa-user-check"></i> Ativar
-                </button>`
+            <button class="btn btn-warning btn-sm" onclick="openUserEditModal('${userId}')"><i class="fas fa-edit"></i> Editar</button>
+            ${data.status==='active' ?
+                `<button class="btn btn-secondary btn-sm" onclick="deactivateUser('${userId}')"><i class="fas fa-user-slash"></i> Desativar</button>` :
+                `<button class="btn btn-success btn-sm" onclick="activateUser('${userId}')"><i class="fas fa-user-check"></i> Ativar</button>`
             }
+            ${data.uid !== currentUser?.uid ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${userId}')"><i class="fas fa-trash"></i> Excluir</button>` : ''}
         </div>
     `;
     return card;
 }
 
-       // Atualizar a função editUser para permitir editar áreas de acesso
-async function editUser(userId) {
+       // ========== MODAL DE EDIÇÃO DE USUÁRIO ==========
+
+let _ueCurrentUserId = null;
+
+function hideUserEditModal() {
+    document.getElementById('user-edit-modal').style.display = 'none';
+    _ueCurrentUserId = null;
+}
+
+async function openUserEditModal(userId) {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return;
+    _ueCurrentUserId = userId;
 
-    // Dados do usuário
-    const roleNames = {
-        'admin': 'Administrador',
-        'qualidade': 'Qualidade',
-        'manutencao': 'Manutenção',
-        'user': 'Usuário Normal'
-    };
+    document.getElementById('ue-modal-subtitle').textContent = user.email || '';
 
-    // HTML do modal de edição
-    const modalContent = `
-        <div class="form-group">
-            <label for="edit-user-name">Nome:</label>
-            <input type="text" id="edit-user-name" value="${user.name || ''}">
+    const areas = [
+        { key:'temperature', label:'Temperatura & Umidade', icon:'fa-thermometer-half' },
+        { key:'pressure',    label:'Pressão',               icon:'fa-tachometer-alt' },
+        { key:'osmosis',     label:'Sistema de Osmose',     icon:'fa-tint' },
+        { key:'rooms',       label:'Gerenciar Salas',       icon:'fa-door-open' },
+        { key:'traceability',label:'Rastreabilidade',       icon:'fa-history' },
+        { key:'reports',     label:'Relatórios',            icon:'fa-file-pdf' },
+        { key:'backup',      label:'Backup & Restauração',  icon:'fa-database' },
+    ];
+
+    const accessAreas   = user.accessAreas   || [];
+    const editPerms     = user.editPermissions  || [];
+    const delPerms      = user.deletePermissions || [];
+    const isAdmin       = user.role === 'admin';
+
+    const permGrid = areas.map(a => `
+        <div class="perm-item" id="perm-item-${a.key}">
+            <label>
+                <input type="checkbox" id="perm-access-${a.key}" ${isAdmin || accessAreas.includes(a.key) ? 'checked' : ''} ${isAdmin ? 'disabled' : ''} onchange="onPermAccessChange('${a.key}')">
+                <i class="fas ${a.icon}" style="color:var(--secondary);width:14px;"></i> ${a.label}
+            </label>
+            <div class="perm-sub" id="perm-sub-${a.key}" style="${!isAdmin && !accessAreas.includes(a.key) ? 'opacity:.4;pointer-events:none;' : ''}">
+                <label>
+                    <input type="checkbox" id="perm-edit-${a.key}" ${isAdmin || editPerms.includes(a.key) ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+                    <i class="fas fa-pen" style="color:var(--warning);font-size:10px;"></i> Pode editar
+                </label>
+                <label>
+                    <input type="checkbox" id="perm-del-${a.key}" ${isAdmin || delPerms.includes(a.key) ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+                    <i class="fas fa-trash" style="color:var(--danger);font-size:10px;"></i> Pode excluir
+                </label>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label for="edit-user-email">Email:</label>
-            <input type="email" id="edit-user-email" value="${user.email || ''}" readonly>
-        </div>
-        
-        <div class="form-group">
-            <label for="edit-user-role">Tipo de Usuário:</label>
-            <select id="edit-user-role">
-                <option value="user" ${user.role === 'user' ? 'selected' : ''}>Usuário Normal</option>
-                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Administrador</option>
-                <option value="qualidade" ${user.role === 'qualidade' ? 'selected' : ''}>Qualidade</option>
-                <option value="manutencao" ${user.role === 'manutencao' ? 'selected' : ''}>Manutenção</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="edit-user-status">Status:</label>
-            <select id="edit-user-status">
-                <option value="active" ${user.status === 'active' ? 'selected' : ''}>Ativo</option>
-                <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>Inativo</option>
-            </select>
-        </div>
-        
-        <div class="form-section" id="edit-access-control-section" style="${user.role === 'admin' ? 'display: none;' : ''}">
-            <div class="section-title">Controle de Acesso por Áreas</div>
-            <p style="margin-bottom: 10px; color: var(--gray); font-size: 13px;">
-                Selecione as áreas que este usuário poderá acessar:
-            </p>
-            
-            <div class="form-row">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-temperature" value="temperature" ${user.accessAreas && user.accessAreas.includes('temperature') ? 'checked' : ''}>
-                    <label for="edit-access-temperature">Temperatura & Umidade</label>
+    `).join('');
+
+    document.getElementById('ue-modal-body').innerHTML = `
+        <!-- Dados básicos -->
+        <div class="perm-section">
+            <div class="perm-section-title"><i class="fas fa-id-card"></i> Dados do Colaborador</div>
+            <div class="form-row" style="grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="ue-name" value="${user.name || ''}">
                 </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-pressure" value="pressure" ${user.accessAreas && user.accessAreas.includes('pressure') ? 'checked' : ''}>
-                    <label for="edit-access-pressure">Pressão</label>
-                </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-osmosis" value="osmosis" ${user.accessAreas && user.accessAreas.includes('osmosis') ? 'checked' : ''}>
-                    <label for="edit-access-osmosis">Sistema de Osmose</label>
+                <div class="form-group">
+                    <label>Tipo / Perfil</label>
+                    <select id="ue-role" onchange="onUeRoleChange()">
+                        <option value="user"      ${user.role==='user'      ? 'selected':''}>Usuário Normal</option>
+                        <option value="qualidade" ${user.role==='qualidade' ? 'selected':''}>Qualidade</option>
+                        <option value="manutencao"${user.role==='manutencao'? 'selected':''}>Manutenção</option>
+                        <option value="admin"     ${user.role==='admin'     ? 'selected':''}>Administrador</option>
+                    </select>
                 </div>
             </div>
-            
-            <div class="form-row">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-rooms" value="rooms" ${user.accessAreas && user.accessAreas.includes('rooms') ? 'checked' : ''}>
-                    <label for="edit-access-rooms">Gerenciar Salas</label>
+            <div class="form-row" style="grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-group">
+                    <label>E-mail <span style="font-size:10px;color:var(--secondary);">(editável)</span></label>
+                    <input type="email" id="ue-email" value="${user.email || ''}">
                 </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-traceability" value="traceability" ${user.accessAreas && user.accessAreas.includes('traceability') ? 'checked' : ''}>
-                    <label for="edit-access-traceability">Rastreabilidade</label>
-                </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-reports" value="reports" ${user.accessAreas && user.accessAreas.includes('reports') ? 'checked' : ''}>
-                    <label for="edit-access-reports">Relatórios</label>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="ue-status">
+                        <option value="active"   ${user.status==='active'   ? 'selected':''}>Ativo</option>
+                        <option value="inactive" ${user.status==='inactive' ? 'selected':''}>Inativo</option>
+                    </select>
                 </div>
             </div>
-            
-            <div class="form-row">
+            <div class="form-group">
                 <div class="checkbox-group">
-                    <input type="checkbox" id="edit-access-backup" value="backup" ${user.accessAreas && user.accessAreas.includes('backup') ? 'checked' : ''}>
-                    <label for="edit-access-backup">Backup & Restauração</label>
+                    <input type="checkbox" id="ue-notifications" ${user.receivesNotifications !== false ? 'checked':''}>
+                    <label for="ue-notifications">Receber notificações do sistema</label>
                 </div>
             </div>
-            
-            <div class="form-group" style="margin-top: 15px;">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="edit-receives-notifications" ${user.receivesNotifications !== false ? 'checked' : ''}>
-                    <label for="edit-receives-notifications">Receber notificações do sistema</label>
-                </div>
-                <small style="color: var(--gray);">(Apenas para admin/qualidade/manutenção)</small>
+        </div>
+
+        <!-- Permissões por área -->
+        <div class="perm-section" id="ue-perms-section" ${isAdmin ? 'style="opacity:.7;"':''}> 
+            <div class="perm-section-title"><i class="fas fa-shield-halved"></i> Permissões por Área
+                ${isAdmin ? '<span style="font-size:11px;color:var(--gray);font-weight:400;">&nbsp;— Administradores têm acesso total</span>' : ''}
+            </div>
+            <div class="perm-grid">${permGrid}</div>
+        </div>
+
+        <!-- Zona de perigo -->
+        <div class="danger-zone">
+            <div class="danger-zone-title"><i class="fas fa-triangle-exclamation"></i> Ações Sensíveis</div>
+            <div class="danger-actions">
+                <button class="btn btn-warning btn-sm" onclick="sendPasswordResetForUser('${user.email}')">
+                    <i class="fas fa-key"></i> Enviar redefinição de senha
+                </button>
+                ${user.uid !== currentUser?.uid ? `
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${userId}'); hideUserEditModal();">
+                    <i class="fas fa-user-minus"></i> Excluir funcionário
+                </button>` : ''}
             </div>
         </div>
     `;
 
-    currentEditData = { 
-        collection: 'users', 
-        id: userId, 
-        data: user 
-    };
-
-    document.getElementById('edit-modal-title').textContent = 'Editar Usuário';
-    document.getElementById('edit-modal-content').innerHTML = modalContent;
-    showEditModal();
-    
-    // Adicionar listener para mostrar/ocultar controle de acesso
-    document.getElementById('edit-user-role').addEventListener('change', function() {
-        const accessControlSection = document.getElementById('edit-access-control-section');
-        if (this.value === 'admin') {
-            accessControlSection.style.display = 'none';
-        } else {
-            accessControlSection.style.display = 'block';
-        }
-    });
+    document.getElementById('user-edit-modal').style.display = 'flex';
+    document.getElementById('user-edit-modal').onclick = e => { if (e.target.id === 'user-edit-modal') hideUserEditModal(); };
 }
+
+function onPermAccessChange(areaKey) {
+    const accessCb = document.getElementById(`perm-access-${areaKey}`);
+    const subDiv   = document.getElementById(`perm-sub-${areaKey}`);
+    if (!subDiv) return;
+    if (accessCb.checked) {
+        subDiv.style.opacity = '1';
+        subDiv.style.pointerEvents = 'auto';
+    } else {
+        subDiv.style.opacity = '.4';
+        subDiv.style.pointerEvents = 'none';
+        document.getElementById(`perm-edit-${areaKey}`).checked = false;
+        document.getElementById(`perm-del-${areaKey}`).checked  = false;
+    }
+}
+
+function onUeRoleChange() {
+    const role = document.getElementById('ue-role').value;
+    const permsSection = document.getElementById('ue-perms-section');
+    if (role === 'admin') {
+        permsSection.style.opacity = '.7';
+        permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cb.disabled = true; });
+    } else {
+        permsSection.style.opacity = '1';
+        permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.disabled = false; });
+    }
+}
+
+async function saveUserEdit() {
+    if (!_ueCurrentUserId) return;
+    const user = allUsers.find(u => u.id === _ueCurrentUserId);
+    if (!user) return;
+
+    const name   = document.getElementById('ue-name').value.trim();
+    const email  = document.getElementById('ue-email').value.trim();
+    const role   = document.getElementById('ue-role').value;
+    const status = document.getElementById('ue-status').value;
+    const receivesNotifications = document.getElementById('ue-notifications').checked;
+
+    if (!name) { showWarning('Campo obrigatório', 'O nome não pode estar vazio.'); return; }
+    if (!email) { showWarning('Campo obrigatório', 'O e-mail não pode estar vazio.'); return; }
+
+    const areas = ['temperature','pressure','osmosis','rooms','traceability','reports','backup'];
+    let accessAreas      = [];
+    let editPermissions  = [];
+    let deletePermissions= [];
+
+    if (role === 'admin') {
+        accessAreas = editPermissions = deletePermissions = areas;
+    } else {
+        areas.forEach(a => {
+            const ac = document.getElementById(`perm-access-${a}`);
+            const ed = document.getElementById(`perm-edit-${a}`);
+            const dl = document.getElementById(`perm-del-${a}`);
+            if (ac && ac.checked) { accessAreas.push(a); }
+            if (ed && ed.checked) editPermissions.push(a);
+            if (dl && dl.checked) deletePermissions.push(a);
+        });
+    }
+
+    const btn = document.getElementById('ue-save-btn');
+    btn.innerHTML = '<div class="lf-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Salvando…';
+    btn.disabled = true;
+
+    try {
+        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions };
+
+        // Se o e-mail foi alterado, atualiza no Firestore (Auth requer admin SDK; apenas atualizamos o campo)
+        if (email !== user.email) {
+            updateData.email = email;
+            // Tentar atualizar via Identity Toolkit (requer token do próprio usuário — registramos a intenção)
+            await tryUpdateUserEmail(user.uid, email);
+        }
+
+        await db.collection('users').doc(_ueCurrentUserId).update(updateData);
+
+        await addTraceability('Edição de usuário',
+            `Usuário ${name} (${user.email}) atualizado: role=${role}, áreas=${accessAreas.join(',')}`);
+
+        showSuccess('Sucesso', 'Usuário atualizado com sucesso!', { onOk: () => loadUsersList() });
+        hideUserEditModal();
+
+    } catch (err) {
+        console.error('Erro ao salvar usuário:', err);
+        showError('Erro', 'Não foi possível salvar as alterações: ' + err.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+        btn.disabled = false;
+    }
+}
+
+async function tryUpdateUserEmail(uid, newEmail) {
+    // Atualiza apenas o campo no Firestore; para mudar o Auth email é necessário Admin SDK ou o próprio usuário.
+    // Registramos para rastreabilidade.
+    console.log(`Email do usuário ${uid} atualizado para ${newEmail} no Firestore.`);
+}
+
+async function sendPasswordResetForUser(email) {
+    if (!email) return;
+    const confirmed = await showConfirm(`Enviar e-mail de redefinição de senha para:\n${email}`);
+    if (!confirmed) return;
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showSuccess('E-mail Enviado', `Link de redefinição enviado para ${email}.`);
+        await addTraceability('Redefinição de senha', `Admin solicitou redefinição de senha para ${email}`);
+    } catch (err) {
+        showError('Erro', 'Não foi possível enviar o e-mail: ' + err.message);
+    }
+}
+
+async function deleteUser(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+    if (userId === currentUser?.uid) {
+        showWarning('Operação negada', 'Você não pode excluir sua própria conta.');
+        return;
+    }
+
+    const confirmed = await showConfirm(
+        `⚠️ Excluir permanentemente o funcionário "${user.name}" (${user.email})?\n\nO documento será removido do sistema e esta ação não pode ser desfeita.`
+    );
+    if (!confirmed) return;
+
+    try {
+        // Registrar rastreabilidade ANTES de deletar (enquanto o usuário ainda existe)
+        await addTraceability(
+            'Exclusão de funcionário',
+            `Funcionário ${user.name} (${user.email}) excluído permanentemente por ${currentUser.name}`
+        );
+
+        // Deletar o documento real do Firestore
+        await db.collection('users').doc(userId).delete();
+
+        showSuccess('Funcionário excluído', `${user.name} foi removido permanentemente do sistema.`, {
+            onOk: () => loadUsersList()
+        });
+    } catch (err) {
+        console.error('Erro ao excluir usuário:', err);
+        showError('Erro', 'Não foi possível excluir o funcionário: ' + err.message);
+    }
+}
+
+// Manter compatibilidade com chamadas antigas
+async function editUser(userId) { openUserEditModal(userId); }
 
 
  async function deactivateUser(userId) {
@@ -6706,144 +7368,169 @@ async function editUser(userId) {
 
         function createOsmosisDetailedCard(data) {
             const card = document.createElement('div');
-            card.className = 'osmosis-card';
-            const createdAt = data.createdAt ? 
-                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
+            card.className = 'osmosis-card osmosis-card-collapsible';
+            const createdAtDate = data.createdAt ? 
+                new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt) : null;
+            const createdAt = createdAtDate ? createdAtDate.toLocaleString('pt-BR') : '-';
+            const dateOnly = createdAtDate ? createdAtDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '-';
             const statusClass = `status-${data.conductivityStatus || 'normal'}`;
+            const cardId = 'osmosis-card-' + Math.random().toString(36).substr(2, 9);
             
             card.innerHTML = `
-                <div class="osmosis-card-header">
-                    <div>
-                        <div class="osmosis-card-title">Controle Diário de Osmose</div>
+                <div class="osmosis-card-collapse-header" onclick="toggleOsmosisCard('${cardId}')">
+                    <div class="osmosis-card-collapse-title">
+                        <i class="fas fa-droplet" style="color: var(--secondary); margin-right: 8px;"></i>
+                        <span>${dateOnly}</span>
+                        <span class="status ${statusClass}" style="margin-left: 10px; font-size: 11px;">${getStatusText(data.conductivityStatus)}</span>
+                    </div>
+                    <div class="osmosis-card-collapse-meta">
+                        <span style="font-size: 12px; color: var(--gray);">${data.conductivity || '-'} µS/cm</span>
+                        <i class="fas fa-chevron-down osmosis-chevron" id="chevron-${cardId}" style="margin-left: 10px; transition: transform 0.3s;"></i>
+                    </div>
+                </div>
+                
+                <div class="osmosis-card-body" id="${cardId}" style="display: none;">
+                    <div class="osmosis-card-header" style="margin-top: 10px;">
+                        <div>
+                            <div class="osmosis-card-field">
+                                <span class="osmosis-card-label">Data/Hora:</span>
+                                <span class="osmosis-card-value">${createdAt}</span>
+                            </div>
+                            <div class="osmosis-card-field">
+                                <span class="osmosis-card-label">Operador:</span>
+                                <span class="osmosis-card-value">${data.userName || '-'}</span>
+                            </div>
+                            <div class="osmosis-card-field">
+                                <span class="osmosis-card-label">Status:</span>
+                                <span class="osmosis-card-value"><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="osmosis-card-section">
                         <div class="osmosis-card-field">
-                            <span class="osmosis-card-label">Data/Hora:</span>
-                            <span class="osmosis-card-value">${createdAt}</span>
+                            <span class="osmosis-card-label">Condutividade:</span>
+                            <span class="osmosis-card-value">${data.conductivity || '-'} µS/cm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Sanitização/Downtime</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Última:</span>
+                            <span class="osmosis-card-value">${data.lastSanitization || '-'}</span>
                         </div>
                         <div class="osmosis-card-field">
-                            <span class="osmosis-card-label">Operador:</span>
-                            <span class="osmosis-card-value">${data.userName || '-'}</span>
+                            <span class="osmosis-card-label">Próxima:</span>
+                            <span class="osmosis-card-value">${data.nextSanitization || '-'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Higienização</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Última:</span>
+                            <span class="osmosis-card-value">${data.lastCleaning || '-'}</span>
                         </div>
                         <div class="osmosis-card-field">
-                            <span class="osmosis-card-label">Status:</span>
-                            <span class="osmosis-card-value"><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></span>
+                            <span class="osmosis-card-label">Próxima:</span>
+                            <span class="osmosis-card-value">${data.nextCleaning || '-'}</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Condutividade:</span>
-                        <span class="osmosis-card-value">${data.conductivity || '-'} µS/cm</span>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Coleta para Análise</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Última:</span>
+                            <span class="osmosis-card-value">${data.lastCollection || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Próxima:</span>
+                            <span class="osmosis-card-value">${data.nextCollection || '-'}</span>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Sanitização/Downtime</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Última:</span>
-                        <span class="osmosis-card-value">${data.lastSanitization || '-'}</span>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Anormalidade</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Apresenta:</span>
+                            <span class="osmosis-card-value">${data.hasAbnormality ? '<span style="color:var(--danger);font-weight:600;">Sim</span>' : 'Não'}</span>
+                        </div>
+                        ${data.hasAbnormality ? `
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">Motivo:</span>
+                            <span class="osmosis-card-value">${data.abnormalityReason || '-'}</span>
+                        </div>
+                        ` : ''}
                     </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Próxima:</span>
-                        <span class="osmosis-card-value">${data.nextSanitization || '-'}</span>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Troca de Filtros - Última</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">FPP-001:</span>
+                            <span class="osmosis-card-value">${data.lastFilterChange?.fpp001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">FCA-001:</span>
+                            <span class="osmosis-card-value">${data.lastFilterChange?.fca001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">DRM-001:</span>
+                            <span class="osmosis-card-value">${data.lastFilterChange?.drm001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">DRM-002:</span>
+                            <span class="osmosis-card-value">${data.lastFilterChange?.drm002 || '-'}</span>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Higienização</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Última:</span>
-                        <span class="osmosis-card-value">${data.lastCleaning || '-'}</span>
+                    
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Troca de Filtros - Próxima</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">FPP-001:</span>
+                            <span class="osmosis-card-value">${data.nextFilterChange?.fpp001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">FCA-001:</span>
+                            <span class="osmosis-card-value">${data.nextFilterChange?.fca001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">DRM-001:</span>
+                            <span class="osmosis-card-value">${data.nextFilterChange?.drm001 || '-'}</span>
+                        </div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-label">DRM-002:</span>
+                            <span class="osmosis-card-value">${data.nextFilterChange?.drm002 || '-'}</span>
+                        </div>
                     </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Próxima:</span>
-                        <span class="osmosis-card-value">${data.nextCleaning || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Coleta para Análise</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Última:</span>
-                        <span class="osmosis-card-value">${data.lastCollection || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Próxima:</span>
-                        <span class="osmosis-card-value">${data.nextCollection || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Anormalidade</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Apresenta:</span>
-                        <span class="osmosis-card-value">${data.hasAbnormality ? 'Sim' : 'Não'}</span>
-                    </div>
-                    ${data.hasAbnormality ? `
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">Motivo:</span>
-                        <span class="osmosis-card-value">${data.abnormalityReason || '-'}</span>
+                    
+                    ${data.notes ? `
+                    <div class="osmosis-card-section">
+                        <div class="section-title">Observações</div>
+                        <div class="osmosis-card-field">
+                            <span class="osmosis-card-value" style="text-align: left;">${data.notes}</span>
+                        </div>
                     </div>
                     ` : ''}
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Troca de Filtros - Última</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">FPP-001:</span>
-                        <span class="osmosis-card-value">${data.lastFilterChange?.fpp001 || '-'}</span>
+                    
+                    <div class="osmosis-card-actions">
+                        <button class="btn btn-primary btn-sm" onclick="exportOsmosisCardToPDF('${data.id}')">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
                     </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">FCA-001:</span>
-                        <span class="osmosis-card-value">${data.lastFilterChange?.fca001 || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">DRM-001:</span>
-                        <span class="osmosis-card-value">${data.lastFilterChange?.drm001 || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">DRM-002:</span>
-                        <span class="osmosis-card-value">${data.lastFilterChange?.drm002 || '-'}</span>
-                    </div>
-                </div>
-                
-                <div class="osmosis-card-section">
-                    <div class="section-title">Troca de Filtros - Próxima</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">FPP-001:</span>
-                        <span class="osmosis-card-value">${data.nextFilterChange?.fpp001 || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">FCA-001:</span>
-                        <span class="osmosis-card-value">${data.nextFilterChange?.fca001 || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">DRM-001:</span>
-                        <span class="osmosis-card-value">${data.nextFilterChange?.drm001 || '-'}</span>
-                    </div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-label">DRM-002:</span>
-                        <span class="osmosis-card-value">${data.nextFilterChange?.drm002 || '-'}</span>
-                    </div>
-                </div>
-                
-                ${data.notes ? `
-                <div class="osmosis-card-section">
-                    <div class="section-title">Observações</div>
-                    <div class="osmosis-card-field">
-                        <span class="osmosis-card-value" style="text-align: left;">${data.notes}</span>
-                    </div>
-                </div>
-                ` : ''}
-                
-                <div class="osmosis-card-actions">
-                    <button class="btn btn-primary btn-sm" onclick="exportOsmosisCardToPDF('${data.id}')">
-                        <i class="fas fa-file-pdf"></i> Exportar PDF
-                    </button>
                 </div>
             `;
             
             return card;
+        }
+        
+        function toggleOsmosisCard(cardId) {
+            const body = document.getElementById(cardId);
+            const chevron = document.getElementById('chevron-' + cardId);
+            if (!body) return;
+            const isOpen = body.style.display !== 'none';
+            body.style.display = isOpen ? 'none' : 'block';
+            if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
         async function loadMaintenanceHistory() {
@@ -7272,7 +7959,7 @@ function createTemperatureCard(data, docId) {
                 <td>${data.responsible || '-'}</td>
                 <td>${data.tempMin || '-'}°C - ${data.tempMax || '-'}°C</td>
                 <td>${data.humidityMin || '-'}% - ${data.humidityMax || '-'}%</td>
-                <td>${data.pressureMin || '-'} Pa</td>
+                <td>${data.pressureMin || '-'} - ${data.pressureMax || '-'} Pa</td>
                 <td><span class="status ${statusClass}">${statusText}</span></td>
                 <td>
                     <button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
@@ -7313,8 +8000,8 @@ function createTemperatureCard(data, docId) {
                             <span class="mobile-card-value">${data.humidityMin || '-'}% - ${data.humidityMax || '-'}%</span>
                         </div>
                         <div class="mobile-card-field">
-                            <span class="mobile-card-label">Pressão Mínima:</span>
-                            <span class="mobile-card-value">${data.pressureMin || '-'} Pa</span>
+                            <span class="mobile-card-label">Pressão Min-Max:</span>
+                            <span class="mobile-card-value">${data.pressureMin || '-'} - ${data.pressureMax || '-'} Pa</span>
                         </div>
                         <div class="mobile-card-field">
                             <span class="mobile-card-label">Status:</span>
@@ -7401,16 +8088,28 @@ function createTemperatureCard(data, docId) {
             }
         }
 
-        function calculatePressureStatus(pressure, minPressure) {
+        function calculatePressureStatus(pressure, minPressure, maxPressure) {
             if (!minPressure) return 'normal'; // Fallback
 
-            if (pressure >= minPressure) {
+            const hasMax = maxPressure !== undefined && maxPressure !== null && !isNaN(maxPressure);
+
+            const belowMin = pressure < minPressure;
+            const aboveMax = hasMax && pressure > maxPressure;
+
+            if (!belowMin && !aboveMax) {
                 return 'normal';
-            } else if (pressure >= minPressure - 2) {
-                return 'alert';
-            } else {
-                return 'critical';
             }
+
+            // Fora por 10% do range (ou 2 Pa se não houver max)
+            const rangeTolerance = hasMax ? (maxPressure - minPressure) * 0.10 : 2;
+
+            if (belowMin && pressure >= minPressure - rangeTolerance) {
+                return 'alert';
+            }
+            if (aboveMax && pressure <= maxPressure + rangeTolerance) {
+                return 'alert';
+            }
+            return 'critical';
         }
 
         function calculateConductivityStatus(conductivity) {
@@ -7521,14 +8220,18 @@ function clearOsmosisDailyForm() {
     document.getElementById('anormalidade-nao').checked = true;
     document.getElementById('anormalidade-detalhes').style.display = 'none';
     document.getElementById('motivo-anormalidade').value = '';
-    document.getElementById('ultima-fpp001').value = '';
-    document.getElementById('ultima-fca001').value = '';
-    document.getElementById('ultima-drm001').value = '';
-    document.getElementById('ultima-drm002').value = '';
-    document.getElementById('proxima-fpp001').value = '';
-    document.getElementById('proxima-fca001').value = '';
-    document.getElementById('proxima-drm001').value = '';
-    document.getElementById('proxima-drm002').value = '';
+    // Limpar campos dinâmicos de filtros
+    const container = document.getElementById('dynamic-filter-fields');
+    if (container) {
+        container.querySelectorAll('input[type="date"]').forEach(el => { el.value = ''; });
+        container.querySelectorAll('.filter-next-date-display').forEach(el => {
+            el.innerHTML = '<i class="fas fa-calendar-times" style="color:var(--gray)"></i> Aguardando data da última troca';
+            el.dataset.value = '';
+            el.style.background = '#f0f8ff';
+            el.style.borderColor = '#bee3f8';
+            el.style.color = '#2a5885';
+        });
+    }
     document.getElementById('osmosis-daily-notes').value = '';
 }
 
@@ -7548,6 +8251,7 @@ function clearRoomForm() {
     document.getElementById('umid-min-room').value = '40.0';
     document.getElementById('umid-max-room').value = '60.0';
     document.getElementById('pressure-value-min').value = '5';
+    document.getElementById('pressure-value-max').value = '50';
     document.getElementById('room-description').value = '';
 }
 
@@ -8248,7 +8952,7 @@ function clearUserForm() {
                         break;
                         
                     case 'rooms':
-                        headers = [['Código', 'Nome', 'Tipo', 'Responsável', 'Temp. Min-Max', 'Umid. Min-Max', 'Pressão Mínima', 'Status']];
+                        headers = [['Código', 'Nome', 'Tipo', 'Responsável', 'Temp. Min-Max', 'Umid. Min-Max', 'Pressão Min-Max', 'Status']];
                         const roomsSnapshot = await db.collection('rooms').get();
                         
                         roomsSnapshot.forEach(docItem => {
@@ -8260,7 +8964,7 @@ function clearUserForm() {
                                 item.responsible || '-',
                                 `${item.tempMin || '-'}°C - ${item.tempMax || '-'}°C`,
                                 `${item.humidityMin || '-'}% - ${item.humidityMax || '-'}%`,
-                                `${item.pressureMin || '-'} Pa`,
+                                `${item.pressureMin || '-'} - ${item.pressureMax || '-'} Pa`,
                                 item.status === 'active' ? 'Ativa' : 'Inativa'
                             ]);
                         });
@@ -9418,6 +10122,9 @@ async function createSystemNotificationForAdmins(data, recordType, recordId, ale
             message = `Sala: ${data.roomName}\n`;
             message += `Status: ${getStatusText(alertType)}\n`;
             message += `Pressão: ${data.pressure} Pa\n`;
+            if (data.pressureMin !== undefined || data.pressureMax !== undefined) {
+                message += `Faixa permitida: ${data.pressureMin ?? '-'} - ${data.pressureMax ?? '-'} Pa\n`;
+            }
             message += `Registrado por: ${userName}`;
             if (data.immediateCorrection) {
                 message += `\nCorreção: ${data.immediateCorrection}`;
@@ -9568,6 +10275,9 @@ async function createNotificationForAdmins(data, recordType, recordId, alertType
             title = `📊 ${alertType === 'critical' ? 'CRÍTICO' : 'ALERTA'}: Pressão`;
             message = `Sala: ${data.roomName || 'Não informada'}\n`;
             message += `Pressão: ${data.pressure} Pa\n`;
+            if (data.pressureMin !== undefined || data.pressureMax !== undefined) {
+                message += `Faixa permitida: ${data.pressureMin ?? '-'} - ${data.pressureMax ?? '-'} Pa\n`;
+            }
             message += `Registrado por: ${userName} (${userRole})\n`;
             message += `Data: ${dataFormatada} ${horaFormatada}`;
             if (data.immediateCorrection) {
@@ -10202,18 +10912,25 @@ async function diagnoseLoginProblems() {
 }
 
 // Adicione esta função para verificar se usuário pode editar
-function canUserEdit() {
+function canUserEdit(area) {
     if (!currentUser) return false;
-    
-    // Admin sempre pode editar
     if (currentUser.role === 'admin') return true;
-    
-    // Qualidade pode editar
     if (currentUser.role === 'qualidade') return true;
-    
-    // Manutenção pode editar (se aplicável)
     if (currentUser.role === 'manutencao') return true;
-    
+    // Para usuário normal, verificar editPermissions por área
+    if (area && currentUser.editPermissions && Array.isArray(currentUser.editPermissions)) {
+        return currentUser.editPermissions.includes(area);
+    }
+    return false;
+}
+
+function canUserDelete(area) {
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+    // Para outros perfis, verificar deletePermissions por área
+    if (area && currentUser.deletePermissions && Array.isArray(currentUser.deletePermissions)) {
+        return currentUser.deletePermissions.includes(area);
+    }
     return false;
 }
 
@@ -10224,8 +10941,8 @@ function createTemperatureRow(data, docId) {
     const createdAt = data.createdAt ? 
         new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
     
-    // Verificar se usuário pode editar
-    const canEdit = canUserEdit();
+    const canEdit   = canUserEdit('temperature');
+    const canDelete = canUserDelete('temperature');
     
     row.innerHTML = `
         <td>${createdAt}</td>
@@ -10239,19 +10956,10 @@ function createTemperatureRow(data, docId) {
         <td>${data.humidityActual || '-'}%</td>
         <td><span class="status ${statusClass}">${getStatusText(data.status)}</span></td>
         <td>${data.userName || '-'}</td>
-        <td class="${canEdit ? '' : 'admin-only'}">
-            ${canEdit ? `
-            <button class="btn btn-primary btn-sm" onclick="editTemperatureReading('${docId}')">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteRecord('temperature_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de temperatura?')">
-                <i class="fas fa-trash"></i>
-            </button>
-            ` : `
-            <span class="text-muted" style="font-size: 12px;">
-                <i class="fas fa-lock"></i> Sem permissão
-            </span>
-            `}
+        <td>
+            ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="editTemperatureReading('${docId}')"><i class="fas fa-edit"></i></button>` : ''}
+            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('temperature_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de temperatura?')"><i class="fas fa-trash"></i></button>` : ''}
+            ${!canEdit && !canDelete ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i> Sem permissão</span>' : ''}
         </td>
     `;
     return row;
@@ -10264,7 +10972,8 @@ function createPressureRow(data, docId) {
     const createdAt = data.createdAt ? 
         new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
     
-    const canEdit = canUserEdit();
+    const canEdit   = canUserEdit('pressure');
+    const canDelete = canUserDelete('pressure');
     
     row.innerHTML = `
         <td>${createdAt}</td>
@@ -10274,19 +10983,10 @@ function createPressureRow(data, docId) {
         <td>${data.immediateCorrection || '-'}</td>
         <td><span class="status ${statusClass}">${getStatusText(data.status)}</span></td>
         <td>${data.userName || '-'}</td>
-        <td class="${canEdit ? '' : 'admin-only'}">
-            ${canEdit ? `
-            <button class="btn btn-primary btn-sm" onclick="editPressureReading('${docId}')">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteRecord('pressure_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de pressão?')">
-                <i class="fas fa-trash"></i>
-            </button>
-            ` : `
-            <span class="text-muted" style="font-size: 12px;">
-                <i class="fas fa-lock"></i> Sem permissão
-            </span>
-            `}
+        <td>
+            ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="editPressureReading('${docId}')"><i class="fas fa-edit"></i></button>` : ''}
+            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('pressure_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de pressão?')"><i class="fas fa-trash"></i></button>` : ''}
+            ${!canEdit && !canDelete ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i> Sem permissão</span>' : ''}
         </td>
     `;
     return row;
@@ -10299,7 +10999,8 @@ function createOsmosisRow(data, docId) {
     const createdAt = data.createdAt ? 
         new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
     
-    const canEdit = canUserEdit();
+    const canEdit   = canUserEdit('osmosis');
+    const canDelete = canUserDelete('osmosis');
     
     row.innerHTML = `
         <td>${createdAt}</td>
@@ -10307,22 +11008,195 @@ function createOsmosisRow(data, docId) {
         <td><span class="status ${statusClass}">${getStatusText(data.conductivityStatus)}</span></td>
         <td>${data.hasAbnormality ? 'Sim' : 'Não'}</td>
         <td>${data.userName || '-'}</td>
-        <td class="${canEdit ? '' : 'admin-only'}">
-            ${canEdit ? `
-            <button class="btn btn-primary btn-sm">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')">
-                <i class="fas fa-trash"></i>
-            </button>
-            ` : `
-            <span class="text-muted" style="font-size: 12px;">
-                <i class="fas fa-lock"></i> Sem permissão
-            </span>
-            `}
+        <td>
+            ${canEdit ? `<button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>` : ''}
+            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')"><i class="fas fa-trash"></i></button>` : ''}
+            ${!canEdit && !canDelete ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i> Sem permissão</span>' : ''}
         </td>
     `;
     return row;
+}
+
+// ========== MODAL DE PERÍODO DE EXPORTAÇÃO ==========
+
+let _exportPeriodType = null;
+
+function showExportPeriodModal(type) {
+    if (!currentUser || currentUser.role !== 'admin') {
+        showWarning('Permissão Insuficiente', 'Apenas administradores podem exportar relatórios em PDF.');
+        return;
+    }
+    _exportPeriodType = type;
+    
+    // Definir datas padrão: último mês
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('export-date-from').value = firstDay.toISOString().slice(0, 10);
+    document.getElementById('export-date-to').value = today.toISOString().slice(0, 10);
+    
+    // Atualizar label do botão conforme o tipo
+    const labels = {
+        temperature: 'Temperatura & Umidade',
+        pressure: 'Pressão',
+        osmosis: 'Osmose',
+        maintenance: 'Manutenção',
+        traceability: 'Rastreabilidade'
+    };
+    const modal = document.getElementById('export-period-modal');
+    modal.querySelector('.export-period-header p').textContent = 
+        `Relatório: ${labels[type] || type}`;
+    
+    modal.style.display = 'flex';
+    
+    // Fechar ao clicar fora
+    modal.onclick = function(e) {
+        if (e.target === modal) hideExportPeriodModal();
+    };
+    
+    // ESC fecha
+    document._exportEscHandler = function(e) {
+        if (e.key === 'Escape') hideExportPeriodModal();
+    };
+    document.addEventListener('keydown', document._exportEscHandler);
+}
+
+function hideExportPeriodModal() {
+    document.getElementById('export-period-modal').style.display = 'none';
+    if (document._exportEscHandler) {
+        document.removeEventListener('keydown', document._exportEscHandler);
+        document._exportEscHandler = null;
+    }
+    _exportPeriodType = null;
+}
+
+async function confirmExportWithPeriod() {
+    const dateFrom = document.getElementById('export-date-from').value;
+    const dateTo   = document.getElementById('export-date-to').value;
+    
+    // Validação básica
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+        showWarning('Período Inválido', 'A data inicial não pode ser posterior à data final.');
+        return;
+    }
+    
+    const btn = document.getElementById('export-period-confirm');
+    btn.innerHTML = '<div class="lf-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Gerando…';
+    btn.disabled = true;
+    
+    try {
+        await exportToPDFWithPeriod(_exportPeriodType, dateFrom || null, dateTo || null);
+        hideExportPeriodModal();
+    } catch(e) {
+        showError('Erro ao Exportar', e.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Exportar PDF';
+        btn.disabled = false;
+    }
+}
+
+async function exportToPDFWithPeriod(type, dateFrom, dateTo) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const periodLabel = (dateFrom && dateTo)
+        ? `${new Date(dateFrom + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(dateTo + 'T23:59:59').toLocaleDateString('pt-BR')}`
+        : 'Todos os registros';
+    
+    doc.setFontSize(16);
+    doc.text(`Relatório de ${getReportTitle(type)}`, 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 22);
+    doc.text(`Gerado por: ${currentUser.name}`, 14, 28);
+    doc.text(`Período: ${periodLabel}`, 14, 34);
+    
+    try {
+        let query;
+        let headers = [];
+        let rows = [];
+        
+        // Montar query com filtro de período
+        const buildQuery = (collection, orderField) => {
+            let q = db.collection(collection).orderBy(orderField, 'desc');
+            if (dateFrom) q = q.where(orderField, '>=', new Date(dateFrom + 'T00:00:00'));
+            if (dateTo)   q = q.where(orderField, '<=', new Date(dateTo   + 'T23:59:59'));
+            return q.limit(500);
+        };
+        
+        switch(type) {
+            case 'temperature': {
+                headers = [['Data/Hora', 'Sala', 'Período', 'T.Min', 'T.Max', 'T.Atual', 'U.Min', 'U.Max', 'U.Atual', 'Status']];
+                const snap = await buildQuery('temperature_readings', 'createdAt').get();
+                snap.forEach(d => {
+                    const item = d.data();
+                    const date = item.createdAt ? new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                    rows.push([date, item.roomName||'-', item.period||'-', `${item.tempMin||'-'}°C`, `${item.tempMax||'-'}°C`, `${item.tempActual||'-'}°C`, `${item.humidityMin||'-'}%`, `${item.humidityMax||'-'}%`, `${item.humidityActual||'-'}%`, getStatusText(item.status)]);
+                });
+                break;
+            }
+            case 'pressure': {
+                headers = [['Data/Hora', 'Sala', 'Período', 'Pressão', 'Correção', 'Status']];
+                const snap = await buildQuery('pressure_readings', 'createdAt').get();
+                snap.forEach(d => {
+                    const item = d.data();
+                    const date = item.createdAt ? new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                    rows.push([date, item.roomName||'-', item.period||'-', `${item.pressure||'-'} Pa`, item.immediateCorrection||'-', getStatusText(item.status)]);
+                });
+                break;
+            }
+            case 'osmosis': {
+                headers = [['Data/Hora', 'Condutividade', 'Status', 'Anormalidade', 'Operador']];
+                const snap = await buildQuery('osmosis_daily', 'createdAt').get();
+                snap.forEach(d => {
+                    const item = d.data();
+                    const date = item.createdAt ? new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                    rows.push([date, `${item.conductivity||'-'} µS/cm`, getStatusText(item.conductivityStatus), item.hasAbnormality ? 'Sim' : 'Não', item.userName||'-']);
+                });
+                break;
+            }
+            case 'maintenance': {
+                headers = [['Data Manutenção', 'Procedimento', 'Observações', 'Operador']];
+                const snap = await buildQuery('osmosis_maintenance', 'createdAt').get();
+                snap.forEach(d => {
+                    const item = d.data();
+                    const date = item.maintenanceDate ? new Date(item.maintenanceDate).toLocaleDateString('pt-BR') : '-';
+                    rows.push([date, item.procedure||'-', item.observations||'-', item.userName||'-']);
+                });
+                break;
+            }
+            case 'traceability': {
+                headers = [['Data/Hora', 'Usuário', 'Ação', 'Detalhes']];
+                const snap = await buildQuery('traceability', 'createdAt').get();
+                snap.forEach(d => {
+                    const item = d.data();
+                    const date = item.createdAt ? new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleString('pt-BR') : '-';
+                    rows.push([date, item.userName||'-', item.action||'-', (item.details||'-').substring(0, 60)]);
+                });
+                break;
+            }
+        }
+        
+        if (rows.length === 0) {
+            doc.setFontSize(12);
+            doc.text('Nenhum registro encontrado para o período selecionado.', 14, 45);
+        } else {
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 40,
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [26, 46, 74], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [245, 247, 250] },
+                margin: { top: 40, left: 14, right: 14 }
+            });
+        }
+        
+        const filename = `${type}_${(dateFrom||'todos').replace(/-/g,'')}_${(dateTo||'').replace(/-/g,'')}.pdf`;
+        doc.save(filename);
+        
+    } catch(err) {
+        console.error('Erro ao exportar:', err);
+        throw err;
+    }
 }
 
 // Chamar no console: diagnoseLoginProblems()
@@ -10331,6 +11205,452 @@ function createOsmosisRow(data, docId) {
 // Chamar após login
 // No handleUserLogin, após updateUI():
 // setTimeout(addDebugButtonToUI, 1000);
+
+// ========================================================================
+// ===================== SISTEMA DE CADASTRO DE FILTROS ===================
+// ========================================================================
+
+// ── Carregar filtros cadastrados do Firestore ──────────────────────────
+async function loadFilterConfigs() {
+    try {
+        const snap = await db.collection('filter_configs').orderBy('tag').get();
+        const filters = [];
+        snap.forEach(doc => filters.push({ id: doc.id, ...doc.data() }));
+        renderFilterConfigTable(filters);
+        renderDynamicFilterFields(filters);
+        checkFilterNotifications(filters);
+    } catch (e) {
+        console.error('Erro ao carregar filtros:', e);
+    }
+}
+
+// ── Adicionar novo filtro ──────────────────────────────────────────────
+async function addFilterConfig() {
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+        showWarning('Permissão', 'Apenas administradores e equipe de qualidade podem cadastrar filtros.');
+        return;
+    }
+    const tagEl    = document.getElementById('new-filter-tag');
+    const periodEl = document.getElementById('new-filter-period');
+    const tag    = tagEl.value.trim().toUpperCase();
+    const period = parseInt(periodEl.value);
+
+    if (!tag) { showWarning('Campo obrigatório', 'Informe a tag do filtro.'); return; }
+    if (!period || period < 1) { showWarning('Campo obrigatório', 'Informe uma periodicidade válida em dias.'); return; }
+
+    // Verificar duplicidade
+    try {
+        const existing = await db.collection('filter_configs').where('tag', '==', tag).get();
+        if (!existing.empty) { showWarning('Duplicado', `Já existe um filtro cadastrado com a tag "${tag}".`); return; }
+
+        await db.collection('filter_configs').add({
+            tag,
+            periodDays: period,
+            lastChange: null,
+            nextChange: null,
+            createdAt: new Date(),
+            createdBy: currentUser.name
+        });
+        tagEl.value = '';
+        periodEl.value = '';
+        showSuccess('Filtro Cadastrado', `Filtro "${tag}" cadastrado com periodicidade de ${period} dias.`);
+        await loadFilterConfigs();
+    } catch (e) {
+        showError('Erro', 'Erro ao cadastrar filtro: ' + e.message);
+    }
+}
+
+// ── Abrir modal de edição ──────────────────────────────────────────────
+function openEditFilterModal(id, tag, periodDays) {
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+        showWarning('Permissão', 'Apenas administradores e equipe de qualidade podem editar filtros.');
+        return;
+    }
+    document.getElementById('edit-filter-id').value     = id;
+    document.getElementById('edit-filter-tag').value    = tag;
+    document.getElementById('edit-filter-period').value = periodDays;
+
+    const modal = document.getElementById('edit-filter-modal');
+    modal.style.display = 'flex';
+
+    // Fechar ao clicar fora
+    modal.onclick = e => { if (e.target === modal) closeEditFilterModal(); };
+
+    // ESC fecha
+    document._editFilterEsc = e => { if (e.key === 'Escape') closeEditFilterModal(); };
+    document.addEventListener('keydown', document._editFilterEsc);
+
+    // Focar na tag
+    setTimeout(() => document.getElementById('edit-filter-tag').focus(), 100);
+}
+
+function closeEditFilterModal() {
+    document.getElementById('edit-filter-modal').style.display = 'none';
+    if (document._editFilterEsc) {
+        document.removeEventListener('keydown', document._editFilterEsc);
+        document._editFilterEsc = null;
+    }
+}
+
+async function saveEditFilter() {
+    const id        = document.getElementById('edit-filter-id').value;
+    const tag       = document.getElementById('edit-filter-tag').value.trim().toUpperCase();
+    const periodDays = parseInt(document.getElementById('edit-filter-period').value);
+
+    if (!tag)                { showWarning('Campo obrigatório', 'Informe a tag do filtro.'); return; }
+    if (!periodDays || periodDays < 1) { showWarning('Campo obrigatório', 'Informe uma periodicidade válida em dias.'); return; }
+
+    try {
+        // Verificar duplicidade (excluindo o próprio doc)
+        const existing = await db.collection('filter_configs').where('tag', '==', tag).get();
+        const conflict = existing.docs.some(d => d.id !== id);
+        if (conflict) { showWarning('Duplicado', `Já existe outro filtro com a tag "${tag}".`); return; }
+
+        // Buscar lastChange atual para recalcular nextChange
+        const docSnap = await db.collection('filter_configs').doc(id).get();
+        const lastChange = docSnap.exists ? (docSnap.data().lastChange || null) : null;
+        const nextChange = lastChange ? calcNextFilterDate(lastChange, periodDays) : null;
+
+        await db.collection('filter_configs').doc(id).update({
+            tag,
+            periodDays,
+            nextChange,
+            updatedAt: new Date(),
+            updatedBy: currentUser.name
+        });
+
+        closeEditFilterModal();
+        showSuccess('Atualizado', `Filtro "${tag}" atualizado com sucesso.`);
+        await loadFilterConfigs();
+    } catch (e) {
+        showError('Erro', 'Erro ao atualizar filtro: ' + e.message);
+    }
+}
+
+// ── Excluir filtro ─────────────────────────────────────────────────────
+async function deleteFilterConfig(id, tag) {
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'qualidade')) {
+        showWarning('Permissão', 'Apenas administradores e equipe de qualidade podem excluir filtros.');
+        return;
+    }
+    const confirmed = await showConfirm(`Tem certeza que deseja excluir o filtro "${tag}"? Esta ação não pode ser desfeita.`);
+    if (!confirmed) return;
+    try {
+        await db.collection('filter_configs').doc(id).delete();
+        showSuccess('Excluído', `Filtro "${tag}" removido com sucesso.`);
+        await loadFilterConfigs();
+    } catch (e) {
+        showError('Erro', 'Erro ao excluir filtro: ' + e.message);
+    }
+}
+
+// ── Calcular próxima troca com base em periodicidade ──────────────────
+// Usa aritmética de data local para evitar problemas de fuso horário (UTC-3 Brasília)
+function parseLocalDate(dateStr) {
+    // Interpreta 'YYYY-MM-DD' como data LOCAL, não UTC
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d);
+}
+
+function toLocalDateStr(date) {
+    // Retorna 'YYYY-MM-DD' usando componentes locais (não UTC)
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function todayLocal() {
+    const t = new Date();
+    return new Date(t.getFullYear(), t.getMonth(), t.getDate());
+}
+
+function calcNextFilterDate(lastDateStr, periodDays) {
+    if (!lastDateStr) return null;
+    const d = parseLocalDate(lastDateStr);
+    d.setDate(d.getDate() + parseInt(periodDays));
+    return toLocalDateStr(d);
+}
+
+// ── Atualizar data de última troca de um filtro (via campos dinâmicos) ─
+async function onFilterLastChangeInput(filterId, tag, periodDays, inputEl) {
+    const lastDate = inputEl.value;
+    if (!lastDate) {
+        const nextEl = document.getElementById(`next-change-display-${filterId}`);
+        if (nextEl) { nextEl.innerHTML = '<i class="fas fa-calendar-times" style="color:var(--gray)"></i> Aguardando data da última troca'; }
+        return;
+    }
+    const nextDate = calcNextFilterDate(lastDate, periodDays);
+    const nextEl = document.getElementById(`next-change-display-${filterId}`);
+    if (nextEl && nextDate) {
+        nextEl.innerHTML = `<i class="fas fa-calendar-check" style="color:#2a5885"></i> ${formatFilterDate(nextDate)}`;
+        nextEl.dataset.value = nextDate;
+        // Colorir de acordo com urgência
+        const daysLeft = Math.round((parseLocalDate(nextDate) - todayLocal()) / 86400000);
+        if (daysLeft < 0) nextEl.style.background = '#fff0f0', nextEl.style.borderColor = '#ffc3c3', nextEl.style.color = '#7b1e1e';
+        else if (daysLeft <= 7) nextEl.style.background = '#fff8e1', nextEl.style.borderColor = '#ffe082', nextEl.style.color = '#6d4c00';
+        else nextEl.style.background = '#f0f8ff', nextEl.style.borderColor = '#bee3f8', nextEl.style.color = '#2a5885';
+    }
+
+    // Salvar no Firestore
+    try {
+        await db.collection('filter_configs').doc(filterId).update({
+            lastChange: lastDate,
+            nextChange: nextDate,
+            updatedAt: new Date(),
+            updatedBy: currentUser ? currentUser.name : 'Sistema'
+        });
+        // Regenerar tabela de configurações
+        await loadFilterConfigs();
+    } catch (e) {
+        console.error('Erro ao atualizar filtro:', e);
+    }
+}
+
+function formatFilterDate(dateStr) {
+    if (!dateStr) return '-';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+// ── Calcular status do filtro ──────────────────────────────────────────
+function getFilterStatus(nextDateStr) {
+    if (!nextDateStr) return { label: 'Sem data', cls: 'filter-status-no-date', icon: 'fa-question-circle', daysLeft: null };
+    const today = todayLocal();
+    const next  = parseLocalDate(nextDateStr);
+    const daysLeft = Math.round((next - today) / 86400000);
+    if (daysLeft < 0)   return { label: `Vencido há ${Math.abs(daysLeft)} dia(s)`, cls: 'filter-status-overdue', icon: 'fa-exclamation-triangle', daysLeft };
+    if (daysLeft <= 7)  return { label: `Trocar em ${daysLeft} dia(s)`, cls: 'filter-status-warning', icon: 'fa-clock', daysLeft };
+    return { label: `${daysLeft} dia(s)`, cls: 'filter-status-ok', icon: 'fa-check-circle', daysLeft };
+}
+
+// ── Renderizar tabela de gestão de filtros ─────────────────────────────
+function renderFilterConfigTable(filters) {
+    const tbody = document.getElementById('filter-config-list');
+    if (!tbody) return;
+    if (!filters.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);">Nenhum filtro cadastrado.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = filters.map(f => {
+        const st = getFilterStatus(f.nextChange);
+        return `<tr>
+            <td><strong>${f.tag}</strong></td>
+            <td>${f.periodDays} dias</td>
+            <td>${formatFilterDate(f.lastChange)}</td>
+            <td>${formatFilterDate(f.nextChange)}</td>
+            <td><span class="filter-status-badge ${st.cls}"><i class="fas ${st.icon}"></i> ${st.label}</span></td>
+            <td style="display:flex;gap:6px;">
+                <button class="btn btn-primary btn-sm" onclick="openEditFilterModal('${f.id}', '${f.tag}', ${f.periodDays})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteFilterConfig('${f.id}', '${f.tag}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Renderizar campos dinâmicos no Controle Diário ─────────────────────
+function renderDynamicFilterFields(filters) {
+    const container = document.getElementById('dynamic-filter-fields');
+    if (!container) return;
+    if (!filters.length) {
+        container.innerHTML = `<p style="color:var(--gray);font-size:13px;text-align:center;padding:12px 0;">
+            <i class="fas fa-filter"></i> Nenhum filtro cadastrado ainda. Acesse a aba <strong>Cadastro de Filtros</strong> para adicionar.
+        </p>`;
+        return;
+    }
+    container.innerHTML = filters.map(f => {
+        const st = getFilterStatus(f.nextChange);
+        return `
+        <div class="filter-date-group">
+            <label class="filter-tag-label">
+                <i class="fas fa-filter" style="color:var(--secondary)"></i>
+                ${f.tag}
+                <span class="filter-period-hint">(periodicidade: ${f.periodDays} dias)</span>
+                ${f.nextChange ? `<span class="filter-status-badge ${st.cls}" style="font-size:10px;margin-left:auto;"><i class="fas ${st.icon}"></i> ${st.label}</span>` : ''}
+            </label>
+            <div class="filter-date-pair">
+                <div class="form-group" style="margin:0;">
+                    <label>Data da última troca:</label>
+                    <input type="date" id="filter-last-${f.id}"
+                        value="${f.lastChange || ''}"
+                        onchange="onFilterLastChangeInput('${f.id}', '${f.tag}', ${f.periodDays}, this)">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>Próxima troca (calculada):</label>
+                    <div class="filter-next-date-display" id="next-change-display-${f.id}"
+                         data-value="${f.nextChange || ''}">
+                        ${f.nextChange
+                            ? `<i class="fas fa-calendar-check"></i> ${formatFilterDate(f.nextChange)}`
+                            : `<i class="fas fa-calendar-times" style="color:var(--gray)"></i> Aguardando data da última troca`}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Banner de notificações de filtros na aba Cadastro de Filtros ───────
+function checkFilterNotifications(filters) {
+    const panel = document.getElementById('filter-alerts-panel');
+    if (!panel) return;
+    const today = todayLocal();
+    const overdue  = filters.filter(f => f.nextChange && parseLocalDate(f.nextChange) < today);
+    const warning7 = filters.filter(f => {
+        if (!f.nextChange) return false;
+        const days = Math.round((parseLocalDate(f.nextChange) - today) / 86400000);
+        return days >= 0 && days <= 7;
+    });
+
+    let html = '';
+    if (overdue.length) {
+        html += `<div class="filter-alert-banner danger">
+            <i class="fas fa-exclamation-triangle fa-lg"></i>
+            <div>
+                <strong>⛔ Troca de filtro(s) VENCIDA!</strong><br>
+                ${overdue.map(f => {
+                    const days = Math.round((todayLocal() - parseLocalDate(f.nextChange)) / 86400000);
+                    return `<span style="display:inline-block;margin-right:12px;"><strong>${f.tag}</strong> — vencido há ${days} dia(s) (era ${formatFilterDate(f.nextChange)})</span>`;
+                }).join('')}
+            </div>
+        </div>`;
+    }
+    if (warning7.length) {
+        html += `<div class="filter-alert-banner warning">
+            <i class="fas fa-clock fa-lg"></i>
+            <div>
+                <strong>⚠️ Troca de filtro(s) próxima (≤7 dias):</strong><br>
+                ${warning7.map(f => {
+                    const days = Math.round((parseLocalDate(f.nextChange) - todayLocal()) / 86400000);
+                    return `<span style="display:inline-block;margin-right:12px;"><strong>${f.tag}</strong> — em ${days} dia(s) (${formatFilterDate(f.nextChange)})</span>`;
+                }).join('')}
+            </div>
+        </div>`;
+    }
+    panel.innerHTML = html;
+
+    // Criar notificações Firebase para admins/qualidade
+    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'qualidade')) {
+        overdue.forEach(f => {
+            const days = Math.round((todayLocal() - parseLocalDate(f.nextChange)) / 86400000);
+            triggerFilterNotification('critical', f, `Troca do filtro ${f.tag} está VENCIDA há ${days} dia(s)! Periodicidade: ${f.periodDays} dias. Última troca: ${formatFilterDate(f.lastChange)}.`);
+        });
+        warning7.forEach(f => {
+            const days = Math.round((parseLocalDate(f.nextChange) - todayLocal()) / 86400000);
+            triggerFilterNotification('alert', f, `Troca do filtro ${f.tag} está próxima! Faltam ${days} dia(s) (${formatFilterDate(f.nextChange)}). Periodicidade: ${f.periodDays} dias.`);
+        });
+    }
+}
+
+// ── Criar notificação Firebase para filtro ─────────────────────────────
+async function triggerFilterNotification(type, filter, message) {
+    try {
+        // Evitar notificações duplicadas no mesmo dia
+        const today = toLocalDateStr(todayLocal());
+        const existing = await db.collection('notifications')
+            .where('recordId', '==', `filter_${filter.id}`)
+            .where('recordType', '==', 'filter_config')
+            .where('type', '==', type)
+            .get();
+
+        // Verificar se já foi criada hoje
+        let alreadyToday = false;
+        existing.forEach(doc => {
+            const d = doc.data();
+            const createdDate = d.createdAt ? toLocalDateStr(new Date(d.createdAt.toDate ? d.createdAt.toDate() : d.createdAt)) : '';
+            if (createdDate === today) alreadyToday = true;
+        });
+        if (alreadyToday) return;
+
+        // Buscar todos admin/qualidade
+        const usersSnap = await db.collection('users').where('status', '==', 'active').get();
+        const batch = db.batch();
+        usersSnap.forEach(doc => {
+            const u = doc.data();
+            if (u.role === 'admin' || u.role === 'qualidade') {
+                const ref = db.collection('notifications').doc();
+                batch.set(ref, {
+                    type,
+                    title: type === 'critical' ? `⛔ Filtro ${filter.tag} — Troca VENCIDA!` : `⚠️ Filtro ${filter.tag} — Troca Próxima`,
+                    message,
+                    recordId: `filter_${filter.id}`,
+                    recordType: 'filter_config',
+                    userId: doc.id,
+                    userName: u.name || 'Usuário',
+                    read: false,
+                    systemGenerated: true,
+                    createdAt: new Date(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        });
+        await batch.commit();
+        console.log(`✅ Notificação de filtro (${type}) criada para ${filter.tag}`);
+        // Recarregar notificações do sino
+        if (typeof loadNotifications === 'function') loadNotifications();
+    } catch (e) {
+        console.error('Erro ao criar notificação de filtro:', e);
+    }
+}
+
+// ── Serializar campos dinâmicos de filtros para salvar no registro ─────
+function collectFilterChangeData() {
+    const container = document.getElementById('dynamic-filter-fields');
+    if (!container) return { lastFilterChange: {}, nextFilterChange: {} };
+    const lastFilterChange = {};
+    const nextFilterChange = {};
+    container.querySelectorAll('[id^="filter-last-"]').forEach(input => {
+        const filterId = input.id.replace('filter-last-', '');
+        const tag = input.closest('.filter-date-group')?.querySelector('.filter-tag-label')?.childNodes[2]?.textContent?.trim().split('\n')[0].trim();
+        if (tag) {
+            lastFilterChange[tag] = input.value || null;
+            const nextDisplay = document.getElementById(`next-change-display-${filterId}`);
+            nextFilterChange[tag] = nextDisplay?.dataset?.value || null;
+        }
+    });
+    return { lastFilterChange, nextFilterChange };
+}
+
+// ── Hookear tab osmose para carregar filtros ao abrir ─────────────────
+// Sobrescrever o evento de click da aba Cadastro de Filtros
+document.addEventListener('DOMContentLoaded', function() {
+    // Observar quando osmosis-page fica ativo
+    const observer = new MutationObserver(() => {
+        const osmosisPage = document.getElementById('osmosis-page');
+        if (osmosisPage && osmosisPage.classList.contains('active')) {
+            loadFilterConfigs();
+            observer.disconnect();
+        }
+    });
+    observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+});
+
+// Também carregar quando a tab de filtro for clicada diretamente
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.dataset && e.target.dataset.tab === 'filter-config') {
+        loadFilterConfigs();
+    }
+});
+
+// Verificar filtros ao fazer login (após carregar o sistema)
+const _origHandleUserLogin = typeof handleUserLogin === 'function' ? handleUserLogin : null;
+// Agendamento: checar filtros 3s após login
+function scheduleFilterCheck() {
+    setTimeout(async () => {
+        try {
+            const snap = await db.collection('filter_configs').orderBy('tag').get();
+            const filters = [];
+            snap.forEach(doc => filters.push({ id: doc.id, ...doc.data() }));
+            if (filters.length) checkFilterNotifications(filters);
+        } catch(e) { /* silencioso */ }
+    }, 3000);
+}
+
+// Interceptar updateUI para agendar verificação de filtros
+const _origUpdateUI = typeof updateUI === 'function' ? updateUI : null;
     </script>
 </body>
 </html>
