@@ -3446,6 +3446,190 @@ function showValidationErrors(errors, context = 'Validação') {
         let osmosisDailyData = [];
         let filteredOsmosisData = [];
 
+        // ========================================================================
+        // SINCRONIZAÇÃO EM TEMPO REAL (igual ao sistema de estoque / StockFlow)
+        // ------------------------------------------------------------------------
+        // Gerencia listeners onSnapshot do Firestore para que dados e permissões
+        // sejam atualizados automaticamente, sem precisar recarregar a página.
+        // ========================================================================
+        const realtimeListeners = {};
+        let _selfPermSignature = '';
+        let _isForcingLogout = false;
+
+        // Anexa (ou mantém) um listener em tempo real para uma query.
+        //  key      -> identificador único do listener (ex.: 'temperature_readings')
+        //  query    -> referência/query do Firestore
+        //  onData   -> callback(snapshot) que renderiza os dados
+        //  rebuild  -> se true, recria o listener mesmo que já exista
+        //              (use quando a query muda, ex.: filtros de rastreabilidade)
+        function attachRealtimeListener(key, query, onData, options = {}) {
+            const { rebuild = false } = options;
+            if (realtimeListeners[key]) {
+                if (!rebuild) return;            // já existe e está "ao vivo": não duplica
+                try { realtimeListeners[key](); } catch (e) {}
+                delete realtimeListeners[key];
+            }
+            try {
+                const unsub = query.onSnapshot(
+                    (snapshot) => {
+                        try { onData(snapshot); }
+                        catch (e) { console.error('Erro ao renderizar [' + key + ']:', e); }
+                    },
+                    (error) => {
+                        console.error('Erro no listener em tempo real [' + key + ']:', error);
+                    }
+                );
+                realtimeListeners[key] = unsub;
+            } catch (e) {
+                console.error('Falha ao criar listener [' + key + ']:', e);
+            }
+        }
+
+        // Remove um listener específico.
+        function detachRealtimeListener(key) {
+            if (realtimeListeners[key]) {
+                try { realtimeListeners[key](); } catch (e) {}
+                delete realtimeListeners[key];
+            }
+        }
+
+        // Remove TODOS os listeners (chamado no logout para evitar erros de permissão).
+        function detachAllRealtimeListeners() {
+            Object.keys(realtimeListeners).forEach((k) => {
+                try { realtimeListeners[k](); } catch (e) {}
+                delete realtimeListeners[k];
+            });
+        }
+
+        // Remove apenas os listeners de DADOS (mantém o listener do próprio
+        // usuário '__self__' e os de notificação). Usado quando as permissões
+        // mudam, para religar somente as áreas que o usuário ainda pode acessar.
+        function detachDataListeners() {
+            Object.keys(realtimeListeners).forEach((k) => {
+                if (k === '__self__' || k.indexOf('notif_') === 0) return;
+                try { realtimeListeners[k](); } catch (e) {}
+                delete realtimeListeners[k];
+            });
+        }
+
+        // Gera uma "assinatura" das permissões para detectar mudanças reais.
+        function permissionSignature(u) {
+            if (!u) return '';
+            const sortArr = (a) => Array.isArray(a) ? [...a].sort() : [];
+            return JSON.stringify({
+                role: u.role || '',
+                status: u.status || '',
+                accessAreas: sortArr(u.accessAreas),
+                editPermissions: sortArr(u.editPermissions),
+                deletePermissions: sortArr(u.deletePermissions)
+            });
+        }
+
+        // Observa o documento do PRÓPRIO usuário em tempo real.
+        // Quando o admin altera papel/áreas/permissões/status, a interface se
+        // ajusta automaticamente — sem precisar deslogar e logar de novo.
+        function attachSelfUserListener(uid) {
+            detachRealtimeListener('__self__');
+            _selfPermSignature = permissionSignature(currentUser);
+
+            const unsub = db.collection('users').doc(uid).onSnapshot((doc) => {
+                // Se já trocou de usuário, ignora
+                if (!currentUser || currentUser.uid !== uid) return;
+
+                // Conta removida
+                if (!doc.exists) {
+                    forceLogout('Sua conta foi removida do sistema. Contate o administrador.');
+                    return;
+                }
+
+                const data = doc.data();
+
+                // Acesso desativado / deletado
+                if (data.status && data.status !== 'active') {
+                    forceLogout('Seu acesso foi desativado pelo administrador.');
+                    return;
+                }
+
+                // Mescla os dados atualizados mantendo identidade da sessão
+                const updatedUser = {
+                    uid: uid,
+                    email: currentUser.email,
+                    ...data
+                };
+                if (!updatedUser.editPermissions)   updatedUser.editPermissions   = [];
+                if (!updatedUser.deletePermissions) updatedUser.deletePermissions = [];
+                if (!updatedUser.accessAreas)       updatedUser.accessAreas       = [];
+
+                const newSig = permissionSignature(updatedUser);
+                currentUser = updatedUser;
+
+                // Só reage se as permissões realmente mudaram
+                // (evita disparos por lastLogin/sessionStarted/firstLogin)
+                if (newSig !== _selfPermSignature) {
+                    _selfPermSignature = newSig;
+                    console.log('🔄 Permissões do usuário atualizadas em tempo real');
+
+                    // Atualiza interface, menu e recarrega dados acessíveis
+                    try { updateUI(); } catch (e) { console.error(e); }
+                    try { updateMenuVisibility(); } catch (e) {}
+                    // Religa apenas as áreas que o usuário ainda pode acessar
+                    detachDataListeners();
+                    try { loadInitialData(); } catch (e) { console.error(e); }
+
+                    // Se a página atual deixou de ser acessível, volta para Temperatura
+                    ensureCurrentPageAllowed();
+
+                    showInfo('Permissões atualizadas',
+                        'Suas permissões de acesso foram atualizadas pelo administrador.');
+                }
+            }, (err) => {
+                console.error('Erro no listener do próprio usuário:', err);
+            });
+
+            realtimeListeners['__self__'] = unsub;
+        }
+
+        // Garante que a página ativa ainda é permitida ao usuário atual.
+        function ensureCurrentPageAllowed() {
+            const activePage = document.querySelector('.page-content.active');
+            if (!activePage) return;
+            const pageId = activePage.id.replace('-page', '');
+            if (checkUserAccess(pageId)) return;
+
+            // Página não permitida -> navegar para uma página sempre acessível
+            const fallback = 'temperature';
+            document.querySelectorAll('.menu-item').forEach(i => {
+                i.classList.toggle('active', i.getAttribute('data-page') === fallback);
+            });
+            document.querySelectorAll('.page-content').forEach(p => {
+                p.classList.toggle('active', p.id === fallback + '-page');
+            });
+            if (typeof updatePageTitle === 'function') updatePageTitle(fallback);
+        }
+
+        // Logout forçado (conta desativada/removida) com aviso ao usuário.
+        function forceLogout(message) {
+            if (_isForcingLogout) return;
+            _isForcingLogout = true;
+            detachAllRealtimeListeners();
+            const uid = currentUser ? currentUser.uid : null;
+            const finish = () => {
+                if (uid) {
+                    db.collection('users').doc(uid).update({ sessionStarted: false }).catch(() => {});
+                }
+                try { auth.signOut(); } catch (e) {}
+                currentUser = null;
+                _selfPermSignature = '';
+                if (typeof showLoginModal === 'function') showLoginModal();
+                _isForcingLogout = false;
+            };
+            try {
+                showError('Sessão encerrada', message, { onOk: finish });
+            } catch (e) {
+                finish();
+            }
+        }
+
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
@@ -3470,6 +3654,9 @@ async function initializeApp() {
             if (user) {
                 await handleUserLogin(user);
             } else {
+                detachAllRealtimeListeners();
+                currentUser = null;
+                _selfPermSignature = '';
                 showLoginModal();
             }
         });
@@ -4639,6 +4826,11 @@ async function handleUserLogin(user) {
         
         // 4. CARREGAR DADOS INICIAIS
         await loadInitialData();
+
+        // 4b. ATIVAR SINCRONIZAÇÃO EM TEMPO REAL DAS PERMISSÕES DO USUÁRIO
+        //     (mudanças de acesso feitas pelo admin aparecem automaticamente)
+        _isForcingLogout = false;
+        attachSelfUserListener(user.uid);
         
         // 5. ESCONDER MODAL DE LOGIN
         hideLoginModal();
@@ -4707,6 +4899,7 @@ async function handleUserLogin(user) {
 }
 
         async function handleLogout() {
+            detachAllRealtimeListeners();
             try {
                 if (currentUser) {
                     await db.collection('users').doc(currentUser.uid).update({
@@ -4716,6 +4909,7 @@ async function handleUserLogin(user) {
             } catch(e) { /* silencioso */ }
             auth.signOut();
             currentUser = null;
+            _selfPermSignature = '';
             showLoginModal();
         }
 
@@ -4873,17 +5067,17 @@ function checkUserAccess(page) {
 
         async function loadRooms() {
             try {
-                const roomsSnapshot = await db.collection('rooms')
-                    .where('status', '==', 'active')
-                    .get();
-                
-                rooms = [];
-                roomsSnapshot.forEach(doc => {
-                    rooms.push({ id: doc.id, ...doc.data() });
+                const query = db.collection('rooms')
+                    .where('status', '==', 'active');
+
+                attachRealtimeListener('rooms_select', query, (roomsSnapshot) => {
+                    rooms = [];
+                    roomsSnapshot.forEach(doc => {
+                        rooms.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateRoomsSelect();
                 });
-                
-                updateRoomsSelect();
-                
+
             } catch (error) {
                 console.error('Erro ao carregar salas:', error);
                 // Continua mesmo com erro para não bloquear a aplicação
@@ -7007,40 +7201,41 @@ async function createCustomToken(email) {
 
         async function loadUsersList() {
             try {
-                const snapshot = await db.collection('users')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const tbody = document.getElementById('users-list');
-                const cardsContainer = document.getElementById('users-list-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
-                    return;
-                }
-                
-                allUsers = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Ignorar documentos marcados como deleted (defesa extra além da regra do Firestore)
-                    if (data.status === 'deleted') return;
-                    allUsers.push({ id: doc.id, ...data });
-                    const row = createUserRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createUserCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                const query = db.collection('users')
+                    .orderBy('createdAt', 'desc');
+
+                attachRealtimeListener('users_list', query, (snapshot) => {
+                    const tbody = document.getElementById('users-list');
+                    const cardsContainer = document.getElementById('users-list-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
+                        return;
+                    }
+
+                    allUsers = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Ignorar documentos marcados como deleted (defesa extra além da regra do Firestore)
+                        if (data.status === 'deleted') return;
+                        allUsers.push({ id: doc.id, ...data });
+                        const row = createUserRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createUserCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
+
+                    if (allUsers.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
+                        return;
+                    }
                 });
 
-                if (allUsers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum usuário cadastrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum usuário cadastrado</div></div>';
-                    return;
-                }
-                
             } catch (error) {
                 console.error('Erro ao carregar lista de usuários:', error);
                 document.getElementById('users-list').innerHTML = '<tr><td colspan="6" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7477,31 +7672,32 @@ async function editUser(userId) { openUserEditModal(userId); }
 
         async function loadTemperatureHistory() {
             try {
-                const snapshot = await db.collection('temperature_readings')
+                const query = db.collection('temperature_readings')
                     .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                const tbody = document.getElementById('temp-history');
-                const cardsContainer = document.getElementById('temp-history-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="12" style="text-align: center;">Nenhum registro encontrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = createTemperatureRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createTemperatureCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                    .limit(50);
+
+                attachRealtimeListener('temperature_readings', query, (snapshot) => {
+                    const tbody = document.getElementById('temp-history');
+                    const cardsContainer = document.getElementById('temp-history-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = createTemperatureRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createTemperatureCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
                 });
-                
+
             } catch (error) {
                 console.error('Erro ao carregar histórico de temperatura:', error);
                 document.getElementById('temp-history').innerHTML = '<tr><td colspan="12" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7511,31 +7707,32 @@ async function editUser(userId) { openUserEditModal(userId); }
 
         async function loadPressureHistory() {
             try {
-                const snapshot = await db.collection('pressure_readings')
+                const query = db.collection('pressure_readings')
                     .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                const tbody = document.getElementById('pressure-history');
-                const cardsContainer = document.getElementById('pressure-history-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro encontrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = createPressureRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createPressureCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                    .limit(50);
+
+                attachRealtimeListener('pressure_readings', query, (snapshot) => {
+                    const tbody = document.getElementById('pressure-history');
+                    const cardsContainer = document.getElementById('pressure-history-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = createPressureRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createPressureCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
                 });
-                
+
             } catch (error) {
                 console.error('Erro ao carregar histórico de pressão:', error);
                 document.getElementById('pressure-history').innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7545,40 +7742,43 @@ async function editUser(userId) { openUserEditModal(userId); }
 
         async function loadOsmosisHistory() {
             try {
-                const snapshot = await db.collection('osmosis_daily')
+                const query = db.collection('osmosis_daily')
                     .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                const tbody = document.getElementById('osmosis-history');
-                const cardsContainer = document.getElementById('osmosis-history-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                osmosisDailyData = [];
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro encontrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = { id: doc.id, ...doc.data() };
-                    osmosisDailyData.push(data);
-                    const row = createOsmosisRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createOsmosisCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                    .limit(50);
+
+                attachRealtimeListener('osmosis_daily', query, (snapshot) => {
+                    const tbody = document.getElementById('osmosis-history');
+                    const cardsContainer = document.getElementById('osmosis-history-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    osmosisDailyData = [];
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
+                        filteredOsmosisData = [];
+                        loadOsmosisDetailedCards();
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = { id: doc.id, ...doc.data() };
+                        osmosisDailyData.push(data);
+                        const row = createOsmosisRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createOsmosisCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
+
+                    // Inicializar dados filtrados com todos os dados
+                    filteredOsmosisData = [...osmosisDailyData];
+
+                    // Carregar cards detalhados
+                    loadOsmosisDetailedCards();
                 });
-                
-                // Inicializar dados filtrados com todos os dados
-                filteredOsmosisData = [...osmosisDailyData];
-                
-                // Carregar cards detalhados
-                loadOsmosisDetailedCards();
-                
+
             } catch (error) {
                 console.error('Erro ao carregar histórico de osmose:', error);
                 document.getElementById('osmosis-history').innerHTML = '<tr><td colspan="6" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7772,31 +7972,32 @@ async function editUser(userId) { openUserEditModal(userId); }
 
         async function loadMaintenanceHistory() {
             try {
-                const snapshot = await db.collection('osmosis_maintenance')
+                const query = db.collection('osmosis_maintenance')
                     .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                const tbody = document.getElementById('maintenance-history');
-                const cardsContainer = document.getElementById('maintenance-history-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = createMaintenanceRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createMaintenanceCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                    .limit(50);
+
+                attachRealtimeListener('osmosis_maintenance', query, (snapshot) => {
+                    const tbody = document.getElementById('maintenance-history');
+                    const cardsContainer = document.getElementById('maintenance-history-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = createMaintenanceRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createMaintenanceCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
                 });
-                
+
             } catch (error) {
                 console.error('Erro ao carregar histórico de manutenções:', error);
                 document.getElementById('maintenance-history').innerHTML = '<tr><td colspan="5" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7806,30 +8007,31 @@ async function editUser(userId) { openUserEditModal(userId); }
 
         async function loadRoomsList() {
             try {
-                const snapshot = await db.collection('rooms')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const tbody = document.getElementById('rooms-list');
-                const cardsContainer = document.getElementById('rooms-list-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhuma sala cadastrada</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhuma sala cadastrada</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = createRoomRow(data, doc.id);
-                    tbody.appendChild(row);
-                    
-                    const card = createRoomCard(data, doc.id);
-                    cardsContainer.appendChild(card);
+                const query = db.collection('rooms')
+                    .orderBy('createdAt', 'desc');
+
+                attachRealtimeListener('rooms_list', query, (snapshot) => {
+                    const tbody = document.getElementById('rooms-list');
+                    const cardsContainer = document.getElementById('rooms-list-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhuma sala cadastrada</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhuma sala cadastrada</div></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = createRoomRow(data, doc.id);
+                        tbody.appendChild(row);
+
+                        const card = createRoomCard(data, doc.id);
+                        cardsContainer.appendChild(card);
+                    });
                 });
-                
+
             } catch (error) {
                 console.error('Erro ao carregar lista de salas:', error);
                 document.getElementById('rooms-list').innerHTML = '<tr><td colspan="9" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -7864,31 +8066,35 @@ async function editUser(userId) { openUserEditModal(userId); }
                     // Em uma implementação real, você teria um campo específico para tipo
                 }
                 
-                const snapshot = await query.limit(100).get();
-                
-                const tbody = document.getElementById('traceability-log');
-                const cardsContainer = document.getElementById('traceability-log-cards');
-                tbody.innerHTML = '';
-                cardsContainer.innerHTML = '';
-                
-                traceabilityData = [];
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
-                    cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = { id: doc.id, ...doc.data() };
-                    traceabilityData.push(data);
-                    const row = createTraceabilityRow(data);
-                    tbody.appendChild(row);
-                    
-                    const card = createTraceabilityCard(data);
-                    cardsContainer.appendChild(card);
-                });
-                
+                query = query.limit(100);
+
+                // rebuild:true -> a query depende dos filtros, então recriamos o
+                // listener sempre que esta função é chamada (ao trocar um filtro)
+                attachRealtimeListener('traceability', query, (snapshot) => {
+                    const tbody = document.getElementById('traceability-log');
+                    const cardsContainer = document.getElementById('traceability-log-cards');
+                    tbody.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+
+                    traceabilityData = [];
+
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                        cardsContainer.innerHTML = '<div class="mobile-card"><div class="mobile-card-title">Nenhum registro encontrado</div></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = { id: doc.id, ...doc.data() };
+                        traceabilityData.push(data);
+                        const row = createTraceabilityRow(data);
+                        tbody.appendChild(row);
+
+                        const card = createTraceabilityCard(data);
+                        cardsContainer.appendChild(card);
+                    });
+                }, { rebuild: true });
+
             } catch (error) {
                 console.error('Erro ao carregar log de rastreabilidade:', error);
                 document.getElementById('traceability-log').innerHTML = '<tr><td colspan="5" style="text-align: center;">Erro ao carregar dados</td></tr>';
@@ -9651,36 +9857,33 @@ async function updateNotificationCount() {
     const notificationBtn = document.getElementById('notification-btn');
     
     try {
-        console.log('Buscando notificações não lidas para:', currentUser.uid);
-        
-        // BUSCAR APENAS NOTIFICAÇÕES NÃO LIDAS DO USUÁRIO ATUAL
-        const unreadQuery = await db.collection('notifications')
+        // Listener em tempo real das notificações não lidas do usuário atual.
+        // O contador/badge é atualizado automaticamente quando chegam novas.
+        const query = db.collection('notifications')
             .where('userId', '==', currentUser.uid)
-            .where('read', '==', false)
-            .get();
-        
-        const unreadCount = unreadQuery.size;
-        console.log('Notificações não lidas encontradas:', unreadCount);
-        
-        // MOSTRAR BOTÃO DE NOTIFICAÇÕES APENAS SE USUÁRIO TEM PERMISSÃO
-        // (admin/qualidade veem, outros não)
-        if (currentUser.role === 'admin' || currentUser.role === 'qualidade') {
-            notificationBtn.style.display = 'inline-flex';
-            
-            if (unreadCount > 0) {
-                countElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                countElement.style.display = 'flex';
-                countElement.style.animation = 'pulse 2s infinite';
-                notificationBtn.style.border = '2px solid #e74c3c';
+            .where('read', '==', false);
+
+        attachRealtimeListener('notif_count', query, (unreadQuery) => {
+            const unreadCount = unreadQuery.size;
+
+            if (currentUser.role === 'admin' || currentUser.role === 'qualidade') {
+                notificationBtn.style.display = 'inline-flex';
+
+                if (unreadCount > 0) {
+                    countElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    countElement.style.display = 'flex';
+                    countElement.style.animation = 'pulse 2s infinite';
+                    notificationBtn.style.border = '2px solid #e74c3c';
+                } else {
+                    countElement.style.display = 'none';
+                    notificationBtn.style.border = 'none';
+                }
             } else {
-                countElement.style.display = 'none';
-                notificationBtn.style.border = 'none';
+                // Usuários comuns não veem o botão de notificações
+                notificationBtn.style.display = 'none';
             }
-        } else {
-            // Usuários comuns não veem o botão de notificações
-            notificationBtn.style.display = 'none';
-        }
-        
+        });
+
     } catch (error) {
         console.error('Erro ao atualizar contador:', error);
         countElement.style.display = 'none';
@@ -9708,39 +9911,36 @@ async function loadNotifications() {
     try {
         console.log('Buscando notificações para usuário:', currentUser.uid);
         
-        // BUSCAR NOTIFICAÇÕES DO USUÁRIO ATUAL (admin/qualidade veem suas próprias)
-        const notificationsSnapshot = await db.collection('notifications')
+        // Listener em tempo real das notificações do usuário atual
+        const query = db.collection('notifications')
             .where('userId', '==', currentUser.uid)
             .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
-        
-        console.log('Notificações encontradas:', notificationsSnapshot.size);
-        
-        const notificationList = document.getElementById('notification-list');
-        notificationList.innerHTML = '';
-        
-        if (notificationsSnapshot.empty) {
-            notificationList.innerHTML = `
-                <div class="empty-notifications">
-                    <i class="fas fa-bell-slash"></i>
-                    <p>Nenhuma notificação encontrada</p>
-                    <small style="color: #999;">Novas notificações aparecerão aqui</small>
-                </div>
-            `;
-            return;
-        }
-        
-        // PERCORRER NOTIFICAÇÕES
-        notificationsSnapshot.forEach(doc => {
-            const notification = { id: doc.id, ...doc.data() };
-            
-            // Criar elemento de notificação
-            const notificationElement = createNotificationElement(notification);
-            notificationList.appendChild(notificationElement);
+            .limit(50);
+
+        attachRealtimeListener('notif_list', query, (notificationsSnapshot) => {
+            const notificationList = document.getElementById('notification-list');
+            notificationList.innerHTML = '';
+
+            if (notificationsSnapshot.empty) {
+                notificationList.innerHTML = `
+                    <div class="empty-notifications">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>Nenhuma notificação encontrada</p>
+                        <small style="color: #999;">Novas notificações aparecerão aqui</small>
+                    </div>
+                `;
+                return;
+            }
+
+            // PERCORRER NOTIFICAÇÕES
+            notificationsSnapshot.forEach(doc => {
+                const notification = { id: doc.id, ...doc.data() };
+                const notificationElement = createNotificationElement(notification);
+                notificationList.appendChild(notificationElement);
+            });
         });
-        
-        // ATUALIZAR CONTADOR NO BOTÃO
+
+        // ATUALIZAR CONTADOR NO BOTÃO (também em tempo real)
         updateNotificationCount();
         
     } catch (error) {
@@ -11695,12 +11895,14 @@ async function exportToExcelWithPeriod(type, dateFrom, dateTo) {
 // ── Carregar filtros cadastrados do Firestore ──────────────────────────
 async function loadFilterConfigs() {
     try {
-        const snap = await db.collection('filter_configs').orderBy('tag').get();
-        const filters = [];
-        snap.forEach(doc => filters.push({ id: doc.id, ...doc.data() }));
-        renderFilterConfigTable(filters);
-        renderDynamicFilterFields(filters);
-        checkFilterNotifications(filters);
+        const query = db.collection('filter_configs').orderBy('tag');
+        attachRealtimeListener('filter_configs', query, (snap) => {
+            const filters = [];
+            snap.forEach(doc => filters.push({ id: doc.id, ...doc.data() }));
+            renderFilterConfigTable(filters);
+            renderDynamicFilterFields(filters);
+            checkFilterNotifications(filters);
+        });
     } catch (e) {
         console.error('Erro ao carregar filtros:', e);
     }
