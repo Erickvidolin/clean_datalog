@@ -965,6 +965,17 @@ try {
         }
         .lf-footer strong { color:var(--primary); }
 
+        .lf-version {
+            margin-top:18px;
+            text-align:center;
+            font-size:11px;
+            color:var(--gray);
+            opacity:.85;
+            letter-spacing:.3px;
+        }
+        .lf-version i { color:var(--secondary); margin-right:4px; }
+        .lf-version span { font-weight:600; }
+
         /* Mobile logo (shows when brand panel is hidden) */
         .lf-mobile-logo {
             display:none;flex-direction:column;
@@ -2091,6 +2102,10 @@ try {
             </div>
           </div><!-- /reset card -->
 
+          <div class="lf-version" id="app-version-badge" title="Versão do sistema">
+            <i class="fas fa-code-branch"></i> <span id="app-version-text">CleanSense</span>
+          </div>
+
         </div><!-- /login-form-panel -->
       </div><!-- /login-wrapper -->
     </div><!-- /login-modal -->
@@ -2307,10 +2322,10 @@ try {
                     <div class="card-header">
                         <div class="card-title">Histórico de Temperatura e Umidade</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm admin-only" id="export-temp-pdf">
+                            <button class="btn btn-success btn-sm js-export-pdf" id="export-temp-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
-                            <button class="btn btn-warning btn-sm admin-only" id="export-temp-excel">
+                            <button class="btn btn-warning btn-sm js-export-excel" id="export-temp-excel">
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </button>
                         </div>
@@ -2392,10 +2407,10 @@ try {
                     <div class="card-header">
                         <div class="card-title">Histórico de Pressão</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm admin-only" id="export-pressure-pdf">
+                            <button class="btn btn-success btn-sm js-export-pdf" id="export-pressure-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
-                            <button class="btn btn-warning btn-sm admin-only" id="export-pressure-excel">
+                            <button class="btn btn-warning btn-sm js-export-excel" id="export-pressure-excel">
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </button>
                         </div>
@@ -2563,14 +2578,14 @@ try {
                         </button>
                     </div>
 
-                    <div class="card admin-only">
+                    <div class="card js-export-history">
                         <div class="card-header">
                             <div class="card-title">Histórico de Manutenções</div>
                             <div class="card-actions">
-                                <button class="btn btn-success btn-sm" id="export-maintenance-pdf">
+                                <button class="btn btn-success btn-sm js-export-pdf" id="export-maintenance-pdf">
                                     <i class="fas fa-file-pdf"></i> Exportar PDF
                                 </button>
-                                <button class="btn btn-warning btn-sm" id="export-maintenance-excel">
+                                <button class="btn btn-warning btn-sm js-export-excel" id="export-maintenance-excel">
                                     <i class="fas fa-file-excel"></i> Exportar Excel
                                 </button>
                             </div>
@@ -2641,14 +2656,14 @@ try {
                     </div>
                 </div>
 
-                <div class="card admin-only">
+                <div class="card js-export-history">
                     <div class="card-header">
                         <div class="card-title">Histórico de Osmose - Controles Diários</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm" id="export-osmosis-pdf">
+                            <button class="btn btn-success btn-sm js-export-pdf" id="export-osmosis-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
-                            <button class="btn btn-warning btn-sm" id="export-osmosis-excel">
+                            <button class="btn btn-warning btn-sm js-export-excel" id="export-osmosis-excel">
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </button>
                         </div>
@@ -2678,11 +2693,11 @@ try {
                 </div>
 
                 <!-- Seção de Cards Detalhados de Osmose -->
-                <div class="card admin-only">
+                <div class="card js-export-history">
                     <div class="card-header">
                         <div class="card-title">Controles Diários Detalhados - Sistema de Osmose</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm" onclick="exportAllOsmosisCardsToPDF()">
+                            <button class="btn btn-success btn-sm js-export-pdf" onclick="exportAllOsmosisCardsToPDF()">
                                 <i class="fas fa-file-pdf"></i> Exportar Todos em PDF
                             </button>
                         </div>
@@ -2841,10 +2856,10 @@ try {
                     <div class="card-header">
                         <div class="card-title">Salas Cadastradas</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm" id="export-rooms-pdf">
+                            <button class="btn btn-success btn-sm js-export-pdf" id="export-rooms-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
-                            <button class="btn btn-warning btn-sm" id="export-rooms-excel">
+                            <button class="btn btn-warning btn-sm js-export-excel" id="export-rooms-excel">
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </button>
                         </div>
@@ -2964,6 +2979,21 @@ try {
         </div>
     </div>
     
+    <div class="form-group" style="margin-top: 15px;">
+        <div class="section-title" style="font-size:13px;margin-bottom:8px;">Permissões de Exportação</div>
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input type="checkbox" id="access-export-pdf" value="pdf">
+                <label for="access-export-pdf"><i class="fas fa-file-pdf" style="color:var(--success);"></i> Pode gerar PDF</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="access-export-excel" value="excel">
+                <label for="access-export-excel"><i class="fas fa-file-excel" style="color:var(--warning);"></i> Pode gerar Excel</label>
+            </div>
+        </div>
+        <small style="color: var(--gray);">Define se o usuário pode exportar relatórios em PDF e/ou Excel.</small>
+    </div>
+
     <div class="form-group" style="margin-top: 15px;" id="notifications-section">
         <div class="checkbox-group">
             <input type="checkbox" id="receives-notifications">
@@ -3016,14 +3046,14 @@ try {
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Rastreabilidade do Sistema</div>
-                        <div class="card-actions admin-only">
-                            <button class="btn btn-success btn-sm" onclick="exportTraceabilityToPDF()">
+                        <div class="card-actions">
+                            <button class="btn btn-success btn-sm js-export-pdf" onclick="exportTraceabilityToPDF()">
                                 <i class="fas fa-file-pdf"></i> Exportar Relatório Completo
                             </button>
-                            <button class="btn btn-success btn-sm" id="export-traceability-pdf">
+                            <button class="btn btn-success btn-sm js-export-pdf" id="export-traceability-pdf">
                                 <i class="fas fa-file-pdf"></i> Exportar PDF
                             </button>
-                            <button class="btn btn-warning btn-sm" id="export-traceability-excel">
+                            <button class="btn btn-warning btn-sm js-export-excel" id="export-traceability-excel">
                                 <i class="fas fa-file-excel"></i> Exportar Excel
                             </button>
                         </div>
@@ -3446,6 +3476,17 @@ function showValidationErrors(errors, context = 'Validação') {
         let osmosisDailyData = [];
         let filteredOsmosisData = [];
 
+        // ====================== VERSÃO DO SISTEMA ======================
+        // Atualize APP_VERSION e APP_BUILD a cada release. É exibido na tela de login.
+        const APP_VERSION = '2.5.0';
+        const APP_BUILD   = '2026-06-26';
+        function renderAppVersion() {
+            const el = document.getElementById('app-version-text');
+            if (el) el.textContent = `IBEG CleanSense • v${APP_VERSION} (${APP_BUILD})`;
+        }
+        // Renderiza assim que o DOM estiver pronto (a tela de login aparece antes do login)
+        document.addEventListener('DOMContentLoaded', renderAppVersion);
+
         // ========================================================================
         // SINCRONIZAÇÃO EM TEMPO REAL (igual ao sistema de estoque / StockFlow)
         // ------------------------------------------------------------------------
@@ -3521,7 +3562,9 @@ function showValidationErrors(errors, context = 'Validação') {
                 status: u.status || '',
                 accessAreas: sortArr(u.accessAreas),
                 editPermissions: sortArr(u.editPermissions),
-                deletePermissions: sortArr(u.deletePermissions)
+                deletePermissions: sortArr(u.deletePermissions),
+                canExportPdf: u.canExportPdf === true,
+                canExportExcel: u.canExportExcel === true
             });
         }
 
@@ -3559,6 +3602,13 @@ function showValidationErrors(errors, context = 'Validação') {
                 if (!updatedUser.editPermissions)   updatedUser.editPermissions   = [];
                 if (!updatedUser.deletePermissions) updatedUser.deletePermissions = [];
                 if (!updatedUser.accessAreas)       updatedUser.accessAreas       = [];
+                if (updatedUser.role === 'admin') {
+                    updatedUser.canExportPdf = true;
+                    updatedUser.canExportExcel = true;
+                } else {
+                    if (typeof updatedUser.canExportPdf   !== 'boolean') updatedUser.canExportPdf   = (updatedUser.role === 'qualidade');
+                    if (typeof updatedUser.canExportExcel !== 'boolean') updatedUser.canExportExcel = (updatedUser.role === 'qualidade');
+                }
 
                 const newSig = permissionSignature(updatedUser);
                 currentUser = updatedUser;
@@ -4729,8 +4779,11 @@ document.getElementById('user-role').addEventListener('change', function() {
             case 'auth/network-request-failed':
                 errorMessage = 'Sem conexão. Verifique sua internet.';
                 break;
+            case 'auth/invalid-login-credentials':
+                errorMessage = 'E-mail ou senha incorretos.';
+                break;
             default:
-                errorMessage = `Erro: ${error.message}`;
+                errorMessage = 'Não foi possível entrar. Verifique seu e-mail e senha e tente novamente.';
         }
         
         // legacy div
@@ -4791,6 +4844,14 @@ async function handleUserLogin(user) {
             if (!currentUser.editPermissions)   currentUser.editPermissions   = [];
             if (!currentUser.deletePermissions) currentUser.deletePermissions = [];
             if (!currentUser.accessAreas)       currentUser.accessAreas       = [];
+            // Permissões de exportação (admin sempre pode; demais conforme cadastro)
+            if (currentUser.role === 'admin') {
+                currentUser.canExportPdf = true;
+                currentUser.canExportExcel = true;
+            } else {
+                if (typeof currentUser.canExportPdf   !== 'boolean') currentUser.canExportPdf   = (currentUser.role === 'qualidade');
+                if (typeof currentUser.canExportExcel !== 'boolean') currentUser.canExportExcel = (currentUser.role === 'qualidade');
+            }
             
             console.log('✅ Usuário carregado:', currentUser.name, currentUser.role);
             
@@ -4872,17 +4933,15 @@ async function handleUserLogin(user) {
         
         currentUser = null;
         
-        // Mensagem de erro amigável
-        let errorMessage = 'Erro ao processar login: ';
+        // Mensagem de erro amigável (nunca exibir texto técnico para o usuário)
+        let errorMessage = 'Não foi possível concluir o login. Tente novamente.';
         
-        if (error.message.includes('Firestore')) {
-            errorMessage = 'Erro ao conectar com o banco de dados. Verifique sua conexão.';
-        } else if (error.message.includes('desativado')) {
-            errorMessage = error.message;
-        } else if (error.code === 'permission-denied') {
+        if (error.message && error.message.includes('desativado')) {
+            errorMessage = 'Usuário desativado. Contate o administrador.';
+        } else if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission'))) {
             errorMessage = 'Acesso negado. Contate o administrador.';
-        } else {
-            errorMessage += error.message;
+        } else if (error.message && (error.message.includes('Firestore') || error.message.includes('banco de dados') || error.message.includes('network'))) {
+            errorMessage = 'Erro ao conectar com o banco de dados. Verifique sua conexão.';
         }
         
         showError('Erro no Login', errorMessage);
@@ -4951,6 +5010,9 @@ function updateUI() {
     
     // Atualizar visibilidade do menu
     updateMenuVisibility();
+
+    // Aplicar permissões de exportação (PDF/Excel) aos botões e históricos
+    applyExportPermissions();
     
     // Controlar visibilidade da aba Cadastro de Filtros
     const filterConfigTab = document.getElementById('filter-config-tab');
@@ -5014,6 +5076,40 @@ function checkUserAccess(page) {
     return currentUser.accessAreas && 
            Array.isArray(currentUser.accessAreas) && 
            currentUser.accessAreas.includes(requiredArea);
+}
+
+// ── Verifica se o usuário pode EXPORTAR no formato indicado ('pdf' | 'excel') ──
+// Admin sempre pode. Demais usuários precisam da permissão marcada no cadastro.
+// Qualidade (legado) mantém exportação por padrão se a flag nunca foi definida.
+function canExport(format) {
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+
+    const flag = (format === 'excel') ? currentUser.canExportExcel : currentUser.canExportPdf;
+    if (flag === true) return true;
+    // Compatibilidade: usuários 'qualidade' antigos (sem a flag definida) podiam exportar
+    if (flag === undefined && currentUser.role === 'qualidade') return true;
+    return false;
+}
+
+// Aplica a visibilidade dos botões/áreas de exportação conforme a permissão.
+function applyExportPermissions() {
+    if (!currentUser) return;
+    const showPdf   = canExport('pdf');
+    const showExcel = canExport('excel');
+
+    document.querySelectorAll('.js-export-pdf').forEach(el => {
+        el.style.display = showPdf ? '' : 'none';
+    });
+    document.querySelectorAll('.js-export-excel').forEach(el => {
+        el.style.display = showExcel ? '' : 'none';
+    });
+
+    // Cartões de histórico que só fazem sentido para quem pode exportar/é admin
+    const showHistory = (currentUser.role === 'admin' || currentUser.role === 'qualidade' || showPdf || showExcel);
+    document.querySelectorAll('.js-export-history').forEach(card => {
+        card.style.display = showHistory ? '' : 'none';
+    });
 }
 
 
@@ -7049,13 +7145,33 @@ async function saveUserToFirestore(userId, name, email, role) {
         // Administradores têm acesso a todas as áreas
         accessAreas = ['temperature', 'pressure', 'osmosis', 'rooms', 'users', 'traceability', 'reports', 'backup'];
     }
+
+    // Permissões de exportação (PDF/Excel)
+    let canExportPdf, canExportExcel, receivesNotifications;
+    if (role === 'admin') {
+        canExportPdf = true;
+        canExportExcel = true;
+        receivesNotifications = true;
+    } else {
+        const pdfCb   = document.getElementById('access-export-pdf');
+        const excelCb = document.getElementById('access-export-excel');
+        const notifCb = document.getElementById('receives-notifications');
+        canExportPdf   = !!(pdfCb && pdfCb.checked);
+        canExportExcel = !!(excelCb && excelCb.checked);
+        receivesNotifications = ['qualidade','manutencao'].includes(role) && notifCb ? notifCb.checked : false;
+    }
     
     // Dados do usuário
     const userData = {
         name: name || '',
         email: email || '',
         role: role || 'user',
-        accessAreas: accessAreas, // NOVO CAMPO: áreas de acesso
+        accessAreas: accessAreas, // áreas de acesso (visualização)
+        editPermissions: role === 'admin' ? accessAreas : [],     // edição definida no modal de edição
+        deletePermissions: role === 'admin' ? accessAreas : [],   // exclusão definida no modal de edição
+        canExportPdf: canExportPdf,
+        canExportExcel: canExportExcel,
+        receivesNotifications: receivesNotifications,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         status: 'active',
         createdBy: currentUser.uid,
@@ -7275,13 +7391,21 @@ async function createCustomToken(email) {
             }
             
             const roleNames = { admin:'Administrador', qualidade:'Qualidade', manutencao:'Manutenção', user:'Usuário' };
+
+            // Badges de exportação
+            const canPdf = data.role === 'admin' || data.canExportPdf === true || (data.canExportPdf === undefined && data.role === 'qualidade');
+            const canXls = data.role === 'admin' || data.canExportExcel === true || (data.canExportExcel === undefined && data.role === 'qualidade');
+            let exportHtml = '';
+            if (canPdf) exportHtml += '<span class="perm-badge edit" style="background:#eafaf1;color:#1e8449;"><i class="fas fa-file-pdf"></i> PDF</span>';
+            if (canXls) exportHtml += '<span class="perm-badge edit" style="background:#fef5ec;color:#c45e0f;"><i class="fas fa-file-excel"></i> Excel</span>';
+            if (!exportHtml) exportHtml = '<span style="color:var(--gray);font-size:11px;">—</span>';
             
             row.innerHTML = `
                 <td><strong>${data.name || '-'}</strong></td>
                 <td style="font-size:12px;">${data.email || '-'}</td>
                 <td>${roleNames[data.role] || data.role}</td>
                 <td style="max-width:180px;">${areasHtml}</td>
-                <td style="max-width:200px;">${editDelHtml}</td>
+                <td style="max-width:200px;">${editDelHtml}<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;">${exportHtml}</div></td>
                 <td>${createdAt}</td>
                 <td><span class="status ${data.status === 'active' ? 'status-normal' : 'status-critical'}">${data.status === 'active' ? 'Ativo' : 'Inativo'}</span></td>
                 <td>
@@ -7319,6 +7443,10 @@ async function createCustomToken(email) {
     const delPerms  = data.deletePermissions || [];
     const canEditSome  = data.role==='admin' || editPerms.length > 0;
     const canDeleteSome= data.role==='admin' || delPerms.length  > 0;
+
+    const canPdf = data.role === 'admin' || data.canExportPdf === true || (data.canExportPdf === undefined && data.role === 'qualidade');
+    const canXls = data.role === 'admin' || data.canExportExcel === true || (data.canExportExcel === undefined && data.role === 'qualidade');
+    const exportText = [canPdf ? 'PDF' : null, canXls ? 'Excel' : null].filter(Boolean).join(' + ') || 'Não';
     
     card.innerHTML = `
         <div class="mobile-card-header">
@@ -7329,6 +7457,7 @@ async function createCustomToken(email) {
                 <div class="mobile-card-field"><span class="mobile-card-label">Áreas:</span><span class="mobile-card-value" style="font-size:12px;">${accessAreasText}</span></div>
                 <div class="mobile-card-field"><span class="mobile-card-label">Pode editar:</span><span class="mobile-card-value">${data.role==='admin' ? 'Todas' : (editPerms.map(a=>areaLabels[a]||a).join(', ')||'Não')}</span></div>
                 <div class="mobile-card-field"><span class="mobile-card-label">Pode excluir:</span><span class="mobile-card-value">${data.role==='admin' ? 'Todas' : (delPerms.map(a=>areaLabels[a]||a).join(', ')||'Não')}</span></div>
+                <div class="mobile-card-field"><span class="mobile-card-label">Exportação:</span><span class="mobile-card-value">${exportText}</span></div>
                 <div class="mobile-card-field"><span class="mobile-card-label">Criado em:</span><span class="mobile-card-value">${createdAt}</span></div>
                 <div class="mobile-card-field"><span class="mobile-card-label">Status:</span><span class="mobile-card-value"><span class="status ${data.status==='active'?'status-normal':'status-critical'}">${data.status==='active'?'Ativo':'Inativo'}</span></span></div>
             </div>
@@ -7444,6 +7573,27 @@ async function openUserEditModal(userId) {
             <div class="perm-grid">${permGrid}</div>
         </div>
 
+        <!-- Permissões de exportação -->
+        <div class="perm-section" id="ue-export-section">
+            <div class="perm-section-title"><i class="fas fa-file-export"></i> Permissões de Exportação
+                ${isAdmin ? '<span style="font-size:11px;color:var(--gray);font-weight:400;">&nbsp;— Administradores podem exportar tudo</span>' : ''}
+            </div>
+            <div class="perm-grid">
+                <div class="perm-item">
+                    <label>
+                        <input type="checkbox" id="ue-export-pdf" ${isAdmin || user.canExportPdf ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+                        <i class="fas fa-file-pdf" style="color:var(--success);width:14px;"></i> Pode gerar PDF
+                    </label>
+                </div>
+                <div class="perm-item">
+                    <label>
+                        <input type="checkbox" id="ue-export-excel" ${isAdmin || user.canExportExcel ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+                        <i class="fas fa-file-excel" style="color:var(--warning);width:14px;"></i> Pode gerar Excel
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- Zona de perigo -->
         <div class="danger-zone">
             <div class="danger-zone-title"><i class="fas fa-triangle-exclamation"></i> Ações Sensíveis</div>
@@ -7481,12 +7631,18 @@ function onPermAccessChange(areaKey) {
 function onUeRoleChange() {
     const role = document.getElementById('ue-role').value;
     const permsSection = document.getElementById('ue-perms-section');
+    const exportPdf   = document.getElementById('ue-export-pdf');
+    const exportExcel = document.getElementById('ue-export-excel');
     if (role === 'admin') {
         permsSection.style.opacity = '.7';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cb.disabled = true; });
+        if (exportPdf)   { exportPdf.checked = true;   exportPdf.disabled = true; }
+        if (exportExcel) { exportExcel.checked = true; exportExcel.disabled = true; }
     } else {
         permsSection.style.opacity = '1';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.disabled = false; });
+        if (exportPdf)   exportPdf.disabled = false;
+        if (exportExcel) exportExcel.disabled = false;
     }
 }
 
@@ -7522,12 +7678,24 @@ async function saveUserEdit() {
         });
     }
 
+    // Permissões de exportação
+    let canExportPdf, canExportExcel;
+    if (role === 'admin') {
+        canExportPdf = true;
+        canExportExcel = true;
+    } else {
+        const pdfCb   = document.getElementById('ue-export-pdf');
+        const excelCb = document.getElementById('ue-export-excel');
+        canExportPdf   = !!(pdfCb && pdfCb.checked);
+        canExportExcel = !!(excelCb && excelCb.checked);
+    }
+
     const btn = document.getElementById('ue-save-btn');
     btn.innerHTML = '<div class="lf-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Salvando…';
     btn.disabled = true;
 
     try {
-        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions };
+        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions, canExportPdf, canExportExcel };
 
         // Se o e-mail foi alterado, atualiza no Firestore (Auth requer admin SDK; apenas atualizamos o campo)
         if (email !== user.email) {
@@ -8793,6 +8961,14 @@ function clearUserForm() {
     document.getElementById('user-email').value = '';
     document.getElementById('user-password').value = '';
     document.getElementById('user-role').value = 'user';
+    // Limpar checkboxes de áreas e de exportação
+    document.querySelectorAll('input[name="access-areas"]').forEach(cb => cb.checked = false);
+    const pdfCb   = document.getElementById('access-export-pdf');
+    const excelCb = document.getElementById('access-export-excel');
+    const notifCb = document.getElementById('receives-notifications');
+    if (pdfCb)   pdfCb.checked = false;
+    if (excelCb) excelCb.checked = false;
+    if (notifCb) notifCb.checked = false;
 }
 
         function showLoginModal() {
@@ -8822,8 +8998,8 @@ function clearUserForm() {
         // ========== FUNÇÕES DE EXPORTAÇÃO PDF ==========
 
         async function exportTraceabilityToPDF() {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem exportar relatórios em PDF.');
+            if (!canExport('pdf')) {
+                showWarning('Permissão de Exportação', 'Você não tem permissão para gerar PDF. Solicite a um administrador.');
                 return;
             }
             
@@ -8902,8 +9078,8 @@ function clearUserForm() {
         }
 
         function exportOsmosisCardToPDF(cardId) {
-    if (currentUser.role !== 'admin') {
-        alert('Apenas administradores podem exportar relatórios em PDF.');
+    if (!canExport('pdf')) {
+        showWarning('Permissão de Exportação', 'Você não tem permissão para gerar PDF. Solicite a um administrador.');
         return;
     }
     
@@ -9165,8 +9341,8 @@ function clearUserForm() {
 }
 
         async function exportAllOsmosisCardsToPDF() {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem exportar relatórios em PDF.');
+            if (!canExport('pdf')) {
+                showWarning('Permissão de Exportação', 'Você não tem permissão para gerar PDF. Solicite a um administrador.');
                 return;
             }
             
@@ -9373,8 +9549,8 @@ function clearUserForm() {
 
         // Funções de exportação PDF existentes
         async function exportToPDF(type) {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem exportar relatórios em PDF.');
+            if (!canExport('pdf')) {
+                showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em PDF. Solicite a um administrador.');
                 return;
             }
             
@@ -9568,19 +9744,22 @@ function clearUserForm() {
         }
 
         function generateReport() {
-            if (currentUser.role !== 'admin') {
-                alert('Apenas administradores podem gerar relatórios personalizados.');
-                return;
-            }
-            
             const reportType = document.getElementById('report-type').value;
             const startDate = document.getElementById('report-start-date').value;
             const endDate = document.getElementById('report-end-date').value;
             const format = document.getElementById('report-format').value;
             
             if (format === 'pdf') {
+                if (!canExport('pdf')) {
+                    showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em PDF.');
+                    return;
+                }
                 exportToPDF(reportType);
             } else if (format === 'excel') {
+                if (!canExport('excel')) {
+                    showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em Excel.');
+                    return;
+                }
                 exportToExcel(reportType);
             } else {
                 alert('Relatório CSV gerado com sucesso! (Funcionalidade de demonstração)');
@@ -11548,8 +11727,8 @@ let _exportPeriodType = null;
 let _exportPeriodFormat = 'pdf';
 
 function showExportPeriodModal(type, format) {
-    if (!currentUser || currentUser.role !== 'admin') {
-        showWarning('Permissão Insuficiente', 'Apenas administradores podem exportar relatórios.');
+    if (!canExport('pdf') && !canExport('excel')) {
+        showWarning('Permissão de Exportação', 'Você não tem permissão para exportar relatórios. Solicite a um administrador.');
         return;
     }
     _exportPeriodType = type;
@@ -11574,6 +11753,12 @@ function showExportPeriodModal(type, format) {
         `Relatório: ${labels[type] || type}`;
     
     modal.style.display = 'flex';
+
+    // Mostrar/ocultar os botões PDF/Excel do modal conforme a permissão
+    const pdfBtn   = document.getElementById('export-period-confirm');
+    const excelBtn = document.getElementById('export-period-excel');
+    if (pdfBtn)   pdfBtn.style.display   = canExport('pdf')   ? '' : 'none';
+    if (excelBtn) excelBtn.style.display = canExport('excel') ? '' : 'none';
     
     // Fechar ao clicar fora
     modal.onclick = function(e) {
@@ -11630,6 +11815,10 @@ async function confirmExportWithPeriod(format) {
 }
 
 async function exportToPDFWithPeriod(type, dateFrom, dateTo) {
+    if (!canExport('pdf')) {
+        showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em PDF. Solicite a um administrador.');
+        return;
+    }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
@@ -11831,8 +12020,8 @@ function _saveExcel(headers, rows, type, dateFrom, dateTo) {
 }
 
 async function exportToExcel(type) {
-    if (!currentUser || currentUser.role !== 'admin') {
-        showWarning('Permissão Insuficiente', 'Apenas administradores podem exportar relatórios.');
+    if (!canExport('excel')) {
+        showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em Excel. Solicite a um administrador.');
         return;
     }
     try {
@@ -11857,6 +12046,10 @@ async function exportToExcel(type) {
 }
 
 async function exportToExcelWithPeriod(type, dateFrom, dateTo) {
+    if (!canExport('excel')) {
+        showWarning('Permissão de Exportação', 'Você não tem permissão para gerar relatórios em Excel. Solicite a um administrador.');
+        return;
+    }
     const buildQuery = (collection, orderField) => {
         let q = db.collection(collection).orderBy(orderField, 'desc');
         if (dateFrom) q = q.where(orderField, '>=', new Date(dateFrom + 'T00:00:00'));
