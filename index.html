@@ -5845,6 +5845,13 @@ function getStatusText(status) {
 
         const modalContent = `
             <div class="form-group">
+                <label for="edit-temp-period">Período:</label>
+                <select id="edit-temp-period">
+                    <option value="manha" ${(data.period || '') === 'manha' ? 'selected' : ''}>Manhã</option>
+                    <option value="tarde" ${(data.period || '') === 'tarde' ? 'selected' : ''}>Tarde</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="edit-temp-min">Temperatura Mínima (°C):</label>
                 <input type="number" id="edit-temp-min" step="0.1" value="${data.tempMin || ''}">
             </div>
@@ -5900,6 +5907,13 @@ function getStatusText(status) {
                 currentEditData = { collection: 'pressure_readings', id: docId, data: data };
 
                 const modalContent = `
+                    <div class="form-group">
+                        <label for="edit-pressure-period">Período:</label>
+                        <select id="edit-pressure-period">
+                            <option value="manha" ${(data.period || '') === 'manha' ? 'selected' : ''}>Manhã</option>
+                            <option value="tarde" ${(data.period || '') === 'tarde' ? 'selected' : ''}>Tarde</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="edit-pressure-value">Pressão (Pa):</label>
                         <input type="number" id="edit-pressure-value" step="1" value="${data.pressure || ''}">
@@ -6079,6 +6093,7 @@ function getStatusText(status) {
                 }
                 
                 updateData = {
+                    period: document.getElementById('edit-temp-period').value,
                     tempMin: tempMin,
                     tempMax: tempMax,
                     tempActual: tempActual,
@@ -6108,6 +6123,7 @@ function getStatusText(status) {
                 }
                 
                 updateData = {
+                    period: document.getElementById('edit-pressure-period').value,
                     pressure: pressure,
                     immediateCorrection: document.getElementById('edit-correcao-imediata').value || '',
                     notes: document.getElementById('edit-pressure-notes').value || '',
