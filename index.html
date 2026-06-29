@@ -3463,8 +3463,8 @@ function showValidationErrors(errors, context = 'Validação') {
 
         // ====================== VERSÃO DO SISTEMA ======================
         // Atualize APP_VERSION e APP_BUILD a cada release. É exibido na tela de login.
-        const APP_VERSION = '2.5.0';
-        const APP_BUILD   = '2026-06-26';
+        const APP_VERSION = '2.6.0';
+        const APP_BUILD   = '2026-06-29';
         function renderAppVersion() {
             const el = document.getElementById('app-version-text');
             if (el) el.textContent = `IBEG CleanSense • v${APP_VERSION} (${APP_BUILD})`;
@@ -5237,66 +5237,45 @@ async function saveTemperatureData() {
     const humidityActual = parseFloat(document.getElementById('umid-atual').value);
     const roomMeasuresHumidity = room.measuresHumidity !== false;
     
-    // 3. VALIDAÇÕES DETALHADAS
+    // 3. VALIDAÇÃO MÍNIMA
+    // Regra: o apontamento NUNCA é bloqueado por valor fora da faixa.
+    // Só exigimos a leitura principal (temperatura atual) como número válido.
+    // Umidade é opcional: se a sala medir e o valor for informado, é gravado;
+    // se ficar em branco, é gravado como vazio (null) — sem bloquear.
+    // Valores fora do range geram alerta/notificação automaticamente (etapa 8).
     const errors = [];
-    
-    if (isNaN(tempMin) || tempMin < -50 || tempMin > 100) {
-        errors.push('Temp mínima fora do range (-50°C a 100°C)');
-    }
-    
-    if (isNaN(tempMax) || tempMax < -50 || tempMax > 100) {
-        errors.push('Temp máxima fora do range (-50°C a 100°C)');
-    }
-    
-    if (isNaN(tempActual) || tempActual < -50 || tempActual > 100) {
-        errors.push('Temp atual fora do range (-50°C a 100°C)');
-    }
-    
-    if (tempMin > tempMax) {
-        errors.push('Temp mínima > máxima');
-    }
-    
-    // OBS.: valor atual fora da faixa NÃO bloqueia o apontamento.
-    // O registro é permitido e o sistema gera alerta/notificação automaticamente.
 
-    if (roomMeasuresHumidity) {
-        if (isNaN(humidityMin) || humidityMin < 0 || humidityMin > 100) {
-            errors.push('Umid mínima fora do range (0% a 100%)');
-        }
-        if (isNaN(humidityMax) || humidityMax < 0 || humidityMax > 100) {
-            errors.push('Umid máxima fora do range (0% a 100%)');
-        }
-        if (isNaN(humidityActual) || humidityActual < 0 || humidityActual > 100) {
-            errors.push('Umid atual fora do range (0% a 100%)');
-        }
-        if (!isNaN(humidityMin) && !isNaN(humidityMax) && humidityMin > humidityMax) {
-            errors.push('Umid mínima > máxima');
-        }
-        // OBS.: umidade atual fora da faixa também NÃO bloqueia o apontamento.
+    if (isNaN(tempActual)) {
+        errors.push('Informe a temperatura atual medida.');
     }
-    
+    if (roomMeasuresHumidity && document.getElementById('umid-atual').value.trim() !== '' && isNaN(humidityActual)) {
+        errors.push('A umidade atual informada não é um número válido.');
+    }
+
     if (errors.length > 0) {
-        const errorMessage = 'Erros de validação:\n\n• ' + errors.join('\n• ');
-        showError('Erro de Validação', errorMessage);
+        showWarning('Campo Obrigatório', errors.join('\n'));
         return;
     }
+
+    // Sanitiza valores numéricos: NaN/vazio vira null (o Firestore não aceita NaN)
+    const numOrNull = (x) => (typeof x === 'number' && !isNaN(x)) ? x : null;
     
     // 4. PREPARAR DADOS
     const data = {
         roomId: roomId,
         roomName: `${room.code} - ${room.name}`,
         period: document.getElementById('periodo').value,
-        tempMin: tempMin,
-        tempMax: tempMax,
+        tempMin: numOrNull(tempMin),
+        tempMax: numOrNull(tempMax),
         tempActual: tempActual,
-        humidityMin: roomMeasuresHumidity ? humidityMin : null,
-        humidityMax: roomMeasuresHumidity ? humidityMax : null,
-        humidityActual: roomMeasuresHumidity ? humidityActual : null,
+        humidityMin: roomMeasuresHumidity ? numOrNull(humidityMin) : null,
+        humidityMax: roomMeasuresHumidity ? numOrNull(humidityMax) : null,
+        humidityActual: roomMeasuresHumidity ? numOrNull(humidityActual) : null,
         measuresHumidity: roomMeasuresHumidity,
         notes: document.getElementById('temp-notes').value,
         status: calculateTemperatureStatus(
             tempActual,
-            roomMeasuresHumidity ? humidityActual : null,
+            roomMeasuresHumidity ? numOrNull(humidityActual) : null,
             room.tempMin,
             room.tempMax,
             roomMeasuresHumidity ? room.humidityMin : null,
