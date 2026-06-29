@@ -2342,7 +2342,7 @@ try {
                                     <th>Umid. Atual</th>
                                     <th>Status</th>
                                     <th>Operador</th>
-                                    <th class="admin-only">Ações</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="temp-history">
@@ -2420,7 +2420,7 @@ try {
                                     <th>Correção Imediata</th>
                                     <th>Status</th>
                                     <th>Operador</th>
-                                    <th class="admin-only">Ações</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="pressure-history">
@@ -2589,7 +2589,7 @@ try {
                                         <th>Procedimento</th>
                                         <th>Observações</th>
                                         <th>Operador</th>
-                                        <th class="admin-only">Ações</th>
+                                        <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="maintenance-history">
@@ -2639,7 +2639,7 @@ try {
                                         <th>Última Troca</th>
                                         <th>Próxima Troca</th>
                                         <th>Status</th>
-                                        <th class="admin-only">Ações</th>
+                                        <th>Ações</th>
                                     <tr><td colspan="6" style="text-align:center;color:var(--gray);">Nenhum filtro cadastrado.</td></tr>
                                 </tbody>
                             </table>
@@ -2665,7 +2665,7 @@ try {
                                     <th>Status</th>
                                     <th>Anormalidade</th>
                                     <th>Operador</th>
-                                    <th class="admin-only">Ações</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="osmosis-history">
@@ -2862,7 +2862,7 @@ try {
                                     <th>Pressão Min-Max</th>
                                     <th>Medições</th>
                                     <th>Status</th>
-                                    <th class="admin-only">Ações</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="rooms-list">
@@ -3463,7 +3463,7 @@ function showValidationErrors(errors, context = 'Validação') {
 
         // ====================== VERSÃO DO SISTEMA ======================
         // Atualize APP_VERSION e APP_BUILD a cada release. É exibido na tela de login.
-        const APP_VERSION = '2.6.0';
+        const APP_VERSION = '2.7.1';
         const APP_BUILD   = '2026-06-29';
         function renderAppVersion() {
             const el = document.getElementById('app-version-text');
@@ -5673,8 +5673,8 @@ function getStatusText(status) {
         // ========== FUNÇÕES DE EDIÇÃO E EXCLUSÃO ==========
 
         async function editTemperatureReading(docId) {
-    if (!currentUser || currentUser.role !== 'admin') {
-        showWarning('Permissão Insuficiente', 'Apenas administradores podem editar registros.');
+    if (!currentUser || !canUserEdit('temperature')) {
+        showWarning('Permissão Insuficiente', 'Você não tem permissão para editar registros de temperatura.');
         return;
     }
     try {
@@ -5742,8 +5742,8 @@ function getStatusText(status) {
 }
 
         async function editPressureReading(docId) {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showWarning('Permissão Insuficiente', 'Apenas administradores podem editar registros.');
+            if (!currentUser || !canUserEdit('pressure')) {
+                showWarning('Permissão Insuficiente', 'Você não tem permissão para editar registros de pressão.');
                 return;
             }
             try {
@@ -5781,9 +5781,90 @@ function getStatusText(status) {
             }
         }
 
+        async function editOsmosisReading(docId) {
+            if (!currentUser || !canUserEdit('osmosis')) {
+                showWarning('Permissão Insuficiente', 'Você não tem permissão para editar registros de osmose.');
+                return;
+            }
+            try {
+                const doc = await db.collection('osmosis_daily').doc(docId).get();
+                if (!doc.exists) {
+                    showError('Registro', 'Registro não encontrado!');
+                    return;
+                }
+                const data = doc.data();
+                currentEditData = { collection: 'osmosis_daily', id: docId, data: data };
+
+                const modalContent = `
+                    <div class="form-group">
+                        <label for="edit-conductivity">Condutividade (µS/cm):</label>
+                        <input type="number" id="edit-conductivity" step="0.01" value="${data.conductivity ?? ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-osmosis-abnormality">Houve anormalidade?</label>
+                        <select id="edit-osmosis-abnormality">
+                            <option value="nao" ${!data.hasAbnormality ? 'selected' : ''}>Não</option>
+                            <option value="sim" ${data.hasAbnormality ? 'selected' : ''}>Sim</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-osmosis-abnormality-reason">Motivo da anormalidade:</label>
+                        <textarea id="edit-osmosis-abnormality-reason" rows="2">${data.abnormalityReason || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-osmosis-notes">Observações:</label>
+                        <textarea id="edit-osmosis-notes" rows="3">${data.notes || ''}</textarea>
+                    </div>
+                `;
+                document.getElementById('edit-modal-title').textContent = 'Editar Controle de Osmose';
+                document.getElementById('edit-modal-content').innerHTML = modalContent;
+                showEditModal();
+            } catch (error) {
+                console.error('Erro ao carregar dados para edição:', error);
+                showError('Erro', `Erro ao carregar dados: ${error.message}`);
+            }
+        }
+
+        async function editMaintenanceRecord(docId) {
+            if (!currentUser || !canUserEdit('osmosis')) {
+                showWarning('Permissão Insuficiente', 'Você não tem permissão para editar registros de manutenção.');
+                return;
+            }
+            try {
+                const doc = await db.collection('osmosis_maintenance').doc(docId).get();
+                if (!doc.exists) {
+                    showError('Registro', 'Registro não encontrado!');
+                    return;
+                }
+                const data = doc.data();
+                currentEditData = { collection: 'osmosis_maintenance', id: docId, data: data };
+
+                const modalContent = `
+                    <div class="form-group">
+                        <label for="edit-maintenance-date">Data da Manutenção:</label>
+                        <input type="date" id="edit-maintenance-date" value="${data.maintenanceDate || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-maintenance-procedure">Procedimento:</label>
+                        <textarea id="edit-maintenance-procedure" rows="3">${data.procedure || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-maintenance-observations">Observações:</label>
+                        <textarea id="edit-maintenance-observations" rows="3">${data.observations || ''}</textarea>
+                    </div>
+                `;
+                document.getElementById('edit-modal-title').textContent = 'Editar Manutenção de Osmose';
+                document.getElementById('edit-modal-content').innerHTML = modalContent;
+                showEditModal();
+            } catch (error) {
+                console.error('Erro ao carregar dados para edição:', error);
+                showError('Erro', `Erro ao carregar dados: ${error.message}`);
+            }
+        }
+
         async function editRoom(docId) {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showWarning('Permissão Insuficiente', 'Apenas administradores podem editar salas.');
+            if (!currentUser || !canUserEdit('rooms')) {
+                showWarning('Permissão Insuficiente', 'Você não tem permissão para editar salas.');
                 return;
             }
             try {
@@ -5907,8 +5988,16 @@ function getStatusText(status) {
         return;
     }
 
-    if (currentUser.role !== 'admin') {
-        showWarning('Permissão Insuficiente', 'Apenas administradores podem editar registros.');
+    const _editAreaMap = {
+        'temperature_readings': 'temperature',
+        'pressure_readings': 'pressure',
+        'osmosis_daily': 'osmosis',
+        'osmosis_maintenance': 'osmosis',
+        'rooms': 'rooms'
+    };
+    const _editArea = _editAreaMap[currentEditData.collection] || currentEditData.collection;
+    if (!canUserEdit(_editArea)) {
+        showWarning('Permissão Insuficiente', 'Você não tem permissão para editar registros desta área.');
         hideEditModal();
         return;
     }
@@ -5969,6 +6058,39 @@ function getStatusText(status) {
                     immediateCorrection: document.getElementById('edit-correcao-imediata').value || '',
                     notes: document.getElementById('edit-pressure-notes').value || '',
                     status: calculatePressureStatus(pressure, originalData.pressureMin, originalData.pressureMax),
+                    updatedAt: new Date(),
+                    updatedBy: currentUser.uid,
+                    updatedByName: currentUser.name
+                };
+                break;
+
+            case 'osmosis_daily':
+                const edConductivity = parseFloat(document.getElementById('edit-conductivity').value);
+                if (isNaN(edConductivity)) {
+                    throw new Error('Informe uma condutividade válida.');
+                }
+                updateData = {
+                    conductivity: edConductivity,
+                    conductivityStatus: calculateConductivityStatus(edConductivity),
+                    hasAbnormality: document.getElementById('edit-osmosis-abnormality').value === 'sim',
+                    abnormalityReason: document.getElementById('edit-osmosis-abnormality-reason').value || '',
+                    notes: document.getElementById('edit-osmosis-notes').value || '',
+                    updatedAt: new Date(),
+                    updatedBy: currentUser.uid,
+                    updatedByName: currentUser.name
+                };
+                break;
+
+            case 'osmosis_maintenance':
+                const edProcedure = document.getElementById('edit-maintenance-procedure').value.trim();
+                const edMaintDate = document.getElementById('edit-maintenance-date').value;
+                if (!edProcedure || !edMaintDate) {
+                    throw new Error('Preencha a data e o procedimento da manutenção.');
+                }
+                updateData = {
+                    procedure: edProcedure,
+                    maintenanceDate: edMaintDate,
+                    observations: document.getElementById('edit-maintenance-observations').value || '',
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
                     updatedByName: currentUser.name
@@ -6158,8 +6280,17 @@ function getStatusText(status) {
         showError('Acesso Negado', 'Usuário não autenticado.');
         return;
     }
-    if (currentUser.role !== 'admin') {
-        showWarning('Permissão Insuficiente', 'Apenas administradores podem excluir registros.');
+    // Mapeia a coleção para a área de permissão
+    const areaMap = {
+        'temperature_readings': 'temperature',
+        'pressure_readings': 'pressure',
+        'osmosis_daily': 'osmosis',
+        'osmosis_maintenance': 'osmosis',
+        'rooms': 'rooms'
+    };
+    const area = areaMap[collection] || collection;
+    if (!canUserDelete(area)) {
+        showWarning('Permissão Insuficiente', 'Você não tem permissão para excluir registros desta área.');
         return;
     }
     
@@ -8284,7 +8415,8 @@ function createTemperatureCard(data, docId) {
     const createdAt = data.createdAt ? 
         new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
     
-    const canEdit = canUserEdit();
+    const canEdit   = canUserEdit('temperature');
+    const canDelete = canUserDelete('temperature');
     
     card.innerHTML = `
         <div class="mobile-card-header">
@@ -8312,14 +8444,14 @@ function createTemperatureCard(data, docId) {
                 </div>
             </div>
         </div>
-        ${canEdit ? `
+        ${(canEdit || canDelete) ? `
         <div class="mobile-card-actions">
-            <button class="btn btn-primary btn-sm admin-only" onclick="editTemperatureReading('${docId}')">
+            ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="editTemperatureReading('${docId}')">
                 <i class="fas fa-edit"></i> Editar
-            </button>
-            <button class="btn btn-danger btn-sm admin-only" onclick="deleteRecord('temperature_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de temperatura?')">
+            </button>` : ''}
+            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('temperature_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de temperatura?')">
                 <i class="fas fa-trash"></i> Excluir
-            </button>
+            </button>` : ''}
         </div>
         ` : ''}
     `;
@@ -8359,6 +8491,8 @@ function createTemperatureCard(data, docId) {
             const createdAt = data.createdAt ? 
                 new Date(data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt).toLocaleString('pt-BR') : '-';
             
+            const canEdit   = canUserEdit('pressure');
+            const canDelete = canUserDelete('pressure');
             card.innerHTML = `
                 <div class="mobile-card-header">
                     <div>
@@ -8385,14 +8519,16 @@ function createTemperatureCard(data, docId) {
                         </div>
                     </div>
                 </div>
-                <div class="mobile-card-actions admin-only">
-                    <button class="btn btn-primary btn-sm admin-only" onclick="editPressureReading('${docId}')">
+                ${(canEdit || canDelete) ? `
+                <div class="mobile-card-actions">
+                    ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="editPressureReading('${docId}')">
                         <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger btn-sm admin-only" onclick="deleteRecord('pressure_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de pressão?')">
+                    </button>` : ''}
+                    ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('pressure_readings', '${docId}', 'Tem certeza que deseja excluir esta leitura de pressão?')">
                         <i class="fas fa-trash"></i> Excluir
-                    </button>
+                    </button>` : ''}
                 </div>
+                ` : ''}
             `;
             return card;
         }
@@ -8454,14 +8590,16 @@ function createTemperatureCard(data, docId) {
                         </div>
                     </div>
                 </div>
-                <div class="mobile-card-actions admin-only">
-                    <button class="btn btn-primary btn-sm">
+                ${(canUserEdit('osmosis') || canUserDelete('osmosis')) ? `
+                <div class="mobile-card-actions">
+                    ${canUserEdit('osmosis') ? `<button class="btn btn-primary btn-sm" onclick="editOsmosisReading('${docId}')">
                         <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')">
+                    </button>` : ''}
+                    ${canUserDelete('osmosis') ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')">
                         <i class="fas fa-trash"></i> Excluir
-                    </button>
+                    </button>` : ''}
                 </div>
+                ` : ''}
             `;
             return card;
         }
@@ -8478,13 +8616,14 @@ function createTemperatureCard(data, docId) {
                 <td>${data.procedure || '-'}</td>
                 <td>${data.observations || '-'}</td>
                 <td>${data.userName || '-'}</td>
-                <td class="admin-only">
-                    <button class="btn btn-primary btn-sm">
+                <td>
+                    ${canUserEdit('osmosis') ? `<button class="btn btn-primary btn-sm" onclick="editMaintenanceRecord('${docId}')">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_maintenance', '${docId}', 'Tem certeza que deseja excluir este registro de manutenção?')">
+                    </button>` : ''}
+                    ${canUserDelete('osmosis') ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_maintenance', '${docId}', 'Tem certeza que deseja excluir este registro de manutenção?')">
                         <i class="fas fa-trash"></i>
-                    </button>
+                    </button>` : ''}
+                    ${!canUserEdit('osmosis') && !canUserDelete('osmosis') ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i></span>' : ''}
                 </td>
             `;
             return row;
@@ -8520,14 +8659,16 @@ function createTemperatureCard(data, docId) {
                         </div>
                     </div>
                 </div>
-                <div class="mobile-card-actions admin-only">
-                    <button class="btn btn-primary btn-sm">
+                ${(canUserEdit('osmosis') || canUserDelete('osmosis')) ? `
+                <div class="mobile-card-actions">
+                    ${canUserEdit('osmosis') ? `<button class="btn btn-primary btn-sm" onclick="editMaintenanceRecord('${docId}')">
                         <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_maintenance', '${docId}', 'Tem certeza que deseja excluir este registro de manutenção?')">
+                    </button>` : ''}
+                    ${canUserDelete('osmosis') ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_maintenance', '${docId}', 'Tem certeza que deseja excluir este registro de manutenção?')">
                         <i class="fas fa-trash"></i> Excluir
-                    </button>
+                    </button>` : ''}
                 </div>
+                ` : ''}
             `;
             return card;
         }
@@ -8565,13 +8706,14 @@ function createTemperatureCard(data, docId) {
                 <td>${pressureCell}</td>
                 <td>${badges}</td>
                 <td><span class="status ${statusClass}">${statusText}</span></td>
-                <td class="admin-only">
-                    <button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
+                <td>
+                    ${canUserEdit('rooms') ? `<button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('rooms', '${docId}', 'Tem certeza que deseja excluir esta sala?')">
+                    </button>` : ''}
+                    ${canUserDelete('rooms') ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('rooms', '${docId}', 'Tem certeza que deseja excluir esta sala?')">
                         <i class="fas fa-trash"></i>
-                    </button>
+                    </button>` : ''}
+                    ${!canUserEdit('rooms') && !canUserDelete('rooms') ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i></span>' : ''}
                 </td>
             `;
             return row;
@@ -8630,14 +8772,16 @@ function createTemperatureCard(data, docId) {
                         </div>
                     </div>
                 </div>
-                <div class="mobile-card-actions admin-only">
-                    <button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
+                ${(canUserEdit('rooms') || canUserDelete('rooms')) ? `
+                <div class="mobile-card-actions">
+                    ${canUserEdit('rooms') ? `<button class="btn btn-primary btn-sm" onclick="editRoom('${docId}')">
                         <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('rooms', '${docId}', 'Tem certeza que deseja excluir esta sala?')">
+                    </button>` : ''}
+                    ${canUserDelete('rooms') ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('rooms', '${docId}', 'Tem certeza que deseja excluir esta sala?')">
                         <i class="fas fa-trash"></i> Excluir
-                    </button>
+                    </button>` : ''}
                 </div>
+                ` : ''}
             `;
             return card;
         }
@@ -11602,14 +11746,22 @@ async function diagnoseLoginProblems() {
 // Adicione esta função para verificar se usuário pode editar
 function canUserEdit(area) {
     if (!currentUser) return false;
-    // Edição de registros é restrita a administradores
-    return currentUser.role === 'admin';
+    // Admin e Qualidade editam qualquer área (perfis amplos)
+    if (currentUser.role === 'admin' || currentUser.role === 'qualidade') return true;
+    // Permissão explícita concedida pelo admin
+    if (Array.isArray(currentUser.editPermissions) && currentUser.editPermissions.includes(area)) return true;
+    // Baseline operacional da Manutenção
+    if (currentUser.role === 'manutencao' && ['pressure', 'osmosis', 'rooms'].includes(area)) return true;
+    return false;
 }
 
 function canUserDelete(area) {
     if (!currentUser) return false;
-    // Exclusão de registros é restrita a administradores
-    return currentUser.role === 'admin';
+    // Admin exclui qualquer área
+    if (currentUser.role === 'admin') return true;
+    // Permissão explícita de exclusão concedida pelo admin
+    if (Array.isArray(currentUser.deletePermissions) && currentUser.deletePermissions.includes(area)) return true;
+    return false;
 }
 
 // Atualize a função createTemperatureRow para mostrar botões de edição para qualidade:
@@ -11687,7 +11839,7 @@ function createOsmosisRow(data, docId) {
         <td>${data.hasAbnormality ? 'Sim' : 'Não'}</td>
         <td>${data.userName || '-'}</td>
         <td>
-            ${canEdit ? `<button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>` : ''}
+            ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="editOsmosisReading('${docId}')"><i class="fas fa-edit"></i></button>` : ''}
             ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteRecord('osmosis_daily', '${docId}', 'Tem certeza que deseja excluir este registro de osmose?')"><i class="fas fa-trash"></i></button>` : ''}
             ${!canEdit && !canDelete ? '<span class="text-muted" style="font-size:12px;"><i class="fas fa-lock"></i> Sem permissão</span>' : ''}
         </td>
