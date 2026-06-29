@@ -2267,17 +2267,6 @@ try {
                             <option value="tarde">Tarde</option>
                         </select>
                     </div>
-
-                    <div class="form-row" id="temp-datetime-row" style="display:none;">
-                        <div class="form-group">
-                            <label for="temp-data-manual">Data do Apontamento:</label>
-                            <input type="date" id="temp-data-manual">
-                        </div>
-                        <div class="form-group">
-                            <label for="temp-hora-manual">Horário do Apontamento:</label>
-                            <input type="time" id="temp-hora-manual">
-                        </div>
-                    </div>
                     
                     <div class="form-section">
                         <div class="section-title">Temperatura</div>
@@ -2333,11 +2322,8 @@ try {
                     <div class="card-header">
                         <div class="card-title">Histórico de Temperatura e Umidade</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm js-export-pdf" id="export-temp-pdf">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-warning btn-sm js-export-excel" id="export-temp-excel">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('temperature')">
+                                <i class="fas fa-file-export"></i> Exportar
                             </button>
                         </div>
                     </div>
@@ -2393,17 +2379,6 @@ try {
                             <option value="tarde">Tarde</option>
                         </select>
                     </div>
-
-                    <div class="form-row" id="pressure-datetime-row" style="display:none;">
-                        <div class="form-group">
-                            <label for="pressure-data-manual">Data do Apontamento:</label>
-                            <input type="date" id="pressure-data-manual">
-                        </div>
-                        <div class="form-group">
-                            <label for="pressure-hora-manual">Horário do Apontamento:</label>
-                            <input type="time" id="pressure-hora-manual">
-                        </div>
-                    </div>
                     
                     <div class="form-group">
                         <label for="pressure-value">Pressão (Pa):</label>
@@ -2429,11 +2404,8 @@ try {
                     <div class="card-header">
                         <div class="card-title">Histórico de Pressão</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm js-export-pdf" id="export-pressure-pdf">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-warning btn-sm js-export-excel" id="export-pressure-excel">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('pressure')">
+                                <i class="fas fa-file-export"></i> Exportar
                             </button>
                         </div>
                     </div>
@@ -2485,20 +2457,6 @@ try {
                                 <label for="condutividade">Resultado observado no condutivímetro de linha (µS/cm):</label>
                                 <input type="number" id="condutividade" step="0.1" min="0">
                                 <small style="color: var(--gray);">Limite: 1.3 µS/cm</small>
-                            </div>
-                        </div>
-
-                        <div class="form-section" id="osmosis-datetime-section" style="display:none;">
-                            <div class="section-title">Data e Horário do Apontamento</div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="osmosis-data-manual">Data do Apontamento:</label>
-                                    <input type="date" id="osmosis-data-manual">
-                                </div>
-                                <div class="form-group">
-                                    <label for="osmosis-hora-manual">Horário do Apontamento:</label>
-                                    <input type="time" id="osmosis-hora-manual">
-                                </div>
                             </div>
                         </div>
                         
@@ -2618,12 +2576,9 @@ try {
                         <div class="card-header">
                             <div class="card-title">Histórico de Manutenções</div>
                             <div class="card-actions">
-                                <button class="btn btn-success btn-sm js-export-pdf" id="export-maintenance-pdf">
-                                    <i class="fas fa-file-pdf"></i> Exportar PDF
-                                </button>
-                                <button class="btn btn-warning btn-sm js-export-excel" id="export-maintenance-excel">
-                                    <i class="fas fa-file-excel"></i> Exportar Excel
-                                </button>
+                                <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('maintenance')">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -2696,11 +2651,8 @@ try {
                     <div class="card-header">
                         <div class="card-title">Histórico de Osmose - Controles Diários</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm js-export-pdf" id="export-osmosis-pdf">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-warning btn-sm js-export-excel" id="export-osmosis-excel">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('osmosis')">
+                                <i class="fas fa-file-export"></i> Exportar
                             </button>
                         </div>
                     </div>
@@ -2892,11 +2844,8 @@ try {
                     <div class="card-header">
                         <div class="card-title">Salas Cadastradas</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm js-export-pdf" id="export-rooms-pdf">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-warning btn-sm js-export-excel" id="export-rooms-excel">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('rooms')">
+                                <i class="fas fa-file-export"></i> Exportar
                             </button>
                         </div>
                     </div>
@@ -3030,15 +2979,6 @@ try {
         <small style="color: var(--gray);">Define se o usuário pode exportar relatórios em PDF e/ou Excel.</small>
     </div>
 
-    <div class="form-group" style="margin-top: 15px;">
-        <div class="section-title" style="font-size:13px;margin-bottom:8px;">Apontamentos — Data/Hora</div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="access-edit-datetime">
-            <label for="access-edit-datetime"><i class="fas fa-calendar-edit" style="color:var(--secondary);"></i> Pode informar data/hora manualmente nos apontamentos</label>
-        </div>
-        <small style="color: var(--gray);">Sem esta permissão, a data e o horário do apontamento são preenchidos automaticamente no momento do registro.</small>
-    </div>
-
     <div class="form-group" style="margin-top: 15px;" id="notifications-section">
         <div class="checkbox-group">
             <input type="checkbox" id="receives-notifications">
@@ -3092,14 +3032,8 @@ try {
                     <div class="card-header">
                         <div class="card-title">Rastreabilidade do Sistema</div>
                         <div class="card-actions">
-                            <button class="btn btn-success btn-sm js-export-pdf" onclick="exportTraceabilityToPDF()">
-                                <i class="fas fa-file-pdf"></i> Exportar Relatório Completo
-                            </button>
-                            <button class="btn btn-success btn-sm js-export-pdf" id="export-traceability-pdf">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                            <button class="btn btn-warning btn-sm js-export-excel" id="export-traceability-excel">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            <button class="btn btn-primary btn-sm js-export-btn" onclick="showExportPeriodModal('traceability')">
+                                <i class="fas fa-file-export"></i> Exportar
                             </button>
                         </div>
                     </div>
@@ -3351,6 +3285,7 @@ try {
             </div>
         </div>
         <div class="export-period-body">
+            <div id="export-period-daterange">
             <div class="form-row-2">
                 <div>
                     <label for="export-date-from"><i class="fas fa-calendar-day" style="margin-right:4px;color:var(--secondary);"></i>Data Inicial</label>
@@ -3364,6 +3299,11 @@ try {
             <div class="export-period-hint">
                 <i class="fas fa-circle-info" style="margin-top:1px;flex-shrink:0;"></i>
                 <span>Deixe os campos em branco para exportar <strong>todos os registros</strong> disponíveis.</span>
+            </div>
+            </div>
+            <div class="export-period-hint" id="export-format-hint" style="display:none;">
+                <i class="fas fa-circle-info" style="margin-top:1px;flex-shrink:0;"></i>
+                <span>Escolha o formato de exportação abaixo.</span>
             </div>
         </div>
         <div class="export-period-footer">
@@ -3453,13 +3393,13 @@ function validateTemperatureData(tempMin, tempMax, tempActual, humidityMin, humi
     if (tempMax < -50 || tempMax > 100) errors.push('Temp máxima fora do range (-50°C a 100°C)');
     if (tempActual < -50 || tempActual > 100) errors.push('Temp atual fora do range (-50°C a 100°C)');
     if (tempMin > tempMax) errors.push('Temp mínima > máxima');
-    if (tempActual < tempMin || tempActual > tempMax) errors.push('Temp atual fora da faixa');
+    // valor atual fora da faixa não é erro de validação (registro permitido, gera alerta)
     
     if (humidityMin < 0 || humidityMin > 100) errors.push('Umid mínima fora do range (0% a 100%)');
     if (humidityMax < 0 || humidityMax > 100) errors.push('Umid máxima fora do range (0% a 100%)');
     if (humidityActual < 0 || humidityActual > 100) errors.push('Umid atual fora do range (0% a 100%)');
     if (humidityMin > humidityMax) errors.push('Umid mínima > máxima');
-    if (humidityActual < humidityMin || humidityActual > humidityMax) errors.push('Umid atual fora da faixa');
+    // umidade atual fora da faixa não é erro de validação
     
     return errors;
 }
@@ -3609,8 +3549,7 @@ function showValidationErrors(errors, context = 'Validação') {
                 editPermissions: sortArr(u.editPermissions),
                 deletePermissions: sortArr(u.deletePermissions),
                 canExportPdf: u.canExportPdf === true,
-                canExportExcel: u.canExportExcel === true,
-                canEditDateTime: u.canEditDateTime === true
+                canExportExcel: u.canExportExcel === true
             });
         }
 
@@ -3651,11 +3590,9 @@ function showValidationErrors(errors, context = 'Validação') {
                 if (updatedUser.role === 'admin') {
                     updatedUser.canExportPdf = true;
                     updatedUser.canExportExcel = true;
-                    updatedUser.canEditDateTime = true;
                 } else {
                     if (typeof updatedUser.canExportPdf   !== 'boolean') updatedUser.canExportPdf   = (updatedUser.role === 'qualidade');
                     if (typeof updatedUser.canExportExcel !== 'boolean') updatedUser.canExportExcel = (updatedUser.role === 'qualidade');
-                    if (typeof updatedUser.canEditDateTime !== 'boolean') updatedUser.canEditDateTime = false;
                 }
 
                 const newSig = permissionSignature(updatedUser);
@@ -4673,18 +4610,6 @@ document.getElementById('user-role').addEventListener('change', function() {
             });
 
             // Exportar PDF
-            document.getElementById('export-temp-pdf').addEventListener('click', () => showExportPeriodModal('temperature'));
-            document.getElementById('export-pressure-pdf').addEventListener('click', () => showExportPeriodModal('pressure'));
-            document.getElementById('export-osmosis-pdf').addEventListener('click', () => showExportPeriodModal('osmosis'));
-            document.getElementById('export-maintenance-pdf').addEventListener('click', () => showExportPeriodModal('maintenance'));
-            document.getElementById('export-rooms-pdf').addEventListener('click', () => exportToPDF('rooms'));
-            document.getElementById('export-traceability-pdf').addEventListener('click', () => showExportPeriodModal('traceability'));
-            document.getElementById('export-temp-excel').addEventListener('click', () => showExportPeriodModal('temperature', 'excel'));
-            document.getElementById('export-pressure-excel').addEventListener('click', () => showExportPeriodModal('pressure', 'excel'));
-            document.getElementById('export-osmosis-excel').addEventListener('click', () => showExportPeriodModal('osmosis', 'excel'));
-            document.getElementById('export-maintenance-excel').addEventListener('click', () => showExportPeriodModal('maintenance', 'excel'));
-            document.getElementById('export-rooms-excel').addEventListener('click', () => exportToExcel('rooms'));
-            document.getElementById('export-traceability-excel').addEventListener('click', () => showExportPeriodModal('traceability', 'excel'));
             document.getElementById('generate-report-btn').addEventListener('click', generateReport);
 
             // Filtros
@@ -4896,11 +4821,9 @@ async function handleUserLogin(user) {
             if (currentUser.role === 'admin') {
                 currentUser.canExportPdf = true;
                 currentUser.canExportExcel = true;
-                currentUser.canEditDateTime = true;
             } else {
                 if (typeof currentUser.canExportPdf   !== 'boolean') currentUser.canExportPdf   = (currentUser.role === 'qualidade');
                 if (typeof currentUser.canExportExcel !== 'boolean') currentUser.canExportExcel = (currentUser.role === 'qualidade');
-                if (typeof currentUser.canEditDateTime !== 'boolean') currentUser.canEditDateTime = false;
             }
             
             console.log('✅ Usuário carregado:', currentUser.name, currentUser.role);
@@ -5063,9 +4986,6 @@ function updateUI() {
 
     // Aplicar permissões de exportação (PDF/Excel) aos botões e históricos
     applyExportPermissions();
-
-    // Aplicar permissão de data/hora manual nos formulários de apontamento
-    applyDateTimePermissions();
     
     // Controlar visibilidade da aba Cadastro de Filtros
     const filterConfigTab = document.getElementById('filter-config-tab');
@@ -5145,15 +5065,6 @@ function canExport(format) {
     return false;
 }
 
-// ── Verifica se o usuário pode INFORMAR MANUALMENTE a data/hora dos apontamentos ──
-// Admin sempre pode. Demais usuários precisam da permissão marcada no cadastro.
-// Sem essa permissão, a data/hora do apontamento é sempre a do momento do registro (automática).
-function userCanEditDateTime() {
-    if (!currentUser) return false;
-    if (currentUser.role === 'admin') return true;
-    return currentUser.canEditDateTime === true;
-}
-
 // Aplica a visibilidade dos botões/áreas de exportação conforme a permissão.
 function applyExportPermissions() {
     if (!currentUser) return;
@@ -5166,66 +5077,15 @@ function applyExportPermissions() {
     document.querySelectorAll('.js-export-excel').forEach(el => {
         el.style.display = showExcel ? '' : 'none';
     });
+    // Botão unificado "Exportar": visível se puder exportar em QUALQUER formato
+    document.querySelectorAll('.js-export-btn').forEach(el => {
+        el.style.display = (showPdf || showExcel) ? '' : 'none';
+    });
 
     // Cartões de histórico que só fazem sentido para quem pode exportar/é admin
     const showHistory = (currentUser.role === 'admin' || currentUser.role === 'qualidade' || showPdf || showExcel);
     document.querySelectorAll('.js-export-history').forEach(card => {
         card.style.display = showHistory ? '' : 'none';
-    });
-}
-
-// Resolve a data/hora a ser gravada em um apontamento, considerando a permissão do usuário.
-// Se o usuário tem permissão E preencheu os campos manuais, usa a data/hora informada.
-// Caso contrário (sem permissão, ou campos vazios), usa a data/hora atual (automática).
-function resolveManualDateTime(dateFieldId, timeFieldId) {
-    if (userCanEditDateTime()) {
-        const dateEl = document.getElementById(dateFieldId);
-        const timeEl = document.getElementById(timeFieldId);
-        const dateVal = dateEl ? dateEl.value : '';
-        const timeVal = timeEl ? timeEl.value : '';
-        if (dateVal) {
-            const [y, m, d] = dateVal.split('-').map(Number);
-            let hh = 0, mm = 0;
-            if (timeVal) {
-                [hh, mm] = timeVal.split(':').map(Number);
-            }
-            const manualDate = new Date(y, (m - 1), d, hh, mm, 0);
-            if (!isNaN(manualDate.getTime())) {
-                return manualDate;
-            }
-        }
-    }
-    return new Date();
-}
-
-// Exibe/oculta e preenche os campos de data/hora manual dos apontamentos
-// (Temperatura, Pressão e Osmose Diária) conforme a permissão do usuário.
-// Com permissão: campos aparecem editáveis, pré-preenchidos com data/hora atuais.
-// Sem permissão: campos ficam ocultos e a data/hora é sempre a do momento do registro.
-function applyDateTimePermissions() {
-    if (!currentUser) return;
-    const allowed = userCanEditDateTime();
-
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-    const timeStr  = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-
-    const rows = [
-        { row: 'temp-datetime-row',     date: 'temp-data-manual',     time: 'temp-hora-manual' },
-        { row: 'pressure-datetime-row', date: 'pressure-data-manual', time: 'pressure-hora-manual' },
-        { row: 'osmosis-datetime-section', date: 'osmosis-data-manual', time: 'osmosis-hora-manual' }
-    ];
-
-    rows.forEach(({ row, date, time }) => {
-        const rowEl  = document.getElementById(row);
-        const dateEl = document.getElementById(date);
-        const timeEl = document.getElementById(time);
-        if (rowEl) rowEl.style.display = allowed ? '' : 'none';
-        if (allowed) {
-            if (dateEl && !dateEl.value) dateEl.value = todayStr;
-            if (timeEl && !timeEl.value) timeEl.value = timeStr;
-        }
     });
 }
 
@@ -5396,9 +5256,8 @@ async function saveTemperatureData() {
         errors.push('Temp mínima > máxima');
     }
     
-    if (tempActual < tempMin || tempActual > tempMax) {
-        errors.push('Temp atual fora da faixa');
-    }
+    // OBS.: valor atual fora da faixa NÃO bloqueia o apontamento.
+    // O registro é permitido e o sistema gera alerta/notificação automaticamente.
 
     if (roomMeasuresHumidity) {
         if (isNaN(humidityMin) || humidityMin < 0 || humidityMin > 100) {
@@ -5413,10 +5272,7 @@ async function saveTemperatureData() {
         if (!isNaN(humidityMin) && !isNaN(humidityMax) && humidityMin > humidityMax) {
             errors.push('Umid mínima > máxima');
         }
-        if (!isNaN(humidityActual) && !isNaN(humidityMin) && !isNaN(humidityMax) &&
-            (humidityActual < humidityMin || humidityActual > humidityMax)) {
-            errors.push('Umid atual fora da faixa');
-        }
+        // OBS.: umidade atual fora da faixa também NÃO bloqueia o apontamento.
     }
     
     if (errors.length > 0) {
@@ -5449,7 +5305,7 @@ async function saveTemperatureData() {
         userId: currentUser.uid,
         userName: currentUser.name,
         userRole: currentUser.role,
-        createdAt: resolveManualDateTime('temp-data-manual', 'temp-hora-manual'),
+        createdAt: new Date(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
     
@@ -5473,18 +5329,26 @@ async function saveTemperatureData() {
         );
         
         // 8. VERIFICAR SE PRECISA CRIAR NOTIFICAÇÃO (PARA QUALQUER USUÁRIO)
-        if (data.status === 'alert' || data.status === 'critical') {
+        const isOutOfRange = (data.status === 'alert' || data.status === 'critical');
+        if (isOutOfRange) {
             console.log(`⚠️ Status ${data.status} detectado - criando notificação automática`);
             await checkAndCreateNotification(data, 'temperature_readings', docRef.id);
         }
         
         // 9. MENSAGEM DE SUCESSO
-        showSuccess('Sucesso', 'Dados de temperatura registrados com sucesso!', {
-            onOk: () => {
-                clearTemperatureForm();
-                loadTemperatureHistory();
+        const okMsg = isOutOfRange
+            ? 'Registro salvo. O valor está FORA DA FAIXA e um alerta foi enviado para Qualidade/Admin.'
+            : 'Dados de temperatura registrados com sucesso!';
+        (isOutOfRange ? showWarning : showSuccess)(
+            isOutOfRange ? 'Registrado com Alerta' : 'Sucesso',
+            okMsg,
+            {
+                onOk: () => {
+                    clearTemperatureForm();
+                    loadTemperatureHistory();
+                }
             }
-        });
+        );
         
     } catch (error) {
         console.error('Erro ao salvar temperatura:', error);
@@ -5586,7 +5450,7 @@ function getStatusText(status) {
         status: calculatePressureStatus(pressureValue, room.pressureMin, room.pressureMax),
         userId: currentUser.uid,
         userName: currentUser.name,
-        createdAt: resolveManualDateTime('pressure-data-manual', 'pressure-hora-manual'),
+        createdAt: new Date(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -5599,17 +5463,24 @@ function getStatusText(status) {
         );
         
         // Verificar se precisa criar notificação
-        if (data.status === 'alert' || data.status === 'critical') {
+        const isOutOfRange = (data.status === 'alert' || data.status === 'critical');
+        if (isOutOfRange) {
             console.log(`⚠️ Status ${data.status} detectado - criando notificação automática`);
             await checkAndCreateNotification(data, 'pressure_readings', docRef.id);
         }
         
-        showSuccess('Sucesso', 'Dados de pressão registrados com sucesso!', {
-            onOk: () => {
-                clearPressureForm();
-                loadPressureHistory();
+        (isOutOfRange ? showWarning : showSuccess)(
+            isOutOfRange ? 'Registrado com Alerta' : 'Sucesso',
+            isOutOfRange
+                ? 'Registro salvo. A pressão está FORA DA FAIXA e um alerta foi enviado para Qualidade/Admin.'
+                : 'Dados de pressão registrados com sucesso!',
+            {
+                onOk: () => {
+                    clearPressureForm();
+                    loadPressureHistory();
+                }
             }
-        });
+        );
         
     } catch (error) {
         console.error('Erro ao salvar pressão:', error);
@@ -5658,7 +5529,7 @@ function getStatusText(status) {
         notes: document.getElementById('osmosis-daily-notes').value,
         userId: currentUser.uid,
         userName: currentUser.name,
-        createdAt: resolveManualDateTime('osmosis-data-manual', 'osmosis-hora-manual'),
+        createdAt: new Date(),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -5671,17 +5542,24 @@ function getStatusText(status) {
         );
         
         // Verificar se precisa criar notificação
-        if (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical') {
+        const isOutOfRange = (data.conductivityStatus === 'alert' || data.conductivityStatus === 'critical');
+        if (isOutOfRange) {
             console.log(`⚠️ Status ${data.conductivityStatus} detectado - criando notificação automática`);
             await checkAndCreateNotification(data, 'osmosis_daily', docRef.id);
         }
         
-        showSuccess('Sucesso', 'Controle diário do sistema de osmose registrado com sucesso!', {
-            onOk: () => {
-                clearOsmosisDailyForm();
-                loadOsmosisHistory();
+        (isOutOfRange ? showWarning : showSuccess)(
+            isOutOfRange ? 'Registrado com Alerta' : 'Sucesso',
+            isOutOfRange
+                ? 'Registro salvo. A condutividade está FORA DA FAIXA e um alerta foi enviado para Qualidade/Admin.'
+                : 'Controle diário do sistema de osmose registrado com sucesso!',
+            {
+                onOk: () => {
+                    clearOsmosisDailyForm();
+                    loadOsmosisHistory();
+                }
             }
-        });
+        );
         
     } catch (error) {
         console.error('Erro ao salvar osmose diária:', error);
@@ -5845,13 +5723,6 @@ function getStatusText(status) {
 
         const modalContent = `
             <div class="form-group">
-                <label for="edit-temp-period">Período:</label>
-                <select id="edit-temp-period">
-                    <option value="manha" ${(data.period || '') === 'manha' ? 'selected' : ''}>Manhã</option>
-                    <option value="tarde" ${(data.period || '') === 'tarde' ? 'selected' : ''}>Tarde</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label for="edit-temp-min">Temperatura Mínima (°C):</label>
                 <input type="number" id="edit-temp-min" step="0.1" value="${data.tempMin || ''}">
             </div>
@@ -5907,13 +5778,6 @@ function getStatusText(status) {
                 currentEditData = { collection: 'pressure_readings', id: docId, data: data };
 
                 const modalContent = `
-                    <div class="form-group">
-                        <label for="edit-pressure-period">Período:</label>
-                        <select id="edit-pressure-period">
-                            <option value="manha" ${(data.period || '') === 'manha' ? 'selected' : ''}>Manhã</option>
-                            <option value="tarde" ${(data.period || '') === 'tarde' ? 'selected' : ''}>Tarde</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label for="edit-pressure-value">Pressão (Pa):</label>
                         <input type="number" id="edit-pressure-value" step="1" value="${data.pressure || ''}">
@@ -6093,7 +5957,6 @@ function getStatusText(status) {
                 }
                 
                 updateData = {
-                    period: document.getElementById('edit-temp-period').value,
                     tempMin: tempMin,
                     tempMax: tempMax,
                     tempActual: tempActual,
@@ -6123,7 +5986,6 @@ function getStatusText(status) {
                 }
                 
                 updateData = {
-                    period: document.getElementById('edit-pressure-period').value,
                     pressure: pressure,
                     immediateCorrection: document.getElementById('edit-correcao-imediata').value || '',
                     notes: document.getElementById('edit-pressure-notes').value || '',
@@ -7293,15 +7155,6 @@ async function saveUserToFirestore(userId, name, email, role) {
         canExportExcel = !!(excelCb && excelCb.checked);
         receivesNotifications = ['qualidade','manutencao'].includes(role) && notifCb ? notifCb.checked : false;
     }
-
-    // Permissão de informar manualmente a data/hora dos apontamentos
-    let canEditDateTime;
-    if (role === 'admin') {
-        canEditDateTime = true;
-    } else {
-        const dtCb = document.getElementById('access-edit-datetime');
-        canEditDateTime = !!(dtCb && dtCb.checked);
-    }
     
     // Dados do usuário
     const userData = {
@@ -7313,7 +7166,6 @@ async function saveUserToFirestore(userId, name, email, role) {
         deletePermissions: role === 'admin' ? accessAreas : [],   // exclusão definida no modal de edição
         canExportPdf: canExportPdf,
         canExportExcel: canExportExcel,
-        canEditDateTime: canEditDateTime,
         receivesNotifications: receivesNotifications,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         status: 'active',
@@ -7737,24 +7589,6 @@ async function openUserEditModal(userId) {
             </div>
         </div>
 
-        <!-- Permissão de data/hora manual nos apontamentos -->
-        <div class="perm-section" id="ue-datetime-section">
-            <div class="perm-section-title"><i class="fas fa-clock"></i> Apontamentos — Data/Hora
-                ${isAdmin ? '<span style="font-size:11px;color:var(--gray);font-weight:400;">&nbsp;— Administradores sempre podem informar manualmente</span>' : ''}
-            </div>
-            <div class="perm-grid">
-                <div class="perm-item">
-                    <label>
-                        <input type="checkbox" id="ue-edit-datetime" ${isAdmin || user.canEditDateTime ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
-                        <i class="fas fa-calendar-edit" style="color:var(--secondary);width:14px;"></i> Pode informar data/hora manualmente nos apontamentos
-                    </label>
-                    <small style="color:var(--gray);display:block;margin-top:4px;margin-left:24px;">
-                        Sem esta permissão, a data e o horário do apontamento são preenchidos automaticamente no momento do registro.
-                    </small>
-                </div>
-            </div>
-        </div>
-
         <!-- Zona de perigo -->
         <div class="danger-zone">
             <div class="danger-zone-title"><i class="fas fa-triangle-exclamation"></i> Ações Sensíveis</div>
@@ -7794,19 +7628,16 @@ function onUeRoleChange() {
     const permsSection = document.getElementById('ue-perms-section');
     const exportPdf   = document.getElementById('ue-export-pdf');
     const exportExcel = document.getElementById('ue-export-excel');
-    const editDateTime = document.getElementById('ue-edit-datetime');
     if (role === 'admin') {
         permsSection.style.opacity = '.7';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cb.disabled = true; });
         if (exportPdf)   { exportPdf.checked = true;   exportPdf.disabled = true; }
         if (exportExcel) { exportExcel.checked = true; exportExcel.disabled = true; }
-        if (editDateTime) { editDateTime.checked = true; editDateTime.disabled = true; }
     } else {
         permsSection.style.opacity = '1';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.disabled = false; });
         if (exportPdf)   exportPdf.disabled = false;
         if (exportExcel) exportExcel.disabled = false;
-        if (editDateTime) editDateTime.disabled = false;
     }
 }
 
@@ -7854,49 +7685,19 @@ async function saveUserEdit() {
         canExportExcel = !!(excelCb && excelCb.checked);
     }
 
-    // Permissão de informar manualmente a data/hora dos apontamentos
-    let canEditDateTime;
-    if (role === 'admin') {
-        canEditDateTime = true;
-    } else {
-        const dtCb = document.getElementById('ue-edit-datetime');
-        canEditDateTime = !!(dtCb && dtCb.checked);
-    }
-
     const btn = document.getElementById('ue-save-btn');
     btn.innerHTML = '<div class="lf-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Salvando…';
     btn.disabled = true;
 
     try {
-        // Buscar documento atual para preservar campos imutáveis (uid, createdAt, createdBy)
-        // A Security Rule valida o documento final mesclado — esses campos precisam estar presentes
-        const currentDoc = await db.collection('users').doc(_ueCurrentUserId).get();
-        const currentData = currentDoc.exists ? currentDoc.data() : {};
+        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions, canExportPdf, canExportExcel };
 
-        const updateData = {
-            uid:       currentData.uid       ?? (user.uid || _ueCurrentUserId),
-            createdAt: currentData.createdAt ?? null,
-            createdBy: currentData.createdBy ?? null,
-            email:     email,
-            name, role, status, receivesNotifications,
-            accessAreas, editPermissions, deletePermissions,
-            canExportPdf, canExportExcel, canEditDateTime
-        };
-
+        // Se o e-mail foi alterado, atualiza no Firestore (Auth requer admin SDK; apenas atualizamos o campo)
         if (email !== user.email) {
+            updateData.email = email;
+            // Tentar atualizar via Identity Toolkit (requer token do próprio usuário — registramos a intenção)
             await tryUpdateUserEmail(user.uid, email);
         }
-
-        console.log('[saveUserEdit] payload enviado:', JSON.stringify({
-            uid: updateData.uid,
-            createdAt: updateData.createdAt,
-            createdBy: updateData.createdBy,
-            role: updateData.role,
-            status: updateData.status,
-            name: updateData.name,
-            email: updateData.email,
-            accessAreas: updateData.accessAreas,
-        }));
 
         await db.collection('users').doc(_ueCurrentUserId).update(updateData);
 
@@ -9087,22 +8888,12 @@ function createTemperatureCard(data, docId) {
     document.getElementById('umid-max').value = '';
     document.getElementById('umid-atual').value = '';
     document.getElementById('temp-notes').value = '';
-    const dataManual = document.getElementById('temp-data-manual');
-    const horaManual = document.getElementById('temp-hora-manual');
-    if (dataManual) dataManual.value = '';
-    if (horaManual) horaManual.value = '';
-    applyDateTimePermissions();
 }
 
 function clearPressureForm() {
     document.getElementById('pressure-value').value = '';
     document.getElementById('correcao-imediata').value = '';
     document.getElementById('pressure-notes').value = '';
-    const dataManual = document.getElementById('pressure-data-manual');
-    const horaManual = document.getElementById('pressure-hora-manual');
-    if (dataManual) dataManual.value = '';
-    if (horaManual) horaManual.value = '';
-    applyDateTimePermissions();
 }
 
 function clearOsmosisDailyForm() {
@@ -9129,11 +8920,6 @@ function clearOsmosisDailyForm() {
         });
     }
     document.getElementById('osmosis-daily-notes').value = '';
-    const dataManual = document.getElementById('osmosis-data-manual');
-    const horaManual = document.getElementById('osmosis-hora-manual');
-    if (dataManual) dataManual.value = '';
-    if (horaManual) horaManual.value = '';
-    applyDateTimePermissions();
 }
 
 function clearMaintenanceForm() {
@@ -9175,11 +8961,9 @@ function clearUserForm() {
     const pdfCb   = document.getElementById('access-export-pdf');
     const excelCb = document.getElementById('access-export-excel');
     const notifCb = document.getElementById('receives-notifications');
-    const dtCb    = document.getElementById('access-edit-datetime');
     if (pdfCb)   pdfCb.checked = false;
     if (excelCb) excelCb.checked = false;
     if (notifCb) notifCb.checked = false;
-    if (dtCb)    dtCb.checked = false;
 }
 
         function showLoginModal() {
@@ -11944,12 +11728,22 @@ function showExportPeriodModal(type, format) {
     }
     _exportPeriodType = type;
     _exportPeriodFormat = format || 'pdf';
+
+    // Tipos que NÃO usam filtro de período (exportam tudo)
+    const noPeriodTypes = ['rooms', 'users'];
+    const usesPeriod = !noPeriodTypes.includes(type);
     
     // Definir datas padrão: último mês
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     document.getElementById('export-date-from').value = firstDay.toISOString().slice(0, 10);
     document.getElementById('export-date-to').value = today.toISOString().slice(0, 10);
+
+    // Mostrar/ocultar a seção de período conforme o tipo
+    const dateRange  = document.getElementById('export-period-daterange');
+    const formatHint = document.getElementById('export-format-hint');
+    if (dateRange)  dateRange.style.display  = usesPeriod ? '' : 'none';
+    if (formatHint) formatHint.style.display = usesPeriod ? 'none' : '';
     
     // Atualizar label do botão conforme o tipo
     const labels = {
@@ -11957,7 +11751,9 @@ function showExportPeriodModal(type, format) {
         pressure: 'Pressão',
         osmosis: 'Osmose',
         maintenance: 'Manutenção',
-        traceability: 'Rastreabilidade'
+        traceability: 'Rastreabilidade',
+        rooms: 'Salas',
+        users: 'Usuários'
     };
     const modal = document.getElementById('export-period-modal');
     modal.querySelector('.export-period-header p').textContent = 
@@ -12011,7 +11807,14 @@ async function confirmExportWithPeriod(format) {
     btn.disabled = true;
     
     try {
-        if (fmt === 'excel') {
+        const noPeriodTypes = ['rooms', 'users'];
+        if (noPeriodTypes.includes(_exportPeriodType)) {
+            if (fmt === 'excel') {
+                await exportToExcel(_exportPeriodType);
+            } else {
+                await exportToPDF(_exportPeriodType);
+            }
+        } else if (fmt === 'excel') {
             await exportToExcelWithPeriod(_exportPeriodType, dateFrom || null, dateTo || null);
         } else {
             await exportToPDFWithPeriod(_exportPeriodType, dateFrom || null, dateTo || null);
