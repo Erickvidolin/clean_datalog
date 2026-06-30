@@ -2267,6 +2267,19 @@ try {
                             <option value="tarde">Tarde</option>
                         </select>
                     </div>
+
+                    <div class="form-group js-record-date-field" style="display:none;">
+                        <label><i class="fas fa-clock" style="margin-right:4px;color:var(--secondary);"></i>Data e Hora do Apontamento:</label>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <input type="text" id="temp-record-date" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" oninput="maskDateInput(this)">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <input type="text" id="temp-record-time" inputmode="numeric" maxlength="5" placeholder="hh:mm" autocomplete="off" oninput="maskTimeInput(this)">
+                            </div>
+                        </div>
+                        <small style="color: var(--gray);">Opcional. Em branco = data e hora atuais. Digite no formato dd/mm/aaaa e hh:mm.</small>
+                    </div>
                     
                     <div class="form-section">
                         <div class="section-title">Temperatura</div>
@@ -2379,6 +2392,19 @@ try {
                             <option value="tarde">Tarde</option>
                         </select>
                     </div>
+
+                    <div class="form-group js-record-date-field" style="display:none;">
+                        <label><i class="fas fa-clock" style="margin-right:4px;color:var(--secondary);"></i>Data e Hora do Apontamento:</label>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <input type="text" id="pressure-record-date" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" oninput="maskDateInput(this)">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <input type="text" id="pressure-record-time" inputmode="numeric" maxlength="5" placeholder="hh:mm" autocomplete="off" oninput="maskTimeInput(this)">
+                            </div>
+                        </div>
+                        <small style="color: var(--gray);">Opcional. Em branco = data e hora atuais. Digite no formato dd/mm/aaaa e hh:mm.</small>
+                    </div>
                     
                     <div class="form-group">
                         <label for="pressure-value">Pressão (Pa):</label>
@@ -2457,6 +2483,18 @@ try {
                                 <label for="condutividade">Resultado observado no condutivímetro de linha (µS/cm):</label>
                                 <input type="number" id="condutividade" step="0.1" min="0">
                                 <small style="color: var(--gray);">Limite: 1.3 µS/cm</small>
+                            </div>
+                            <div class="form-group js-record-date-field" style="display:none;">
+                                <label><i class="fas fa-clock" style="margin-right:4px;color:var(--secondary);"></i>Data e Hora do Apontamento:</label>
+                                <div class="form-row">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <input type="text" id="osmosis-record-date" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" oninput="maskDateInput(this)">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <input type="text" id="osmosis-record-time" inputmode="numeric" maxlength="5" placeholder="hh:mm" autocomplete="off" oninput="maskTimeInput(this)">
+                                    </div>
+                                </div>
+                                <small style="color: var(--gray);">Opcional. Em branco = data e hora atuais. Digite no formato dd/mm/aaaa e hh:mm.</small>
                             </div>
                         </div>
                         
@@ -2976,7 +3014,11 @@ try {
                 <label for="access-export-excel"><i class="fas fa-file-excel" style="color:var(--warning);"></i> Pode gerar Excel</label>
             </div>
         </div>
-        <small style="color: var(--gray);">Define se o usuário pode exportar relatórios em PDF e/ou Excel.</small>
+        <div class="checkbox-group" style="margin-top:8px;">
+            <input type="checkbox" id="access-set-date" value="setdate">
+            <label for="access-set-date"><i class="fas fa-clock" style="color:var(--secondary);"></i> Pode informar a data do apontamento</label>
+        </div>
+        <small style="color: var(--gray);">Define se o usuário pode exportar relatórios e informar a data/hora dos apontamentos.</small>
     </div>
 
     <div class="form-group" style="margin-top: 15px;" id="notifications-section">
@@ -3463,7 +3505,7 @@ function showValidationErrors(errors, context = 'Validação') {
 
         // ====================== VERSÃO DO SISTEMA ======================
         // Atualize APP_VERSION e APP_BUILD a cada release. É exibido na tela de login.
-        const APP_VERSION = '2.7.1';
+        const APP_VERSION = '2.8.1';
         const APP_BUILD   = '2026-06-29';
         function renderAppVersion() {
             const el = document.getElementById('app-version-text');
@@ -3549,7 +3591,8 @@ function showValidationErrors(errors, context = 'Validação') {
                 editPermissions: sortArr(u.editPermissions),
                 deletePermissions: sortArr(u.deletePermissions),
                 canExportPdf: u.canExportPdf === true,
-                canExportExcel: u.canExportExcel === true
+                canExportExcel: u.canExportExcel === true,
+                canSetDate: u.canSetDate === true
             });
         }
 
@@ -3590,9 +3633,11 @@ function showValidationErrors(errors, context = 'Validação') {
                 if (updatedUser.role === 'admin') {
                     updatedUser.canExportPdf = true;
                     updatedUser.canExportExcel = true;
+                    updatedUser.canSetDate = true;
                 } else {
                     if (typeof updatedUser.canExportPdf   !== 'boolean') updatedUser.canExportPdf   = (updatedUser.role === 'qualidade');
                     if (typeof updatedUser.canExportExcel !== 'boolean') updatedUser.canExportExcel = (updatedUser.role === 'qualidade');
+                    if (typeof updatedUser.canSetDate     !== 'boolean') updatedUser.canSetDate     = false;
                 }
 
                 const newSig = permissionSignature(updatedUser);
@@ -4821,9 +4866,11 @@ async function handleUserLogin(user) {
             if (currentUser.role === 'admin') {
                 currentUser.canExportPdf = true;
                 currentUser.canExportExcel = true;
+                currentUser.canSetDate = true;
             } else {
                 if (typeof currentUser.canExportPdf   !== 'boolean') currentUser.canExportPdf   = (currentUser.role === 'qualidade');
                 if (typeof currentUser.canExportExcel !== 'boolean') currentUser.canExportExcel = (currentUser.role === 'qualidade');
+                if (typeof currentUser.canSetDate     !== 'boolean') currentUser.canSetDate     = false;
             }
             
             console.log('✅ Usuário carregado:', currentUser.name, currentUser.role);
@@ -5087,6 +5134,78 @@ function applyExportPermissions() {
     document.querySelectorAll('.js-export-history').forEach(card => {
         card.style.display = showHistory ? '' : 'none';
     });
+
+    // Campo de "data do apontamento" conforme permissão
+    applyRecordDatePermission();
+}
+
+// Pode informar a data/hora do apontamento (admin sempre; demais se liberado)
+function canSetRecordDate() {
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
+    return currentUser.canSetDate === true;
+}
+
+// Mostra/oculta os campos de data/hora nos formulários de apontamento
+function applyRecordDatePermission() {
+    const show = canSetRecordDate();
+    document.querySelectorAll('.js-record-date-field').forEach(el => {
+        el.style.display = show ? '' : 'none';
+    });
+}
+
+// Máscara de digitação para data (dd/mm/aaaa) — só números, insere as barras
+function maskDateInput(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 8);
+    if (v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
+    else if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+    el.value = v;
+}
+// Máscara de digitação para hora (hh:mm) — só números, insere os dois-pontos
+function maskTimeInput(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 4);
+    if (v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2);
+    el.value = v;
+}
+
+// Faz o parse da data (dd/mm/aaaa) + hora (hh:mm) digitadas.
+// Retorna { date: Date|null, error: string }.
+function parseRecordDateTime(dateFieldId, timeFieldId) {
+    const dEl = document.getElementById(dateFieldId);
+    const tEl = document.getElementById(timeFieldId);
+    const dateStr = dEl ? dEl.value.trim() : '';
+    const timeStr = tEl ? tEl.value.trim() : '';
+
+    if (!dateStr && !timeStr) return { date: null, error: '' }; // usa agora
+    if (!dateStr) return { date: null, error: 'Informe a data (dd/mm/aaaa) do apontamento.' };
+
+    const dm = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!dm) return { date: null, error: 'Data inválida. Use o formato dd/mm/aaaa.' };
+    const dia = parseInt(dm[1], 10), mes = parseInt(dm[2], 10), ano = parseInt(dm[3], 10);
+    if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return { date: null, error: 'Data inválida.' };
+
+    let hh = 0, mi = 0;
+    if (timeStr) {
+        const tm = timeStr.match(/^(\d{2}):(\d{2})$/);
+        if (!tm) return { date: null, error: 'Hora inválida. Use o formato hh:mm.' };
+        hh = parseInt(tm[1], 10); mi = parseInt(tm[2], 10);
+        if (hh > 23 || mi > 59) return { date: null, error: 'Hora inválida (00:00 a 23:59).' };
+    }
+    const dt = new Date(ano, mes - 1, dia, hh, mi, 0);
+    // valida data real (ex.: 31/02)
+    if (isNaN(dt.getTime()) || dt.getDate() !== dia || (dt.getMonth() + 1) !== mes) {
+        return { date: null, error: 'Data inexistente no calendário.' };
+    }
+    return { date: dt, error: '' };
+}
+
+// Retorna a data do apontamento: a informada (se permitido e válida) ou agora
+function getRecordCreatedAt(dateFieldId, timeFieldId) {
+    if (canSetRecordDate()) {
+        const r = parseRecordDateTime(dateFieldId, timeFieldId);
+        if (r.date) return r.date;
+    }
+    return new Date();
 }
 
 
@@ -5228,6 +5347,12 @@ async function saveTemperatureData() {
         showWarning('Sala Inválida', 'Por favor, selecione uma sala válida da lista.');
         return;
     }
+
+    // Validar data/hora informada (se houver)
+    if (canSetRecordDate()) {
+        const _dt = parseRecordDateTime('temp-record-date', 'temp-record-time');
+        if (_dt.error) { showWarning('Data/Hora Inválida', _dt.error); return; }
+    }
     
     const tempMin = parseFloat(document.getElementById('temp-min').value);
     const tempMax = parseFloat(document.getElementById('temp-max').value);
@@ -5284,7 +5409,7 @@ async function saveTemperatureData() {
         userId: currentUser.uid,
         userName: currentUser.name,
         userRole: currentUser.role,
-        createdAt: new Date(),
+        createdAt: getRecordCreatedAt('temp-record-date', 'temp-record-time'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
     
@@ -5417,6 +5542,11 @@ function getStatusText(status) {
         return;
     }
 
+    if (canSetRecordDate()) {
+        const _dt = parseRecordDateTime('pressure-record-date', 'pressure-record-time');
+        if (_dt.error) { showWarning('Data/Hora Inválida', _dt.error); return; }
+    }
+
     const data = {
         roomId: roomId,
         roomName: `${room.code} - ${room.name}`,
@@ -5429,7 +5559,7 @@ function getStatusText(status) {
         status: calculatePressureStatus(pressureValue, room.pressureMin, room.pressureMax),
         userId: currentUser.uid,
         userName: currentUser.name,
-        createdAt: new Date(),
+        createdAt: getRecordCreatedAt('pressure-record-date', 'pressure-record-time'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -5480,6 +5610,11 @@ function getStatusText(status) {
         return;
     }
 
+    if (canSetRecordDate()) {
+        const _dt = parseRecordDateTime('osmosis-record-date', 'osmosis-record-time');
+        if (_dt.error) { showWarning('Data/Hora Inválida', _dt.error); return; }
+    }
+
     const data = {
         conductivity: conductivity,
         conductivityStatus: calculateConductivityStatus(conductivity),
@@ -5508,7 +5643,7 @@ function getStatusText(status) {
         notes: document.getElementById('osmosis-daily-notes').value,
         userId: currentUser.uid,
         userName: currentUser.name,
-        createdAt: new Date(),
+        createdAt: getRecordCreatedAt('osmosis-record-date', 'osmosis-record-time'),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -7252,17 +7387,20 @@ async function saveUserToFirestore(userId, name, email, role) {
     }
 
     // Permissões de exportação (PDF/Excel)
-    let canExportPdf, canExportExcel, receivesNotifications;
+    let canExportPdf, canExportExcel, receivesNotifications, canSetDate;
     if (role === 'admin') {
         canExportPdf = true;
         canExportExcel = true;
+        canSetDate = true;
         receivesNotifications = true;
     } else {
         const pdfCb   = document.getElementById('access-export-pdf');
         const excelCb = document.getElementById('access-export-excel');
+        const dateCb  = document.getElementById('access-set-date');
         const notifCb = document.getElementById('receives-notifications');
         canExportPdf   = !!(pdfCb && pdfCb.checked);
         canExportExcel = !!(excelCb && excelCb.checked);
+        canSetDate     = !!(dateCb && dateCb.checked);
         receivesNotifications = ['qualidade','manutencao'].includes(role) && notifCb ? notifCb.checked : false;
     }
     
@@ -7276,6 +7414,7 @@ async function saveUserToFirestore(userId, name, email, role) {
         deletePermissions: role === 'admin' ? accessAreas : [],   // exclusão definida no modal de edição
         canExportPdf: canExportPdf,
         canExportExcel: canExportExcel,
+        canSetDate: canSetDate,
         receivesNotifications: receivesNotifications,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         status: 'active',
@@ -7503,6 +7642,7 @@ async function createCustomToken(email) {
             let exportHtml = '';
             if (canPdf) exportHtml += '<span class="perm-badge edit" style="background:#eafaf1;color:#1e8449;"><i class="fas fa-file-pdf"></i> PDF</span>';
             if (canXls) exportHtml += '<span class="perm-badge edit" style="background:#fef5ec;color:#c45e0f;"><i class="fas fa-file-excel"></i> Excel</span>';
+            if (data.role === 'admin' || data.canSetDate === true) exportHtml += '<span class="perm-badge edit" style="background:#eef2fb;color:#1366c4;"><i class="fas fa-clock"></i> Data</span>';
             if (!exportHtml) exportHtml = '<span style="color:var(--gray);font-size:11px;">—</span>';
             
             row.innerHTML = `
@@ -7696,6 +7836,12 @@ async function openUserEditModal(userId) {
                         <i class="fas fa-file-excel" style="color:var(--warning);width:14px;"></i> Pode gerar Excel
                     </label>
                 </div>
+                <div class="perm-item">
+                    <label>
+                        <input type="checkbox" id="ue-set-date" ${isAdmin || user.canSetDate ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+                        <i class="fas fa-clock" style="color:var(--secondary);width:14px;"></i> Pode informar data do apontamento
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -7738,16 +7884,19 @@ function onUeRoleChange() {
     const permsSection = document.getElementById('ue-perms-section');
     const exportPdf   = document.getElementById('ue-export-pdf');
     const exportExcel = document.getElementById('ue-export-excel');
+    const setDate     = document.getElementById('ue-set-date');
     if (role === 'admin') {
         permsSection.style.opacity = '.7';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = true; cb.disabled = true; });
         if (exportPdf)   { exportPdf.checked = true;   exportPdf.disabled = true; }
         if (exportExcel) { exportExcel.checked = true; exportExcel.disabled = true; }
+        if (setDate)     { setDate.checked = true;     setDate.disabled = true; }
     } else {
         permsSection.style.opacity = '1';
         permsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.disabled = false; });
         if (exportPdf)   exportPdf.disabled = false;
         if (exportExcel) exportExcel.disabled = false;
+        if (setDate)     setDate.disabled = false;
     }
 }
 
@@ -7784,15 +7933,18 @@ async function saveUserEdit() {
     }
 
     // Permissões de exportação
-    let canExportPdf, canExportExcel;
+    let canExportPdf, canExportExcel, canSetDate;
     if (role === 'admin') {
         canExportPdf = true;
         canExportExcel = true;
+        canSetDate = true;
     } else {
         const pdfCb   = document.getElementById('ue-export-pdf');
         const excelCb = document.getElementById('ue-export-excel');
+        const dateCb  = document.getElementById('ue-set-date');
         canExportPdf   = !!(pdfCb && pdfCb.checked);
         canExportExcel = !!(excelCb && excelCb.checked);
+        canSetDate     = !!(dateCb && dateCb.checked);
     }
 
     const btn = document.getElementById('ue-save-btn');
@@ -7800,7 +7952,7 @@ async function saveUserEdit() {
     btn.disabled = true;
 
     try {
-        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions, canExportPdf, canExportExcel };
+        const updateData = { name, role, status, receivesNotifications, accessAreas, editPermissions, deletePermissions, canExportPdf, canExportExcel, canSetDate };
 
         // Se o e-mail foi alterado, atualiza no Firestore (Auth requer admin SDK; apenas atualizamos o campo)
         if (email !== user.email) {
@@ -9004,6 +9156,7 @@ function createTemperatureCard(data, docId) {
 
         // Funções para limpar formulários
    function clearTemperatureForm() {
+    ['temp-record-date','temp-record-time'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
     document.getElementById('temp-min').value = '';
     document.getElementById('temp-max').value = '';
     document.getElementById('temp-atual').value = '';
@@ -9014,12 +9167,14 @@ function createTemperatureCard(data, docId) {
 }
 
 function clearPressureForm() {
+    ['pressure-record-date','pressure-record-time'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
     document.getElementById('pressure-value').value = '';
     document.getElementById('correcao-imediata').value = '';
     document.getElementById('pressure-notes').value = '';
 }
 
 function clearOsmosisDailyForm() {
+    ['osmosis-record-date','osmosis-record-time'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
     document.getElementById('condutividade').value = '';
     document.getElementById('ultima-sanitizacao').value = '';
     document.getElementById('proxima-sanitizacao').value = '';
@@ -9083,9 +9238,11 @@ function clearUserForm() {
     document.querySelectorAll('input[name="access-areas"]').forEach(cb => cb.checked = false);
     const pdfCb   = document.getElementById('access-export-pdf');
     const excelCb = document.getElementById('access-export-excel');
+    const dateCb  = document.getElementById('access-set-date');
     const notifCb = document.getElementById('receives-notifications');
     if (pdfCb)   pdfCb.checked = false;
     if (excelCb) excelCb.checked = false;
+    if (dateCb)  dateCb.checked = false;
     if (notifCb) notifCb.checked = false;
 }
 
