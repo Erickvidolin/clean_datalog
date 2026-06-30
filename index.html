@@ -2177,24 +2177,24 @@ try {
                     <i class="fas fa-tint"></i>
                     <span>Sistema de Osmose</span>
                 </div>
-                <div class="menu-item admin-only" data-page="rooms">
+                <div class="menu-item" data-page="rooms">
                     <i class="fas fa-door-open"></i>
                     <span>Gerenciar Salas</span>
                 </div>
-                <div class="menu-item admin-only" data-page="users">
+                <div class="menu-item" data-page="users">
                     <i class="fas fa-users"></i>
                     <span>Gerenciar Usuários</span>
                 </div>
-                <div class="menu-item admin-only" data-page="traceability">
+                <div class="menu-item" data-page="traceability">
                     <i class="fas fa-history"></i>
                     <span>Rastreabilidade</span>
                 </div>
-                <div class="menu-item admin-only" data-page="reports">
+                <div class="menu-item" data-page="reports">
                     <i class="fas fa-file-pdf"></i>
                     <span>Relatórios</span>
                 </div>
                 <!-- ADICIONAR AO MENU LATERAL (Após o item de Rastreabilidade) -->
-                <div class="menu-item admin-only" data-page="backup">
+                <div class="menu-item" data-page="backup">
                     <i class="fas fa-database"></i>
                     <span>Backup & Restauração</span>
                 </div>
@@ -3505,7 +3505,7 @@ function showValidationErrors(errors, context = 'Validação') {
 
         // ====================== VERSÃO DO SISTEMA ======================
         // Atualize APP_VERSION e APP_BUILD a cada release. É exibido na tela de login.
-        const APP_VERSION = '2.8.1';
+        const APP_VERSION = '2.9.1';
         const APP_BUILD   = '2026-06-29';
         function renderAppVersion() {
             const el = document.getElementById('app-version-text');
@@ -3672,19 +3672,19 @@ function showValidationErrors(errors, context = 'Validação') {
         // Garante que a página ativa ainda é permitida ao usuário atual.
         function ensureCurrentPageAllowed() {
             const activePage = document.querySelector('.page-content.active');
-            if (!activePage) return;
-            const pageId = activePage.id.replace('-page', '');
-            if (checkUserAccess(pageId)) return;
-
-            // Página não permitida -> navegar para uma página sempre acessível
-            const fallback = 'temperature';
+            if (activePage) {
+                const pageId = activePage.id.replace('-page', '');
+                if (checkUserAccess(pageId)) return;
+            }
+            // Página não permitida -> ir para a primeira página acessível
+            let firstAccessible = null;
             document.querySelectorAll('.menu-item').forEach(i => {
-                i.classList.toggle('active', i.getAttribute('data-page') === fallback);
+                const p = i.getAttribute('data-page');
+                if (!firstAccessible && checkUserAccess(p)) firstAccessible = p;
             });
-            document.querySelectorAll('.page-content').forEach(p => {
-                p.classList.toggle('active', p.id === fallback + '-page');
-            });
-            if (typeof updatePageTitle === 'function') updatePageTitle(fallback);
+            if (firstAccessible && typeof navigateToPage === 'function') {
+                navigateToPage(firstAccessible);
+            }
         }
 
         // Logout forçado (conta desativada/removida) com aviso ao usuário.
@@ -5208,6 +5208,44 @@ function getRecordCreatedAt(dateFieldId, timeFieldId) {
     return new Date();
 }
 
+// ── Helpers para os modais de EDIÇÃO de apontamentos ──
+// Gera as <option> de salas (lista global `rooms`), marcando a atual
+function roomOptionsHtml(selectedId) {
+    let opts = (rooms || []).map(r =>
+        `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${r.code} - ${r.name}</option>`
+    ).join('');
+    // Se a sala do registro não está na lista de ativas, inclui mesmo assim
+    if (selectedId && !(rooms || []).some(r => r.id === selectedId)) {
+        opts = `<option value="${selectedId}" selected>Sala atual do registro</option>` + opts;
+    }
+    return opts;
+}
+
+// Converte um createdAt (Timestamp/Date/string) para { date:'dd/mm/aaaa', time:'hh:mm' }
+function createdAtToBR(value) {
+    if (!value) return { date: '', time: '' };
+    const dt = value.toDate ? value.toDate() : new Date(value);
+    if (isNaN(dt.getTime())) return { date: '', time: '' };
+    const p = n => String(n).padStart(2, '0');
+    return {
+        date: `${p(dt.getDate())}/${p(dt.getMonth() + 1)}/${dt.getFullYear()}`,
+        time: `${p(dt.getHours())}:${p(dt.getMinutes())}`
+    };
+}
+
+// Bloco HTML reutilizável de data/hora para o modal de edição
+function editDateTimeFields(prefix, createdAt) {
+    const br = createdAtToBR(createdAt);
+    return `
+        <div class="form-group">
+            <label>Data e Hora do Apontamento:</label>
+            <div class="form-row">
+                <input type="text" id="${prefix}-record-date" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" oninput="maskDateInput(this)" value="${br.date}" style="flex:1;">
+                <input type="text" id="${prefix}-record-time" inputmode="numeric" maxlength="5" placeholder="hh:mm" autocomplete="off" oninput="maskTimeInput(this)" value="${br.time}" style="flex:1;">
+            </div>
+        </div>`;
+}
+
 
 
         function updatePageTitle(page) {
@@ -5837,28 +5875,40 @@ function getStatusText(status) {
 
         const modalContent = `
             <div class="form-group">
+                <label for="edit-temp-room">Sala:</label>
+                <select id="edit-temp-room">${roomOptionsHtml(data.roomId)}</select>
+            </div>
+            <div class="form-group">
+                <label for="edit-temp-period">Período:</label>
+                <select id="edit-temp-period">
+                    <option value="manha" ${data.period === 'manha' ? 'selected' : ''}>Manhã</option>
+                    <option value="tarde" ${data.period === 'tarde' ? 'selected' : ''}>Tarde</option>
+                </select>
+            </div>
+            ${editDateTimeFields('edit-temp', data.createdAt)}
+            <div class="form-group">
                 <label for="edit-temp-min">Temperatura Mínima (°C):</label>
-                <input type="number" id="edit-temp-min" step="0.1" value="${data.tempMin || ''}">
+                <input type="number" id="edit-temp-min" step="0.1" value="${data.tempMin ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-temp-max">Temperatura Máxima (°C):</label>
-                <input type="number" id="edit-temp-max" step="0.1" value="${data.tempMax || ''}">
+                <input type="number" id="edit-temp-max" step="0.1" value="${data.tempMax ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-temp-atual">Temperatura Atual (°C):</label>
-                <input type="number" id="edit-temp-atual" step="0.1" value="${data.tempActual || ''}">
+                <input type="number" id="edit-temp-atual" step="0.1" value="${data.tempActual ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-umid-min">Umidade Mínima (%):</label>
-                <input type="number" id="edit-umid-min" step="0.1" value="${data.humidityMin || ''}">
+                <input type="number" id="edit-umid-min" step="0.1" value="${data.humidityMin ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-umid-max">Umidade Máxima (%):</label>
-                <input type="number" id="edit-umid-max" step="0.1" value="${data.humidityMax || ''}">
+                <input type="number" id="edit-umid-max" step="0.1" value="${data.humidityMax ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-umid-atual">Umidade Atual (%):</label>
-                <input type="number" id="edit-umid-atual" step="0.1" value="${data.humidityActual || ''}">
+                <input type="number" id="edit-umid-atual" step="0.1" value="${data.humidityActual ?? ''}">
             </div>
             <div class="form-group">
                 <label for="edit-temp-notes">Observações:</label>
@@ -5893,8 +5943,20 @@ function getStatusText(status) {
 
                 const modalContent = `
                     <div class="form-group">
+                        <label for="edit-pressure-room">Sala:</label>
+                        <select id="edit-pressure-room">${roomOptionsHtml(data.roomId)}</select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-pressure-period">Período:</label>
+                        <select id="edit-pressure-period">
+                            <option value="manha" ${data.period === 'manha' ? 'selected' : ''}>Manhã</option>
+                            <option value="tarde" ${data.period === 'tarde' ? 'selected' : ''}>Tarde</option>
+                        </select>
+                    </div>
+                    ${editDateTimeFields('edit-pressure', data.createdAt)}
+                    <div class="form-group">
                         <label for="edit-pressure-value">Pressão (Pa):</label>
-                        <input type="number" id="edit-pressure-value" step="1" value="${data.pressure || ''}">
+                        <input type="number" id="edit-pressure-value" step="1" value="${data.pressure ?? ''}">
                     </div>
                     <div class="form-group">
                         <label for="edit-correcao-imediata">Correção Imediata:</label>
@@ -5931,6 +5993,7 @@ function getStatusText(status) {
                 currentEditData = { collection: 'osmosis_daily', id: docId, data: data };
 
                 const modalContent = `
+                    ${editDateTimeFields('edit-osmosis', data.createdAt)}
                     <div class="form-group">
                         <label for="edit-conductivity">Condutividade (µS/cm):</label>
                         <input type="number" id="edit-conductivity" step="0.01" value="${data.conductivity ?? ''}">
@@ -5945,6 +6008,36 @@ function getStatusText(status) {
                     <div class="form-group">
                         <label for="edit-osmosis-abnormality-reason">Motivo da anormalidade:</label>
                         <textarea id="edit-osmosis-abnormality-reason" rows="2">${data.abnormalityReason || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-osmosis-last-sanit">Última Sanitização:</label>
+                            <input type="date" id="edit-osmosis-last-sanit" value="${data.lastSanitization || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-osmosis-next-sanit">Próxima Sanitização:</label>
+                            <input type="date" id="edit-osmosis-next-sanit" value="${data.nextSanitization || ''}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-osmosis-last-clean">Última Higienização:</label>
+                            <input type="date" id="edit-osmosis-last-clean" value="${data.lastCleaning || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-osmosis-next-clean">Próxima Higienização:</label>
+                            <input type="date" id="edit-osmosis-next-clean" value="${data.nextCleaning || ''}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-osmosis-last-collect">Última Coleta:</label>
+                            <input type="date" id="edit-osmosis-last-collect" value="${data.lastCollection || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-osmosis-next-collect">Próxima Coleta:</label>
+                            <input type="date" id="edit-osmosis-next-collect" value="${data.nextCollection || ''}">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="edit-osmosis-notes">Observações:</label>
@@ -6146,75 +6239,105 @@ function getStatusText(status) {
         console.log(`Editando: ${collection}/${docId}`);
         
         switch(collection) {
-            case 'temperature_readings':
+            case 'temperature_readings': {
+                const tRoomId = document.getElementById('edit-temp-room') ? document.getElementById('edit-temp-room').value : originalData.roomId;
+                const tRoom = (rooms || []).find(r => r.id === tRoomId) || null;
                 const tempMin = parseFloat(document.getElementById('edit-temp-min').value);
                 const tempMax = parseFloat(document.getElementById('edit-temp-max').value);
                 const tempActual = parseFloat(document.getElementById('edit-temp-atual').value);
                 const humidityMin = parseFloat(document.getElementById('edit-umid-min').value);
                 const humidityMax = parseFloat(document.getElementById('edit-umid-max').value);
                 const humidityActual = parseFloat(document.getElementById('edit-umid-atual').value);
-                
-                if (isNaN(tempMin) || isNaN(tempMax) || isNaN(tempActual) || 
-                    isNaN(humidityMin) || isNaN(humidityMax) || isNaN(humidityActual)) {
-                    throw new Error('Todos os campos devem ser números válidos');
+
+                if (isNaN(tempActual)) {
+                    throw new Error('Informe a temperatura atual.');
                 }
-                
+                const tDt = parseRecordDateTime('edit-temp-record-date', 'edit-temp-record-time');
+                if (tDt.error) throw new Error(tDt.error);
+
+                const _num = v => (typeof v === 'number' && !isNaN(v)) ? v : null;
+                const specMin = tRoom ? tRoom.tempMin : originalData.tempMin;
+                const specMax = tRoom ? tRoom.tempMax : originalData.tempMax;
+                const specHMin = tRoom ? tRoom.humidityMin : originalData.humidityMin;
+                const specHMax = tRoom ? tRoom.humidityMax : originalData.humidityMax;
+
                 updateData = {
-                    tempMin: tempMin,
-                    tempMax: tempMax,
+                    roomId: tRoomId,
+                    roomName: tRoom ? `${tRoom.code} - ${tRoom.name}` : (originalData.roomName || ''),
+                    period: document.getElementById('edit-temp-period') ? document.getElementById('edit-temp-period').value : originalData.period,
+                    tempMin: _num(tempMin),
+                    tempMax: _num(tempMax),
                     tempActual: tempActual,
-                    humidityMin: humidityMin,
-                    humidityMax: humidityMax,
-                    humidityActual: humidityActual,
+                    humidityMin: _num(humidityMin),
+                    humidityMax: _num(humidityMax),
+                    humidityActual: _num(humidityActual),
                     notes: document.getElementById('edit-temp-notes').value || '',
-                    status: calculateTemperatureStatus(
-                        tempActual,
-                        humidityActual,
-                        originalData.tempMin,
-                        originalData.tempMax,
-                        originalData.humidityMin,
-                        originalData.humidityMax
-                    ),
+                    status: calculateTemperatureStatus(tempActual, _num(humidityActual), specMin, specMax, specHMin, specHMax),
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
                     updatedByName: currentUser.name
                 };
+                if (tDt.date) updateData.createdAt = tDt.date;
                 break;
+            }
                 
-            case 'pressure_readings':
+            case 'pressure_readings': {
+                const pRoomId = document.getElementById('edit-pressure-room') ? document.getElementById('edit-pressure-room').value : originalData.roomId;
+                const pRoom = (rooms || []).find(r => r.id === pRoomId) || null;
                 const pressure = parseInt(document.getElementById('edit-pressure-value').value);
-                
                 if (isNaN(pressure)) {
                     throw new Error('Pressão deve ser um número válido');
                 }
-                
+                const pDt = parseRecordDateTime('edit-pressure-record-date', 'edit-pressure-record-time');
+                if (pDt.error) throw new Error(pDt.error);
+
+                const specPMin = pRoom ? pRoom.pressureMin : originalData.pressureMin;
+                const specPMax = pRoom ? pRoom.pressureMax : originalData.pressureMax;
+
                 updateData = {
+                    roomId: pRoomId,
+                    roomName: pRoom ? `${pRoom.code} - ${pRoom.name}` : (originalData.roomName || ''),
+                    period: document.getElementById('edit-pressure-period') ? document.getElementById('edit-pressure-period').value : originalData.period,
                     pressure: pressure,
                     immediateCorrection: document.getElementById('edit-correcao-imediata').value || '',
                     notes: document.getElementById('edit-pressure-notes').value || '',
-                    status: calculatePressureStatus(pressure, originalData.pressureMin, originalData.pressureMax),
+                    status: calculatePressureStatus(pressure, specPMin, specPMax),
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
                     updatedByName: currentUser.name
                 };
+                if (pDt.date) updateData.createdAt = pDt.date;
                 break;
+            }
 
-            case 'osmosis_daily':
+            case 'osmosis_daily': {
                 const edConductivity = parseFloat(document.getElementById('edit-conductivity').value);
                 if (isNaN(edConductivity)) {
                     throw new Error('Informe uma condutividade válida.');
                 }
+                const oDt = parseRecordDateTime('edit-osmosis-record-date', 'edit-osmosis-record-time');
+                if (oDt.error) throw new Error(oDt.error);
+
+                const _v = id => { const e = document.getElementById(id); return e ? e.value : ''; };
                 updateData = {
                     conductivity: edConductivity,
                     conductivityStatus: calculateConductivityStatus(edConductivity),
                     hasAbnormality: document.getElementById('edit-osmosis-abnormality').value === 'sim',
                     abnormalityReason: document.getElementById('edit-osmosis-abnormality-reason').value || '',
+                    lastSanitization: _v('edit-osmosis-last-sanit'),
+                    nextSanitization: _v('edit-osmosis-next-sanit'),
+                    lastCleaning: _v('edit-osmosis-last-clean'),
+                    nextCleaning: _v('edit-osmosis-next-clean'),
+                    lastCollection: _v('edit-osmosis-last-collect'),
+                    nextCollection: _v('edit-osmosis-next-collect'),
                     notes: document.getElementById('edit-osmosis-notes').value || '',
                     updatedAt: new Date(),
                     updatedBy: currentUser.uid,
                     updatedByName: currentUser.name
                 };
+                if (oDt.date) updateData.createdAt = oDt.date;
                 break;
+            }
 
             case 'osmosis_maintenance':
                 const edProcedure = document.getElementById('edit-maintenance-procedure').value.trim();
@@ -11849,25 +11972,34 @@ function updateMenuVisibility() {
     if (!currentUser) return;
     
     const menuItems = document.querySelectorAll('.menu-item');
+    let firstAccessible = null;
     
     menuItems.forEach(item => {
         const page = item.getAttribute('data-page');
-        
-        // Sempre visível para todos
-        const alwaysVisible = ['temperature', 'pressure', 'osmosis'];
-        
-        if (alwaysVisible.includes(page)) {
-            item.style.display = 'flex';
-            return;
-        }
-        
-        // Verificar acesso para outras páginas
-        if (checkUserAccess(page)) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
+        const allowed = checkUserAccess(page);
+        // Mostra apenas as opções que o usuário tem acesso
+        item.style.display = allowed ? 'flex' : 'none';
+        if (allowed && !firstAccessible) firstAccessible = page;
     });
+
+    // Se a página atualmente ativa não é acessível, ir para a primeira disponível
+    const active = document.querySelector('.menu-item.active');
+    const activePage = active ? active.getAttribute('data-page') : null;
+    if ((!activePage || !checkUserAccess(activePage)) && firstAccessible) {
+        navigateToPage(firstAccessible);
+    }
+}
+
+// Navega para uma página específica (sem exigir clique do usuário)
+function navigateToPage(page) {
+    if (!page || !checkUserAccess(page)) return;
+    document.querySelectorAll('.menu-item').forEach(i => {
+        i.classList.toggle('active', i.getAttribute('data-page') === page);
+    });
+    document.querySelectorAll('.page-content').forEach(p => {
+        p.classList.toggle('active', p.id === page + '-page');
+    });
+    if (typeof updatePageTitle === 'function') updatePageTitle(page);
 }
 
 // Função de diagnóstico
